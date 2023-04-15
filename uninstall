@@ -1,0 +1,97 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# This file is part of the dbx project: https://github.com/tomeichlersmith/dbx
+#
+# Copyright (C) 2021 dbx contributors
+#
+# dbx is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+#
+# dbx is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dbx; if not, see <http://www.gnu.org/licenses/>.
+
+# POSIX
+set -o errexit
+set -o nounset
+
+# Print usage to stdout.
+# Arguments:
+#   None
+# Outputs:
+#   print usage with examples.
+show_help() {
+	cat << EOF
+uninstall --prefix /usr/local
+
+Options:
+	--prefix/-p:		base bath where all files will be deployed (default /usr/local if root, ~/.local if not)
+	--help/-h:		show this message
+	-v:			show more verbosity
+EOF
+}
+
+prefix=""
+verbose=0
+dest_path=""
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+	case $1 in
+		-h | --help)
+			# Call a "show_help" function to display a synopsis, then exit.
+			show_help
+			exit
+			;;
+		-v | --verbose)
+			shift
+			verbose=1
+			;;
+		-p | --prefix)
+			if [ -n "$2" ]; then
+				prefix="$2"
+				shift
+				shift
+			fi
+			;;
+		*) # Default case: If no more options then break out of the loop.
+			break ;;
+	esac
+done
+
+# set verbosity
+if [ "${verbose}" -ne 0 ]; then
+	set -o xtrace
+fi
+
+if  [ -z "${prefix}" ]; then
+	prefix="/usr/local"
+	# in case we're not root, just default to the home directory
+	if [ "$(id -u || true)" -ne 0 ]; then
+		prefix="${HOME}/.local"
+	fi
+fi
+completion_dest_path="${prefix}/share/bash-completion/completions/"
+dest_path="${prefix}/bin"
+man_dest_path="${prefix}/share/man/man1"
+
+
+[ ! -w "${dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${dest_path}" && exit 1
+[ ! -w "${man_dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${man_dest_path}" && exit 1
+
+# uninstall
+rm -f "${dest_path}/dbx"
+for file in "${man_dest_path}/dbx"*; do
+	rm -f "${file}"
+done
+for file in "${completion_dest_path}/dbx"*; do
+	rm -f "${file}"
+done
+
+printf >&2 "\033[1;31m Thank you for using dbx. Uninstall complete.\n\033[0m"

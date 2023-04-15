@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if ! command -v pandoc; then
+	echo '
+Please install "pandoc". This tool is needed to convert markdown to man pages.
+This tool is needed to convert files under docs/usage into man pages for the
+installation.
+'
+	exit 1
+fi
+
+pandoc \
+  --standalone \
+  --metadata title="DBX" \
+  --metadata section=1 \
+  --metadata header="User Manual" \
+  --metadata footer="dbx" \
+	--metadata date="$(date +"%b %Y")" \
+  --to man README.md \
+  -o man/man1/dbx.1
