@@ -22,3 +22,30 @@ dbx_version=0.0.0
 # POSIX
 set -o errexit
 set -o nounset
+
+# create a new dev box
+dbx-create() {
+}
+
+# enter a dev box
+dbx-enter() {
+}
+
+# run the input command in the box
+dbx-run() {
+}
+
+# print a help
+dbx-help() {
+}
+
+case $1 in
+  create|enter|run|help)
+    dbx-${1} ${@:2}
+    exit $?
+    ;;
+  *)
+    dbx-${DBX_DEFAULT:-run} $@
+    exit $?
+    ;;
+esac
