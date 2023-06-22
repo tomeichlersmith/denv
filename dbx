@@ -25,14 +25,49 @@ set -o nounset
 
 # create a new dev box
 dbx-create() {
+  if command -v apptainer; then
+    apptainer build NAME.sif docker://IMAGE
+  elif command -v singularity; then
+    singularity build NAME.sif docker://IMAGE
+  elif command -v podman; then
+    podman create --name NAME IMAGE
+  elif command -v docker; then
+    docker create --name NAME IMAGE
+  else
+    echo "ERROR: A supported container runner is not installed."
+  fi
 }
 
 # enter a dev box
 dbx-enter() {
+  apptainer run \
+    --home HOME \
+    --env "PS1=${PS1}" \
+    --hostname NAME.$(uname -n) \
+    /bin/bash -i
+
+  singularity run \
+    --home HOME \
+    --env "PS1=${PS1}" \
+    --hostname NAME.$(uname -n) \
+    /bin/bash -i
+
+  podman run \
+    --home HOME
+    --env "PS1=${PS1}" \
+    --hostname NAME.$(uname -n) \
+    /bin/bash -i
+
+  docker run \
+    --home HOME
+    --env "PS1=${PS1}" \
+    --hostname NAME.$(uname -n) \
+    /bin/bash -i
 }
 
 # run the input command in the box
 dbx-run() {
+  dbx-enter -- $@
 }
 
 # print a help
