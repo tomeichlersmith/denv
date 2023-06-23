@@ -20,7 +20,7 @@ jobs:
       denv_changed: ${{ steps.check_file_changed.outputs.denv_changed }}
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Checkout as many commits as needed for the diff
           fetch-depth: 2
@@ -39,19 +39,16 @@ jobs:
     needs: check_changes
     if: needs.check_changes.outputs.denv_changed == 'True'
     steps:
-      - uses: actions/checkout@v2
-      # Fetch from compatibility table all the distros supported
+      - uses: actions/checkout@v3
       - id: generate
         run: |
           sudo apt-get update
           sudo apt-get install pandoc
           ./man/gen-man
-
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          branch: main
-          commit_message: Automatic Man Page Update
-          commit_options: '--no-verify --signoff'
-          commit_user_name: denv-docs-bot
-          commit_user_email: denv-docs-bot@users.noreply.github.com
-          commit_author: denv-docs-bot <actions@github.com>
+      - name: push updated manual
+        run: |
+          git config --global user.name denv-docs-bot
+          git config --global user.email denv-docs-bot@users.noreply.github.com
+          git add man
+          git commit -m "Auto Man Page Update"
+          git push
