@@ -23,64 +23,293 @@ denv_version=0.0.0
 set -o errexit
 set -o nounset
 
-# create a new dev box
-denv-create() {
-  if command -v apptainer; then
-    apptainer build NAME.sif docker://IMAGE
-  elif command -v singularity; then
-    singularity build NAME.sif docker://IMAGE
-  elif command -v podman; then
-    podman create --name NAME IMAGE
-  elif command -v docker; then
-    docker create --name NAME IMAGE
-  else
-    echo "ERROR: A supported container runner is not installed."
+###################################################################################################
+# container runner interface
+#
+# all container runners must implement three functions
+# 1. _denv_image_exists : check ${denv_image} exists locally
+# 2. _denv_pull : pull down ${denv_image} to a local copy
+# 3. _denv_run : run the container
+#   - entrypoint is the denv-entrypoint program 
+#   - use image ${denv_image} 
+#   - set home directory ${denv_home}
+#   - set user and group in container to current user and group
+#   - attach all mounts in space-separated list "${denv_mounts}"
+#   - pass on all current environment variables
+#   - set SHELL to be ${denv_shell} in container
+###################################################################################################
+_denv_image_exists() {
+  echo "checking if ${denv_image} exists..."
+  return 1
+}
+_denv_pull() {
+  echo "pulling ${denv_image}"
+  return 0
+}
+_denv_run() {
+  echo "running ${denv_image} with "
+  echo "  HOME=\"${denv_home}\", MOUNTS=\"${denv_mounts}\", SHELL=\"${denv_shell}\""
+  echo "  PWD=\"${PWD}\""
+  return 0
+}
+
+###################################################################################################
+# denv internal helper functions
+###################################################################################################
+
+# deduce where the denv config is being stored
+# aka find the workspace
+_denv_deduce_workspace() {
+  # start from PWD and go up directories until file .denv
+  # or reach root directory
+  denv_workspace="${PWD}"
+  while [ "${denv_workspace}" != "/" ]; do
+    if [ -d "${denv_workspace}/.denv" ]; then
+      return 0
+    fi
+    denv_workspace="$(dirname ${denv_workspace} || true)"
+  done
+  echo "ERROR: Unable to deduce a denv workspace!"
+  echo "       Are you in a denv workspace? Do you still need to 'denv init'?"
+  return 1
+}
+
+# load the denv config from the input workspace
+# Arguments
+#  ${denv_workspace} env var
+# Outputs
+#  loaded config into runtime shell environment
+_denv_load_config() {
+  . "${denv_workspace}"/.denv/config
+}
+
+# write the current config to the file
+# Arguments
+#  ${denv_workspace} env var
+#  env - config variables from runtime env
+_denv_write_config() {
+  config="${denv_workspace}/.denv/config"
+  echo "denv_home=\"${denv_home}\"" > "${config}"
+  echo "denv_image=\"${denv_image}\"" >> "${config}"
+  echo "denv_shell=\"${denv_shell}\"" >> "${config}"
+  echo "denv_mounts=\"${denv_mounts}\"" >> "${config}"
+}
+
+# edit the home directory of the denv
+# Arguments
+#  1 - path to new home directory for the denv
+_denv_edit_home() {
+  new_home="$1"
+  if [ ! -d "${new_home}" ]; then
+    echo "New home directory does not exist."
+    return 1
+  fi
+  denv_mounts="${denv_home} ${denv_mounts}"
+  denv_home="${new_home}"
+}
+
+# update the image used by the denv
+# Arguments
+#  1 - new image for the denv
+_denv_edit_image() {
+  denv_image="$1"
+  if ! _denv_image_exists; then
+    _denv_pull
   fi
 }
 
-# enter a dev box
-denv-enter() {
-  apptainer run \
-    --home HOME \
-    --env "PS1=${PS1}" \
-    --hostname NAME.$(uname -n) \
-    /bin/bash -i
-
-  singularity run \
-    --home HOME \
-    --env "PS1=${PS1}" \
-    --hostname NAME.$(uname -n) \
-    /bin/bash -i
-
-  podman run \
-    --home HOME
-    --env "PS1=${PS1}" \
-    --hostname NAME.$(uname -n) \
-    /bin/bash -i
-
-  docker run \
-    --home HOME
-    --env "PS1=${PS1}" \
-    --hostname NAME.$(uname -n) \
-    /bin/bash -i
+# set the shell to be used in the container
+# Arguments
+#  1 - command to use as shell in the container
+_denv_edit_shell() {
+  denv_shell="$1"
 }
 
-# run the input command in the box
-denv-run() {
-  denv-enter -- $@
+# add another mount point for the container
+# Arguments
+#  1 - path to directory to mount to container
+_denv_edit_mounts() {
+  new_mount="$1"
+  case "$1" in
+    /*)
+      # this is a full path
+      if [ -d "$1" ]; then
+        denv_mounts="$1 ${denv_mounts}"
+        return 0
+      else
+        echo "ERROR: '$1' does not exist."
+        return 1
+      fi
+      ;;
+    *)
+      echo "ERROR: '$1' is not a full path"
+      return 1
+      ;;
+  esac
 }
 
-# print a help
-denv-help() {
+# edit some config variable
+# Arguments
+#  1 - varible to edit
+#  2 - new value for that variable
+_denv_edit_help() {
+  cat <<\HELP
+
+  denv edit VARIABLE VALUE
+
+ VARIABLES
+  home    set a path to a home directory for the denv
+  image   set the image to be used by the denv
+  shell   set the shell to be used in the denv
+  mounts  add another mount to be accessible in the denv
+
+HELP
+}
+_denv_edit() {
+  if [ $# -eq 0 ]; then
+    _denv_edit_help
+    echo " Provide a variable and a value to edit"
+    return 0
+  fi
+  _denv_deduce_workspace
+  _denv_load_config
+  case "$1" in
+    home|image|shell|mounts)
+      cmd=_denv_edit_${1}
+      shift
+      if [ "$#" -eq 0 ]; then
+        echo "ERROR: editing a variable requires a value."
+        return 1
+      fi
+      ${cmd} "$1"
+      _denv_write_config
+      return $?
+      ;;
+    help|-h|--help)
+      _denv_edit_help
+      return 0
+      ;;
+    *)
+      echo "ERROR: Unrecognized config variable '$1'"
+      return 1
+      ;;
+  esac
 }
 
-case $1 in
-  create|enter|run|help)
-    denv-${1} ${@:2}
-    exit $?
-    ;;
-  *)
-    denv-${DBX_DEFAULT:-run} $@
-    exit $?
-    ;;
-esac
+# create a new denv workspace
+_denv_init_help() {
+  cat <<\HELP
+
+  denv init IMAGE [WORKSPACE]
+
+ ARGUMENT
+  IMAGE      : the container image to use for running the denv
+  WORKSPACE  : the directory to create the denv for
+               optional, defaults to present working directory
+
+HELP
+}
+_denv_init() {
+  # check for help request
+  if [ $# -eq 0 ]; then
+    _denv_init_help
+    echo " Provide at least an image to use for running"
+    return 1
+  fi
+  case "$1" in
+    help|-h|-help)
+      _denv_init_help
+      return 0
+      ;;
+  esac
+  # image - first positional and only required argument
+  image="$1"
+  shift
+  # workspace - second positional argument or PWD
+  if [ "$#" -eq 0 ]; then
+    denv_workspace="${PWD}"
+  else
+    denv_workspace="$1"
+  fi
+
+  # check if we already been init'ed
+  if [ -d "${denv_workspace}/.denv" ];then
+    read -p "This workspace already has a denv. Would you like to overwrite it? [Y/n] " ans
+    case "${ans}" in
+      Y|y)
+        # delete old denv and continue below
+        rm -rf "${denv_workspace}/.denv"
+        ;;
+      *)
+        echo "Exiting without modifying..."
+        return 0
+        ;;
+    esac
+  fi
+
+  # we have a clean workspace directory, lets make a new denv
+  denv_home="${denv_workspace}"
+  denv_image="${image}"
+  denv_shell="/bin/bash -i"
+  denv_mounts=""
+  mkdir "${denv_workspace}/.denv"
+  _denv_write_config
+
+  if ! _denv_image_exists; then
+    _denv_pull
+  fi
+}
+
+# root program denv
+_denv_help() {
+  cat <<\HELP
+
+  denv [COMMAND] [args...]
+
+ DESCRIPTION
+  interact with a containerized developers environment
+
+  If not COMMAND is provided, open an interactive shell in
+  the currently configured denv.
+
+ COMMANDS
+  init  : initialize a new denv with an image
+  edit  : modify current denv configuration
+  help  : print this help and exit
+  <cmd> : run <cmd> inside denv container
+
+HELP
+}
+_denv() {
+  if [ $# -eq 0 ]; then
+    _denv_deduce_workspace
+    _denv_load_config
+    _denv_run
+    return $?
+  fi
+
+  case "$1" in
+    help|-h|--help)
+      _denv_help
+      return 0
+      ;;
+    edit)
+      shift
+      _denv_edit $@
+      return $?
+      ;;
+    init)
+      shift
+      _denv_init $@
+      return $?
+      ;;
+    *)
+      _denv_deduce_workspace
+      _denv_load_config
+      _denv_run $@
+      return $?
+      ;;
+  esac
+}
+
+_denv $@
