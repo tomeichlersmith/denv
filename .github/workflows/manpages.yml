@@ -35,6 +35,8 @@ jobs:
           fi
 
   gen_man:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.denv_changed == 'True'
