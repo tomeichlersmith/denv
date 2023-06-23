@@ -1,21 +1,21 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 #
-# This file is part of the dbx project: https://github.com/tomeichlersmith/dbx
+# This file is part of the denv project: https://github.com/tomeichlersmith/denv
 #
-# Copyright (C) 2021 dbx contributors
+# Copyright (C) 2021 denv contributors
 #
-# dbx is free software; you can redistribute it and/or modify it
+# denv is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3
 # as published by the Free Software Foundation.
 #
-# dbx is distributed in the hope that it will be useful, but
+# denv is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with dbx; if not, see <http://www.gnu.org/licenses/>.
+# along with denv; if not, see <http://www.gnu.org/licenses/>.
 
 # POSIX
 set -o errexit
@@ -86,12 +86,12 @@ man_dest_path="${prefix}/share/man/man1"
 [ ! -w "${man_dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${man_dest_path}" && exit 1
 
 # uninstall
-rm -f "${dest_path}/dbx"
-for file in "${man_dest_path}/dbx"*; do
+rm -f "${dest_path}/denv"
+for file in "${man_dest_path}/denv"*; do
 	rm -f "${file}"
 done
-for file in "${completion_dest_path}/dbx"*; do
+for file in "${completion_dest_path}/denv"*; do
 	rm -f "${file}"
 done
 
-printf >&2 "\033[1;31m Thank you for using dbx. Uninstall complete.\n\033[0m"
+printf >&2 "\033[1;31m Thank you for using denv. Uninstall complete.\n\033[0m"

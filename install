@@ -1,21 +1,21 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 #
-# This file is part of the dbx project: https://github.com/tomeichlersmith/dbx
+# This file is part of the denv project: https://github.com/tomeichlersmith/denv
 #
-# Copyright (C) 2021 dbx contributors
+# Copyright (C) 2021 denv contributors
 #
-# dbx is free software; you can redistribute it and/or modify it
+# denv is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3
 # as published by the Free Software Foundation.
 #
-# dbx is distributed in the hope that it will be useful, but
+# denv is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with dbx; if not, see <http://www.gnu.org/licenses/>.
+# along with denv; if not, see <http://www.gnu.org/licenses/>.
 
 # POSIX
 set -o errexit
@@ -99,16 +99,16 @@ curr_dir=$(dirname "$0")
 cd "${curr_dir}" || exit 1
 
 # if files are available, install files in dest directory
-if [ -e "${curr_dir}/dbx" ]; then
+if [ -e "${curr_dir}/denv" ]; then
   if [ "${devel}" -ne 0 ]; then
     copy="ln -sf -t"
-    if ! ${copy} "${dest_path}" "${PWD}/dbx"; then
+    if ! ${copy} "${dest_path}" "${PWD}/denv"; then
       printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
       exit 1
     fi
   else
     copy="install -D -m 0644 -t"
-    if ! install -D -m 0755 -t "${dest_path}" dbx; then
+    if ! install -D -m 0755 -t "${dest_path}" denv; then
       printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
       exit 1
     fi
@@ -140,10 +140,10 @@ else
 
   printf >&2 "\033[1;31m Downloading...\n\033[0m"
   if [ "${next}" -eq 0 ]; then
-    release_ver="tomeichlersmith/dbx/archive/refs/tags/${version}.tar.gz"
+    release_ver="tomeichlersmith/denv/archive/refs/tags/${version}.tar.gz"
     release_name=$(echo "${release_ver}" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$')
   else
-   release_ver="tomeichlersmith/dbx/archive/refs/heads/main.tar.gz"
+   release_ver="tomeichlersmith/denv/archive/refs/heads/main.tar.gz"
    release_name="main"
   fi
   # go in tmp
@@ -159,11 +159,11 @@ else
     tar xf "${release_name}"
   fi
   # enter source
-  cd "dbx-$(echo "${release_name}" | sed 's|.tar.gz||' || true)"
+  cd "denv-$(echo "${release_name}" | sed 's|.tar.gz||' || true)"
 
   # deploy
   copy="install -D -m 0644 -t"
-  if ! install -D -m 0755 -t "${dest_path}" dbx; then
+  if ! install -D -m 0755 -t "${dest_path}" denv; then
     printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
     exit 1
   fi
@@ -197,6 +197,6 @@ case "${PATH}" in
     ;;
   *)
     printf >&2 "\033[1;31m Unable to find %s in PATH.\n\033[0m" "${dest_path}"
-    printf >&2 "\033[1;31m Be sure that %s is in your \$PATH environment variable for dbx to work.\n\033[0m" "${dest_path}"
+    printf >&2 "\033[1;31m Be sure that %s is in your \$PATH environment variable for denv to work.\n\033[0m" "${dest_path}"
     ;;
 esac

@@ -1,30 +1,30 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 #
-# This file is part of the dbx project: https://github.com/tomeichlersmith/dbx
+# This file is part of the denv project: https://github.com/tomeichlersmith/denv
 #
-# Copyright (C) 2021 dbx contributors
+# Copyright (C) 2021 denv contributors
 #
-# dbx is free software; you can redistribute it and/or modify it
+# denv is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3
 # as published by the Free Software Foundation.
 #
-# dbx is distributed in the hope that it will be useful, but
+# denv is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with dbx; if not, see <http://www.gnu.org/licenses/>.
+# along with denv; if not, see <http://www.gnu.org/licenses/>.
 
-dbx_version=0.0.0
+denv_version=0.0.0
 
 # POSIX
 set -o errexit
 set -o nounset
 
 # create a new dev box
-dbx-create() {
+denv-create() {
   if command -v apptainer; then
     apptainer build NAME.sif docker://IMAGE
   elif command -v singularity; then
@@ -39,7 +39,7 @@ dbx-create() {
 }
 
 # enter a dev box
-dbx-enter() {
+denv-enter() {
   apptainer run \
     --home HOME \
     --env "PS1=${PS1}" \
@@ -66,21 +66,21 @@ dbx-enter() {
 }
 
 # run the input command in the box
-dbx-run() {
-  dbx-enter -- $@
+denv-run() {
+  denv-enter -- $@
 }
 
 # print a help
-dbx-help() {
+denv-help() {
 }
 
 case $1 in
   create|enter|run|help)
-    dbx-${1} ${@:2}
+    denv-${1} ${@:2}
     exit $?
     ;;
   *)
-    dbx-${DBX_DEFAULT:-run} $@
+    denv-${DBX_DEFAULT:-run} $@
     exit $?
     ;;
 esac

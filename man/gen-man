@@ -14,7 +14,7 @@ pandoc \
   --metadata title="DBX" \
   --metadata section=1 \
   --metadata header="User Manual" \
-  --metadata footer="dbx" \
+  --metadata footer="denv" \
 	--metadata date="$(date +"%b %Y")" \
   --to man README.md \
-  -o man/man1/dbx.1
+  -o man/man1/denv.1
