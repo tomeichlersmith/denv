@@ -57,6 +57,18 @@ _denv_run() {
 # denv internal helper functions
 ###################################################################################################
 
+# print each argument on its own line with the first line
+# prefixed with "ERROR: ".
+_denv_error() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf >&2 "       %s\n" "$1"
+    shift
+  done
+  printf >&2 "\033[0m"
+}
+
 # deduce where the denv config is being stored
 # aka find the workspace
 _denv_deduce_workspace() {
@@ -69,8 +81,8 @@ _denv_deduce_workspace() {
     fi
     denv_workspace="$(dirname "${denv_workspace}" || true)"
   done
-  echo "ERROR: Unable to deduce a denv workspace!"
-  echo "       Are you in a denv workspace? Do you still need to 'denv init'?"
+  _denv_error "Unable to deduce a denv workspace!" \
+    "Are you in a denv workspace? Do you still need to 'denv init'?"
   return 1
 }
 
@@ -99,24 +111,36 @@ _denv_write_config() {
   } > "${config}"
 }
 
-# edit the home directory of the denv
+# print the current denv config
+# Arguments
+#  all denv_* env vars
+_denv_config_print() {
+  printf "denv_home=\"%s\"\ndenv_image=\"%s\"\ndenv_shell=\"%s\"\ndenv_mounts=\"%s\"\n" \
+    "${denv_home}" "${denv_image}" "${denv_shell}" "${denv_mounts}"
+}
+
+# config the home directory of the denv
 # Arguments
 #  1 - path to new home directory for the denv
-_denv_edit_home() {
+# Outputs
+#  adds the old home to denv_mounts
+#  sets denv_home to the new home
+_denv_config_home() {
   new_home="$1"
   if [ ! -d "${new_home}" ]; then
-    echo "New home directory does not exist."
+    _denv_error "New home directory does not exist."
     return 1
   fi
   denv_mounts="${denv_home} ${denv_mounts}"
   denv_home="${new_home}"
 }
 
-# update the image used by the denv
+# pull down the ${denv_image} if it doesn't exist
+# locally, if it does exist locally, check
+# with the user if they wish for denv to pull
 # Arguments
-#  1 - new image for the denv
-_denv_edit_image() {
-  denv_image="$1"
+#  denv_image (same as _denv_image_exists and _denv_pull)
+_denv_config_checked_pull() {
   # I do want to fail-quiet here and so I implicitly
   # disable the 'set -e' flag which would normally
   # exit the program with any non-zero exit status
@@ -137,78 +161,118 @@ _denv_edit_image() {
   fi
 }
 
-# set the shell to be used in the container
+# update the image used by the denv
 # Arguments
-#  1 - command to use as shell in the container
-_denv_edit_shell() {
-  denv_shell="$1"
-}
-
-# add another mount point for the container
-# Arguments
-#  1 - path to directory to mount to container
-_denv_edit_mounts() {
+#  1 - new image for the denv
+_denv_config_image() {
   case "$1" in
-    /*)
-      # this is a full path
-      if [ -d "$1" ]; then
-        denv_mounts="$1 ${denv_mounts}"
-        return 0
-      else
-        echo "ERROR: '$1' does not exist."
-        return 1
-      fi
+    pull)
+      # if argument is keyword 'pull' then we simply
+      # pull down with the currently configured image tag
+      _denv_pull
       ;;
     *)
-      echo "ERROR: '$1' is not a full path"
-      return 1
+      # any other argument should be treated as the 
+      # new image tag to use for the denv
+      denv_image="$1"
+      _denv_config_checked_pull
       ;;
   esac
 }
 
-# edit some config variable
+# set the shell to be used in the container
 # Arguments
-#  1 - varible to edit
+#  1+ - command to use as shell in the container
+# Outputs
+#  sets denv_shell to the entire list of arguments
+_denv_config_shell() {
+  denv_shell="$*"
+}
+
+# add another mount point for the container
+# Arguments
+#  1+ - path to directory to mount to container
+# Outputs
+#  updates denv_mounts to include passed directories
+_denv_config_mounts() {
+  while [ "$#" -gt "0" ]; do
+    case "$1" in
+      /*)
+        # this is a full path
+        if [ -d "$1" ]; then
+          denv_mounts="$1 ${denv_mounts}"
+        else
+          _denv_error "'$1' does not exist."
+          return 1
+        fi
+        ;;
+      *)
+        _denv_error "'$1' is not a full path"
+        return 1
+        ;;
+    esac
+    shift
+  done
+}
+
+# config some config variable
+# Arguments
+#  1 - varible to config
 #  2 - new value for that variable
-_denv_edit_help() {
+_denv_config_help() {
   cat <<\HELP
 
-  denv edit VARIABLE VALUE
+  denv config [help|-h|--help]
+  denv config print
+  denv config home HOMEDIR
+  denv config image [pull|IMAGE]
+  denv config mounts DIR0 [DIR1 DIR2 ...]
+  denv config shell SHELL
 
- VARIABLES
-  home    set a path to a home directory for the denv
-  image   set the image to be used by the denv
-  shell   set the shell to be used in the denv
-  mounts  add another mount to be accessible in the denv
+ COMMANDS
+  help    print this help and exit
+  print   print the deduced config for viewing
+  home    set the directory the denv should use as its home directory
+  image   set the image you wish to use
+          the special keyword 'pull' can be used to
+          not change the image being used but to re-download
+          the same tag from the remote repository
+  mounts  add one or more directories to be mounted to the denv
+  shell   change which program is executed when opening
+          the denv without any arguments
 
 HELP
 }
-_denv_edit() {
+_denv_config() {
   if [ $# -eq 0 ]; then
-    _denv_edit_help
-    echo " Provide a variable and a value to edit"
+    _denv_config_help
     return 0
   fi
   _denv_deduce_workspace
   _denv_load_config
   case "$1" in
+    print)
+      cmd="_denv_config_${1}"
+      ${cmd}
+      ;;
     home|image|shell|mounts)
-      cmd=_denv_edit_${1}
-      shift
-      if [ "$#" -eq 0 ]; then
-        echo "ERROR: editing a variable requires a value."
+      cmd="_denv_config_${1}"
+      if [ "$#" -eq "1" ]; then
+        _denv_config_help
+        _denv_error "$1 requires an argument."
         return 1
       fi
-      ${cmd} "$1"
+      shift
+      # I think I know what I'm doing
+      # shellcheck disable=SC2068
+      ${cmd} $@ 
       _denv_write_config
-      return $?
       ;;
     help|-h|--help)
-      _denv_edit_help
-      return 0
+      _denv_config_help
       ;;
     *)
-      echo "ERROR: Unrecognized config variable '$1'"
+      _denv_error "Unrecognized config argument '$1'"
       return 1
       ;;
   esac
@@ -231,7 +295,7 @@ _denv_init() {
   # check for help request
   if [ $# -eq 0 ]; then
     _denv_init_help
-    echo " Provide at least an image to use for running"
+    _denv_error "Provide at least an image to use for running"
     return 1
   fi
   case "$1" in
@@ -276,31 +340,14 @@ _denv_init() {
   mkdir "${denv_workspace}/.denv"
   _denv_write_config
   cat > "${denv_workspace}/.denv/.gitignore" <<\GITIGNORE
-# ignore directory storing image files for some runners
-images/
-# ignore lock file signaling to the entrypoint script that
-# the home has already been initialized
-home-init-lock
+# ignore everything in this directory
+*
+# except the config which folks might want to share
+# across many computers
+!config
 GITIGNORE
 
-  # I do want to fail-quiet here and so I implicitly
-  # disable the 'set -e' flag which would normally
-  # exit the program with any non-zero exit status
-  # shellcheck disable=SC2310
-  if ! _denv_image_exists; then
-    _denv_pull
-  else
-    printf "%s already exists on this computer - re-pull it? [Y/n] " "${denv_image}"
-    read -r ans
-    case "${ans}" in
-      Y|y)
-        _denv_pull
-        ;;
-      *)
-        echo "Not pulling ${denv_image}..."
-        ;;
-    esac
-  fi
+  _denv_config_checked_pull
 }
 
 # print the denv version
@@ -321,10 +368,11 @@ _denv_help() {
   the currently configured denv.
 
  COMMANDS
-  init  : initialize a new denv with an image
-  edit  : modify current denv configuration
-  help  : print this help and exit
-  <cmd> : run <cmd> inside denv container
+  version : print the version of denv
+  init    : initialize a new denv with an image
+  config  : modify current denv configuration
+  help    : print this help and exit
+  <cmd>   : run <cmd> inside denv container
 
 HELP
 }
@@ -341,7 +389,7 @@ _denv() {
       _denv_help
       return 
       ;;
-    version|help|edit|init)
+    version|help|config|init)
       cmd="_denv_${1}"
       shift
       # I think I know what I'm doing here

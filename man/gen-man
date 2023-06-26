@@ -11,7 +11,7 @@ fi
 
 pandoc \
   --standalone \
-  --metadata title="DBX" \
+  --metadata title="DENV" \
   --metadata section=1 \
   --metadata header="User Manual" \
   --metadata footer="denv" \
