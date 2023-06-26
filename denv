@@ -27,6 +27,34 @@ if [ -n "${DENV_DEBUG+x}" ]; then
   set -x
 fi
 
+if [ -n "${DENV_INFO+x}" ]; then
+  _denv_info() {
+    printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
+    shift
+    while [ "$#" -gt "0" ]; do
+      printf '       %s\n' "$1"
+      shift
+    done
+    printf "\033[0m"
+  }
+else
+  _denv_info() {
+    :
+  }
+fi
+
+# print each argument on its own line with the first line
+# prefixed with "ERROR: ".
+_denv_error() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf >&2 "       %s\n" "$1"
+    shift
+  done
+  printf >&2 "\033[0m"
+}
+
 ###################################################################################################
 # helper functions that can be shared across runners
 ###################################################################################################
@@ -61,7 +89,7 @@ _denv_mounts_to_args() {
 ###################################################################################################
 # container runner interface
 #
-# all container runners must implement four functions
+# all container runners must edit four functions
 # 1. _denv_runner : print name and version of runner to stdout
 # 2. _denv_image_exists : check ${denv_image} exists locally
 #   - return 0 if it does exist, and 1 if it doesn't exist
@@ -79,40 +107,104 @@ _denv_mounts_to_args() {
 #   - pass on all current environment variables
 #   - set SHELL to be ${denv_shell} in container
 ###################################################################################################
+
 _denv_runner() {
-  echo "norunner v0.0.0"
+  case "${denv_runner}" in
+    docker|podman)
+      ${denv_runner} --version
+      ;;
+    norunner)
+      echo "norunner v0.0.0"
+      ;;
+    *)
+      _denv_error "This should never happen."
+      exit 125
+      ;;
+  esac
 }
 _denv_image_exists() {
-  echo "checking if ${denv_image} exists..."
-  if [ ! -d "${denv_image_cache}" ]; then
-    return 1
-  fi
-  # I want to ignore the return value of this function since it
-  # is just writing a hidden filename for caching the image used by denv
-  # shellcheck disable=SC2312
-  test -f "${denv_image_cache}/$(_denv_image_to_filename)"
-  return $?
+  _denv_info "checking if ${denv_image} exists"
+  case "${denv_runner}" in
+    docker|podman)
+      images_matching_tag=$(${denv_runner} images -q "${denv_image}" 2> /dev/null)
+      test -z "${images}"
+      return $?
+      ;;
+    norunner)
+      [ -d "${denv_image_cache}" ] || return 1;
+      # I want to ignore the return value of this function since it
+      # is just writing a hidden filename for caching the image used by denv
+      # shellcheck disable=SC2312
+      test -f "${denv_image_cache}/$(_denv_image_to_filename)"
+      return $?
+      ;;
+    *)
+      _denv_error "This should never happen"
+      return 125
+      ;;
+  esac
 }
 _denv_pull() {
-  echo "pulling ${denv_image}"
-  image_cache="${denv_workspace}/.denv/images"
-  mkdir -p "${image_cache}"
-  # I want to ignore the return value of this function since it
-  # is just writing a hidden filename for caching the image used by denv
-  # shellcheck disable=SC2312
-  touch "${image_cache}/$(_denv_image_to_filename)"
-  return 0
+  _denv_info "pulling ${denv_image}"
+  case "${denv_runner}" in
+    docker)
+      docker pull "${denv_image}"
+      ;;
+    podman)
+      podman pull "${denv_image}"
+      ;;
+    norunner)
+      image_cache="${denv_workspace}/.denv/images"
+      mkdir -p "${image_cache}"
+      # I want to ignore the return value of this function since it
+      # is just writing a hidden filename for caching the image used by denv
+      # shellcheck disable=SC2312
+      touch "${image_cache}/$(_denv_image_to_filename)"
+      ;;
+    *)
+      _denv_error "This should never happen"
+      return 125
+      ;;
+  esac
 }
 _denv_run() {
-  echo "running ${denv_image} with "
-  echo "  HOME=\"${denv_home}\""
-  echo "  SHELL=\"${denv_shell}\""
-  echo "  PWD=\"${PWD}\""
-  # I want to ignore the return value of this function since it
-  # is just concatenating strings for me
-  # shellcheck disable=SC2312
-  echo "  $(_denv_mounts_to_args "--bind")"
-  return 0
+  case "${denv_runner}" in
+    docker|podman)
+      interactive=""
+      # I want to ignore the return value of this function since it
+      # is just concatenating strings for me
+      # shellcheck disable=SC2312
+      mounts="$(_denv_mounts_to_args "--volume")"
+      if tty -s; then
+        interactive="--interactive --tty"
+        [ -d /tmp/.X11-unix ] && mounts="${mounts} -v /tmp/.X11-unix:/tmp/.X11-unix"
+      fi
+      # --home ${denv_home} \
+      ${denv_runner} run \
+        --rm \
+        ${interactive} \
+        ${mounts} \
+        --hostname denv.$(uname -n) \
+        --user "${USER}" \
+        --workdir $PWD \
+        ${denv_image} \
+        "$@"
+      ;;
+    norunner)
+      echo "running ${denv_image} with "
+      echo "  HOME=\"${denv_home}\""
+      echo "  SHELL=\"${denv_shell}\""
+      echo "  PWD=\"${PWD}\""
+      # I want to ignore the return value of this function since it
+      # is just concatenating strings for me
+      # shellcheck disable=SC2312
+      echo "  $(_denv_mounts_to_args "--bind")"
+      ;;
+    *)
+      _denv_error "This should never happen."
+      return 125
+      ;;
+  esac
 }
 
 ###################################################################################################
@@ -121,18 +213,6 @@ _denv_run() {
 #  these are the functions defining the CLI, loading the config, writing the config
 #  and calling the runner functions defined above in the correct sequence
 ###################################################################################################
-
-# print each argument on its own line with the first line
-# prefixed with "ERROR: ".
-_denv_error() {
-  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
-  shift
-  while [ "$#" -gt "0" ]; do
-    printf >&2 "       %s\n" "$1"
-    shift
-  done
-  printf >&2 "\033[0m"
-}
 
 # deduce where the denv config is being stored
 # aka find the workspace
@@ -161,6 +241,18 @@ _denv_load_config() {
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
   denv_image_cache="${denv_workspace}/.denv/images"
+  if [ -z "${denv_runner+x}" ]; then
+    if command -v docker >/dev/null 2>&1; then
+      denv_runner="docker"
+    elif command -v podman >/dev/null 2>&1; then
+      denv_runner="podman"
+    else
+      _denv_error "No container runner available." \
+        "Setting 'norunner' which simply allows exploration of CLI."
+      denv_runner="norunner"
+    fi
+    _denv_info "using ${denv_runner} as runner"
+  fi
 }
 
 # write the current config to the file
@@ -174,6 +266,7 @@ _denv_write_config() {
     echo "denv_image=\"${denv_image}\"";
     echo "denv_shell=\"${denv_shell}\"";
     echo "denv_mounts=\"${denv_mounts}\"";
+    echo "denv_runner=\"${denv_runner}\"";
   } > "${config}"
 }
 
@@ -181,8 +274,10 @@ _denv_write_config() {
 # Arguments
 #  all denv_* env vars
 _denv_config_print() {
-  printf "denv_home=\"%s\"\ndenv_image=\"%s\"\ndenv_shell=\"%s\"\ndenv_mounts=\"%s\"\n" \
-    "${denv_home}" "${denv_image}" "${denv_shell}" "${denv_mounts}"
+  printf "%s=\"%s\"\n" denv_workspace "${denv_workspace}"
+  printf "%s=\"%s\"\n" denv_image "${denv_image}"
+  printf "%s=\"%s\"\n" denv_mounts "${denv_mounts}"
+  printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
   _denv_runner
 }
 
@@ -215,7 +310,7 @@ _denv_config_checked_pull() {
   if ! _denv_image_exists; then
     _denv_pull
   else
-    printf "%s already exists on this computer - re-pull it? [Y/n] " "${denv_image}"
+    printf "\033[1m%s already exists on this computer - re-pull it?\033[0m [Y/n] " "${denv_image}"
     read -r ans
     case "${ans}" in
       Y|y)
@@ -405,7 +500,7 @@ _denv_init() {
 
   # check if we already been init'ed
   if [ -d "${denv_workspace}/.denv" ];then
-    printf "This workspace already has a denv. Would you like to overwrite it? [Y/n] "
+    printf "\033[1mThis workspace already has a denv. Would you like to overwrite it?\033[0m [Y/n] "
     read -r ans
     case "${ans}" in
       Y|y)
@@ -413,7 +508,7 @@ _denv_init() {
         rm -rf "${denv_workspace}/.denv"
         ;;
       *)
-        echo "Exiting without modifying..."
+        _denv_info "Exiting without modifying..."
         return 0
         ;;
     esac
@@ -427,6 +522,7 @@ _denv_init() {
   mkdir "${denv_workspace}/.denv"
   _denv_write_config
   if [ "${gitignore}" = "1" ]; then
+    _denv_info "Writing a gitignore for the .denv directory."
     cat > "${denv_workspace}/.denv/.gitignore" <<\GITIGNORE
 # ignore everything in this directory
 *
@@ -455,7 +551,7 @@ _denv_help() {
  DESCRIPTION
   interact with a containerized developers environment
 
-  If not COMMAND is provided, open an interactive shell in
+  If no COMMAND is provided, open an interactive shell in
   the currently configured denv.
 
  COMMANDS
