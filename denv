@@ -282,12 +282,17 @@ _denv_config() {
 _denv_init_help() {
   cat <<\HELP
 
-  denv init IMAGE [WORKSPACE]
+  denv init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore]
 
  ARGUMENT
+  help       : print this help and exit
   IMAGE      : the container image to use for running the denv
   WORKSPACE  : the directory to create the denv for
                optional, defaults to present working directory
+  
+ OPTIONS
+  -h, --help     : print this help and exit
+  --no-gitignore : don't generate a gitignore for the .denv directory
 
 HELP
 }
@@ -298,14 +303,27 @@ _denv_init() {
     _denv_error "Provide at least an image to use for running"
     return 1
   fi
-  case "$1" in
-    help|-h|-help)
-      _denv_init_help
-      return 0
-      ;;
-    *)
-      ;;
-  esac
+  gitignore=1
+  positionals=""
+  while [ "$#" -gt "0" ]; do
+    case "$1" in
+      help|-h|-help)
+        _denv_init_help
+        return 0
+        ;;
+      --no-gitignore)
+        gitignore=0
+        ;;
+      *)
+        positionals="${positionals} ${1}"
+        ;;
+    esac
+    shift
+  done
+  # I want to re-split the positional arguments because neither
+  # of them should have a space inside
+  # shellcheck disable=SC2086
+  set -- ${positionals}
   # image - first positional and only required argument
   image="$1"
   shift
@@ -339,13 +357,15 @@ _denv_init() {
   denv_mounts=""
   mkdir "${denv_workspace}/.denv"
   _denv_write_config
-  cat > "${denv_workspace}/.denv/.gitignore" <<\GITIGNORE
+  if [ "${gitignore}" = "1" ]; then
+    cat > "${denv_workspace}/.denv/.gitignore" <<\GITIGNORE
 # ignore everything in this directory
 *
 # except the config which folks might want to share
 # across many computers
 !config
 GITIGNORE
+  fi
 
   _denv_config_checked_pull
 }
