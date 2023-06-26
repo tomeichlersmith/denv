@@ -22,7 +22,14 @@ denv_version=0.0.0
 # POSIX
 set -o errexit
 set -o nounset
-#set -x
+
+if [ -n "${DENV_DEBUG+x}" ]; then
+  set -x
+fi
+
+###################################################################################################
+# helper functions that can be shared across runners
+###################################################################################################
 
 # convert the ${denv_image} variable into a filename stub
 # Arguments
@@ -33,6 +40,22 @@ set -o nounset
 _denv_image_to_filename() {
   # convert slashes to underscores and colons to hyphens
   printf '%s' "${denv_image}" | tr '/' '_' | tr ':' '-'
+}
+
+# convert the space-separate mounts array into the space-separate
+# list of arguments to provide to run command
+# Arguments
+#  1 - option name to prefix each mount with
+#  2 - optional mount setting to append to the mount
+#  denv_mounts - env var holding space-separated list of mounts
+# Outputs
+#  the list of mount-related arguments to provide to run command
+_denv_mounts_to_args() {
+  mount_args=""
+  for mount in ${denv_mounts}; do
+    mount_args="${1} ${mount}:${mount}${2:+:${2}} ${mount_args}"
+  done
+  echo "${mount_args}"
 }
 
 ###################################################################################################
@@ -82,13 +105,21 @@ _denv_pull() {
 }
 _denv_run() {
   echo "running ${denv_image} with "
-  echo "  HOME=\"${denv_home}\", MOUNTS=\"${denv_mounts}\", SHELL=\"${denv_shell}\""
+  echo "  HOME=\"${denv_home}\""
+  echo "  SHELL=\"${denv_shell}\""
   echo "  PWD=\"${PWD}\""
+  # I want to ignore the return value of this function since it
+  # is just concatenating strings for me
+  # shellcheck disable=SC2312
+  echo "  $(_denv_mounts_to_args "--bind")"
   return 0
 }
 
 ###################################################################################################
 # denv internal helper functions
+# 
+#  these are the functions defining the CLI, loading the config, writing the config
+#  and calling the runner functions defined above in the correct sequence
 ###################################################################################################
 
 # print each argument on its own line with the first line
@@ -405,6 +436,8 @@ _denv_init() {
 GITIGNORE
   fi
 
+  # reload config for any deduced parameters
+  _denv_load_config
   _denv_config_checked_pull
 }
 
