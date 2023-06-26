@@ -22,14 +22,32 @@ denv_version=0.0.0
 # POSIX
 set -o errexit
 set -o nounset
+#set -x
+
+# convert the ${denv_image} variable into a filename stub
+# Arguments
+#  denv_image environment variable
+# Outputs
+#  a simple filename with special characters replaced for
+#  easier interaction with the filesystem
+_denv_image_to_filename() {
+  # convert slashes to underscores and colons to hyphens
+  printf '%s' "${denv_image}" | tr '/' '_' | tr ':' '-'
+}
 
 ###################################################################################################
 # container runner interface
 #
-# all container runners must implement three functions
-# 1. _denv_image_exists : check ${denv_image} exists locally
-# 2. _denv_pull : pull down ${denv_image} to a local copy
-# 3. _denv_run : run the container
+# all container runners must implement four functions
+# 1. _denv_runner : print name and version of runner to stdout
+# 2. _denv_image_exists : check ${denv_image} exists locally
+#   - return 0 if it does exist, and 1 if it doesn't exist
+# 3. _denv_pull : pull down ${denv_image} to a local copy
+#   - runners can use the directory ${denv_image_cache}
+#     to store image files if the runner requires the user to specify files
+#   - use _denv_image_to_filename function if you need a filename
+#     for a given image tag
+# 4. _denv_run : run the container
 #   - entrypoint is the denv-entrypoint program 
 #   - use image ${denv_image} 
 #   - set home directory ${denv_home}
@@ -38,12 +56,28 @@ set -o nounset
 #   - pass on all current environment variables
 #   - set SHELL to be ${denv_shell} in container
 ###################################################################################################
+_denv_runner() {
+  echo "norunner v0.0.0"
+}
 _denv_image_exists() {
   echo "checking if ${denv_image} exists..."
-  return 1
+  if [ ! -d "${denv_image_cache}" ]; then
+    return 1
+  fi
+  # I want to ignore the return value of this function since it
+  # is just writing a hidden filename for caching the image used by denv
+  # shellcheck disable=SC2312
+  test -f "${denv_image_cache}/$(_denv_image_to_filename)"
+  return $?
 }
 _denv_pull() {
   echo "pulling ${denv_image}"
+  image_cache="${denv_workspace}/.denv/images"
+  mkdir -p "${image_cache}"
+  # I want to ignore the return value of this function since it
+  # is just writing a hidden filename for caching the image used by denv
+  # shellcheck disable=SC2312
+  touch "${image_cache}/$(_denv_image_to_filename)"
   return 0
 }
 _denv_run() {
@@ -95,6 +129,7 @@ _denv_load_config() {
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
+  denv_image_cache="${denv_workspace}/.denv/images"
 }
 
 # write the current config to the file
@@ -117,6 +152,7 @@ _denv_write_config() {
 _denv_config_print() {
   printf "denv_home=\"%s\"\ndenv_image=\"%s\"\ndenv_shell=\"%s\"\ndenv_mounts=\"%s\"\n" \
     "${denv_home}" "${denv_image}" "${denv_shell}" "${denv_mounts}"
+  _denv_runner
 }
 
 # config the home directory of the denv
@@ -248,14 +284,16 @@ _denv_config() {
     _denv_config_help
     return 0
   fi
-  _denv_deduce_workspace
-  _denv_load_config
   case "$1" in
     print)
+      _denv_deduce_workspace
+      _denv_load_config
       cmd="_denv_config_${1}"
       ${cmd}
       ;;
     home|image|shell|mounts)
+      _denv_deduce_workspace
+      _denv_load_config
       cmd="_denv_config_${1}"
       if [ "$#" -eq "1" ]; then
         _denv_config_help
