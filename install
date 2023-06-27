@@ -106,12 +106,14 @@ if [ -e "${curr_dir}/denv" ]; then
       printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
       exit 1
     fi
+    ${copy} "${dest_path}" _denv_entrypoint
   else
     copy="install -D -m 0644 -t"
     if ! install -D -m 0755 -t "${dest_path}" denv; then
       printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
       exit 1
     fi
+    install -D -m 0755 -t "${dest_path}" _denv_entrypoint
   fi
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
@@ -167,6 +169,7 @@ else
     printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
     exit 1
   fi
+  install -D -m 0755 -t "${dest_path}" _denv_entrypoint
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
       ${copy} "${man_dest_path}" "${file}"
