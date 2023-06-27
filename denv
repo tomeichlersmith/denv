@@ -110,7 +110,7 @@ _denv_mounts_to_args() {
 
 _denv_runner() {
   case "${denv_runner}" in
-    docker|podman)
+    docker|podman|apptainer|singularity)
       ${denv_runner} --version
       ;;
     norunner)
@@ -130,6 +130,14 @@ _denv_image_exists() {
       test -z "${images}"
       return $?
       ;;
+    apptainer|singularity)
+      [ -d "${denv_image_cache}" ] || return 1;
+      # I want to ignore the return value of this function since it
+      # is just writing a hidden filename for caching the image used by denv
+      # shellcheck disable=SC2312
+      test -f "${denv_image_cache}/$(_denv_image_to_filename).sif"
+      return $?
+      ;;
     norunner)
       [ -d "${denv_image_cache}" ] || return 1;
       # I want to ignore the return value of this function since it
@@ -147,19 +155,29 @@ _denv_image_exists() {
 _denv_pull() {
   _denv_info "pulling ${denv_image}"
   case "${denv_runner}" in
-    docker)
-      docker pull "${denv_image}"
+    docker|podman)
+      ${denv_runner} pull "${denv_image}"
       ;;
-    podman)
-      podman pull "${denv_image}"
-      ;;
-    norunner)
-      image_cache="${denv_workspace}/.denv/images"
-      mkdir -p "${image_cache}"
+    apptainer|singularity)
+      [ -d "${denv_image_cache}" ] || mkdir -p "${denv_image_cache}"
       # I want to ignore the return value of this function since it
       # is just writing a hidden filename for caching the image used by denv
       # shellcheck disable=SC2312
-      touch "${image_cache}/$(_denv_image_to_filename)"
+      sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      image_full="${denv_image}"
+      echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
+      ${denv_runner} build \
+        --force \
+        ${sif_file} \
+        ${image_full}
+      ;;
+    norunner)
+      image_cache="${denv_workspace}/.denv/images"
+      mkdir -p "${denv_image_cache}"
+      # I want to ignore the return value of this function since it
+      # is just writing a hidden filename for caching the image used by denv
+      # shellcheck disable=SC2312
+      touch "${denv_image_cache}/$(_denv_image_to_filename)"
       ;;
     *)
       _denv_error "This should never happen"
@@ -168,6 +186,7 @@ _denv_pull() {
   esac
 }
 _denv_run() {
+  _denv_entrypoint="/export/scratch/users/eichl008/denv/_denv_entrypoint"
   case "${denv_runner}" in
     docker|podman)
       interactive=""
@@ -177,7 +196,7 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--volume")"
       if tty -s; then
         interactive="--interactive --tty"
-        [ -d /tmp/.X11-unix ] && mounts="${mounts} -v /tmp/.X11-unix:/tmp/.X11-unix"
+        [ -d /tmp/.X11-unix ] && mounts="${mounts} -v /tmp/.X11-unix:/tmp/.X11-unix -v ${_denv_entrypoint}:${_denv_entrypoint}"
       fi
       # --home ${denv_home} \
       ${denv_runner} run \
@@ -188,6 +207,28 @@ _denv_run() {
         --user "${USER}" \
         --workdir $PWD \
         ${denv_image} \
+        "${_denv_entrypoint}" \
+        "$@"
+      ;;
+    apptainer|singularity)
+      # apptainer/singularity do not pull automatically when attempting to run
+      _denv_config_checked_pull DO_NOT_PROMPT_USER
+      # I want to ignore the return value of this function since it
+      # is just concatenating strings for me
+      # shellcheck disable=SC2312
+      mounts="$(_denv_mounts_to_args "--bind")"
+      # shellcheck disable=SC2312
+      sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      if tty -s; then
+        [ -d /tmp/.X11-unix ] && mounts="${mounts} --bind /tmp/.X11-unix:/tmp/.X11-unix --bind ${_denv_entrypoint}:${_denv_entrypoint}"
+      fi
+      ${denv_runner} exec \
+        --hostname denv.$(uname -n) \
+        --home "${denv_home}" \
+        --env DENV_CACHE="${denv_workspace}/.denv" \
+        ${mounts} \
+        "${sif_file}" \
+        "${_denv_entrypoint}" \
         "$@"
       ;;
     norunner)
@@ -198,7 +239,7 @@ _denv_run() {
       # I want to ignore the return value of this function since it
       # is just concatenating strings for me
       # shellcheck disable=SC2312
-      echo "  $(_denv_mounts_to_args "--bind")"
+      [ -z "${denv_mounts}" ] || echo "  $(_denv_mounts_to_args "--bind")"
       ;;
     *)
       _denv_error "This should never happen."
@@ -246,6 +287,10 @@ _denv_load_config() {
       denv_runner="docker"
     elif command -v podman >/dev/null 2>&1; then
       denv_runner="podman"
+    elif command -v apptainer >/dev/null 2>&1; then
+      denv_runner="apptainer"
+    elif command -v singularity >/dev/null 2>&1; then
+      denv_runner="singularity"
     else
       _denv_error "No container runner available." \
         "Setting 'norunner' which simply allows exploration of CLI."
@@ -266,7 +311,6 @@ _denv_write_config() {
     echo "denv_image=\"${denv_image}\"";
     echo "denv_shell=\"${denv_shell}\"";
     echo "denv_mounts=\"${denv_mounts}\"";
-    echo "denv_runner=\"${denv_runner}\"";
   } > "${config}"
 }
 
@@ -301,6 +345,7 @@ _denv_config_home() {
 # locally, if it does exist locally, check
 # with the user if they wish for denv to pull
 # Arguments
+#  1 - disable user prompt if provided, just assume no pull
 #  denv_image (same as _denv_image_exists and _denv_pull)
 _denv_config_checked_pull() {
   # I do want to fail-quiet here and so I implicitly
@@ -309,7 +354,7 @@ _denv_config_checked_pull() {
   # shellcheck disable=SC2310
   if ! _denv_image_exists; then
     _denv_pull
-  else
+  elif [ -z "${1+x}" ]; then
     printf "\033[1m%s already exists on this computer - re-pull it?\033[0m [Y/n] " "${denv_image}"
     read -r ans
     case "${ans}" in
@@ -567,7 +612,7 @@ _denv() {
   if [ $# -eq 0 ]; then
     _denv_deduce_workspace
     _denv_load_config
-    _denv_run
+    _denv_run ${denv_shell}
     return $?
   fi
 

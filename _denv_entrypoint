@@ -1,0 +1,71 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# This file is part of the denv project: https://github.com/tomeichlersmith/denv
+#
+# Copyright (C) 2021 denv contributors
+#
+# denv is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+#
+# denv is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with denv; if not, see <http://www.gnu.org/licenses/>.
+
+# POSIX
+set -o errexit
+set -o nounset
+set -x
+
+runner=""
+if [ -f /singularity ]; then
+  runner="singularity"
+elif [ -f /run/.containerenv ]; then
+  runner="podman"
+elif [ -f /.dockerenv ]; then
+  runner="docker"
+else
+  printf >&2 "You must run %s inside a container!\n" " $(basename "$0")"
+  printf >&2 "_denv_entrypoint should only be used as an entrypoint for a denv!\n\n"
+  printf >&2 "This is not intended to be used manually, but instead used by denv\n"
+  printf >&2 "to set up the container's entrypoint.\n"
+  exit 126
+fi
+
+if [ ! -f ${DENV_CACHE}/user-created ]; then
+  echo "Would create user for docker/podman"
+fi
+
+if [ ! -f ${DENV_CACHE}/skel-init ]; then
+  # If we do not have profile files in the home, we should copy the
+  # skeleton files, if present.
+  # Ensure we copy only if the dotfile is not already present.
+  if [ -d "/etc/skel" ]; then
+    skel_files="$(find /etc/skel/ -type f || :)"
+    for skel_file in ${skel_files}; do
+      base_file_name=$(basename "${skel_file}")
+      skel_file_path=$(dirname "${skel_file}")
+      file_path_for_home=${skel_file_path#/etc/skel}
+  
+      if [ -n "${file_path_for_home}" ] &&
+        [ ! -d "${HOME}/${file_path_for_home:+"${file_path_for_home}"}" ]; then
+        mkdir -p "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}"
+      fi
+  
+      if [ ! -f "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}" ] &&
+        [ ! -L "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}" ]; then
+        cp "${skel_file}" "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}"
+        #chown "${container_user_uid}":"${container_user_gid}" \
+        #  "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}"
+      fi
+    done
+  fi
+  touch ${DENV_CACHE}/skel-init
+fi
+
+$@
