@@ -1,35 +1,22 @@
 # denv
 containerized development environments across many runners
 
-## Installation
+[![Generate Manual](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml)
 
-### curl
+Develop code in identical command line interface environments across different container managers and their runners.
 
-If you trust me (or have proofread the install script), you can install denv with a one-liner.
+Containerization of code has only grown in popularity since it (almost) completely removes issues of dependency incompatibility.
+More recently, even developing code within a container has grown in popularity leading to several approaches.
 
-    curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
+The main problem I have with all of these is lack of support for my specific workflow.
+I not only use my personal computer (with docker or podman) but I also commonly use academic
+High Performance Computers (HPCs) which tend to have apptainer or singularity installed
+due to their better support for security-focused (lack of user access) installations.
+This is the main origin for `denv` - provide a common interface for using images as
+a development environment across these four container managers.
 
-By default, this installs denv to ~/.local if you are a non-root user.
-You can define the install prefix (--prefix dir) and 
-choose to use the HEAD of the main branch rather
-than the last release (--next) both of which are optional.
-
-    curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \
-      sh -s -- --prefix dir --next
-
-### git
-
-You can install or update denv by obtaining the source code from the repository https://github.com/tomeichlersmith/denv either by cloning it or by downloading one of the releases and then running the installation command.
-
-    cd denv
-    ./install
-
-## Contributing
-
-Feel free to create a fork of https://github.com/tomeichlersmith/denv and open a Pull Request with any bug patches or feature improvements. We aim to keep denv as a single file with optional completion and manual files in parallel. Check that denv is still POSIX with dash.
-
-    dash -n denv
-
-Install shellcheck from https://github.com/koalaman/shellcheck and use it to make sure denv avoids common shell scripting errors.
-
-    shellcheck -s sh -a -o all -Sstyle -Calways -x denv
+- [distrobox](https://github.com/89luca89/distrobox): main inspiration for denv, POSIX-sh program with a larger feature set than denv but currently restricted to docker or podman
+- [VS Code devcontainers](https://github.com/microsoft/vscode-dev-containers): designed to be used in conjuction with the VS Code IDE, also currently restricted to docker (or podman with some tweaking)
+- [devbox](https://github.com/jetpack-io/devbox): "similar to a package manager ... except the packages it manages are at the operating-system level", a helpful tool based on `nix`, written in `go`
+  - This is the newest project and probably most closely aligned to my goals; however, it would require understanding how to write NixPkgs for all my dependencies (which is not an easy task given how specialized so many of the packages are) and I am not currently able to functionally install it on the HPCs which use apptainer/singularity.
+- [toolbox](https://github.com/containers/toolbox): built on top of `podman`, similar in spirit to distrobox and devbox
