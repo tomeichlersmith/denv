@@ -16,5 +16,5 @@ pandoc \
   --metadata header="User Manual" \
   --metadata footer="denv" \
 	--metadata date="$(date +"%b %Y")" \
-  --to man README.md \
+  --to man docs/src/manual.md \
   -o man/man1/denv.1
