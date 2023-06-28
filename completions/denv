@@ -1,2 +1,48 @@
 # shellcheck disable=all
+#   doing tab completion for bash and throwing away shellcheck
+#   since it is just icing on the denv cake
 
+__denv() {
+  # disable readline filename completion, re-enable if desired
+  compopt +o default
+
+  local curr_word="${COMP_WORDS[$COMP_CWORD]}"
+
+  if [[ "${COMP_CWORD}" = "1" ]]; then
+    # tab completing main argument
+    COMPREPLY=($(compgen -W "init config help version ${DENV_TAB_COMMANDS}" "$curr_word"))
+  elif [[ "${COMP_CWORD}" = "2" ]]; then
+    # tab complete a sub-argument which depends on main argument
+    case "${COMP_WORDS[1]}" in
+      # no tabl completion cases
+      version|help|init)
+        COMPREPLY=()
+        ;;
+      config)
+        COMPREPLY=($(compgen -W "help print home image mounts shell" "$curr_word"))
+        ;;
+      *)
+        # re-enable normal tab completion for everything else
+        #   this is nice in case of the use case where you are running
+        #   a program in denv with an input file e.g.
+        #   denv python my-script.py
+        compopt -o default
+        COMPREPLY=()
+        ;;
+    esac
+  elif [[ "${COMP_WORDS[1]}" = "config" ]]; then
+    # three or more arguments may be tab completed in config CLI tree
+    case "${COMP_WORDS[2]}" in
+      home|mounts)
+        # directory tab completion
+        COMPREPLY=($(compgen -d -- "$curr_word"))
+        ;;
+      *)
+        # no tab completion again
+        COMPREPLY=()
+        ;;
+    esac
+  fi
+}
+
+complete -F __denv denv
