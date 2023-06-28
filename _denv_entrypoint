@@ -65,6 +65,17 @@ if [ ! -f ${DENV_CACHE}/skel-init ]; then
       fi
     done
   fi
+
+  if [ -f "${HOME}/.bashrc" ]; then
+    # for apptainer/singularity runners
+    {
+      echo "# apptainer/singularity set the environment varible PROMPT_COMMAND"
+      echo "# to overwrite PS1 with a container-specific prompt, we undo that"
+      echo "# overwwriting here to allow the '.bashrc'-generated prompt to persist"
+      echo "# https://github.com/tomeichlersmith/denv/issues/3"
+      echo "unset PROMPT_COMMAND"
+    } >> "${HOME}/.bashrc"
+  fi
   touch ${DENV_CACHE}/skel-init
 fi
 
