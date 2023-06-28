@@ -23,6 +23,11 @@ denv_version=0.0.0
 set -o errexit
 set -o nounset
 
+# deduce full path to our executable so we can locate the entrypoint executable
+denv_fullpath="$(realpath "$0" || true)"
+# deduce full path to entrypoint executable
+denv_entrypoint="$(dirname "${denv_fullpath}" || true)/_denv_entrypoint"
+
 if [ -n "${DENV_DEBUG+x}" ]; then
   set -x
 fi
@@ -186,7 +191,12 @@ _denv_pull() {
   esac
 }
 _denv_run() {
-  _denv_entrypoint="/export/scratch/users/eichl008/denv/_denv_entrypoint"
+  # shellcheck disable=SC2312
+  _hostname="${denv_name}.$(uname -n || true)"
+  # we will be running now and not writing the config
+  # so we can update the denv_mounts list
+  [ -d /tmp/.X11-unix ] && denv_mounts="${denv_mounts} /tmp/.X11-unix"
+  denv_mounts="${denv_mounts} ${denv_entrypoint}"
   case "${denv_runner}" in
     docker|podman)
       interactive=""
@@ -196,18 +206,17 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--volume")"
       if tty -s; then
         interactive="--interactive --tty"
-        [ -d /tmp/.X11-unix ] && mounts="${mounts} -v /tmp/.X11-unix:/tmp/.X11-unix -v ${_denv_entrypoint}:${_denv_entrypoint}"
       fi
       # --home ${denv_home} \
       ${denv_runner} run \
         --rm \
         ${interactive} \
         ${mounts} \
-        --hostname denv.$(uname -n) \
+        --hostname "${_hostname}" \
         --user "${USER}" \
-        --workdir $PWD \
-        ${denv_image} \
-        "${_denv_entrypoint}" \
+        --workdir "$PWD" \
+        "${denv_image}" \
+        "${denv_entrypoint}" \
         "$@"
       ;;
     apptainer|singularity)
@@ -219,16 +228,13 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--bind")"
       # shellcheck disable=SC2312
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
-      if tty -s; then
-        [ -d /tmp/.X11-unix ] && mounts="${mounts} --bind /tmp/.X11-unix:/tmp/.X11-unix --bind ${_denv_entrypoint}:${_denv_entrypoint}"
-      fi
       ${denv_runner} exec \
-        --hostname denv.$(uname -n) \
+        --hostname "${_hostname}" \
         --home "${denv_home}" \
-        --env DENV_CACHE="${denv_workspace}/.denv" \
+        --env DENV_CACHE="${denv_cache}" \
+        --env DENV_NAME="${denv_name}" \
         ${mounts} \
         "${sif_file}" \
-        "${_denv_entrypoint}" \
         "$@"
       ;;
     norunner)
@@ -281,7 +287,9 @@ _denv_load_config() {
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
+  denv_cache="${denv_workspace}/.denv"
   denv_image_cache="${denv_workspace}/.denv/images"
+  denv_name="denv"
   if [ -z "${denv_runner+x}" ]; then
     if command -v docker >/dev/null 2>&1; then
       denv_runner="docker"
