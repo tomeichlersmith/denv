@@ -87,10 +87,11 @@ man_dest_path="${prefix}/share/man/man1"
 
 # uninstall
 rm -f "${dest_path}/denv"
-for file in "${man_dest_path}/denv"*; do
+rm -f "${dest_path}/_denv_entrypoint"
+for file in "${completion_dest_path}/denv"*; do
 	rm -f "${file}"
 done
-for file in "${completion_dest_path}/denv"*; do
+for file in "${man_dest_path}/denv"*; do
 	rm -f "${file}"
 done
 
