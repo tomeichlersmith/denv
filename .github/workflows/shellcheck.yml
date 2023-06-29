@@ -13,9 +13,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run ShellCheck
-        uses: ludeeus/actions-shellcheck@v2
-        with:
-          ignore_paths: completions
-          additional_files: 'denv _denv_entrypoint'
-        env:
-          SHELLCHECK_OPTS: -s sh -a -o all -Sstyle -Calways
+        run: |
+          shellcheck -s sh -a -o all -Sstyle -Calways -x denv _denv_entrypoint install uninstall
