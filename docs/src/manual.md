@@ -118,7 +118,19 @@ This part of the manual is an attempt to list and explain the files within a `.d
 
 The file storing the configuration of the denv related to this workspace.
 While it is plain-text and you can edit it directly. Editing it with the denv config set of commands
-is helpful for doing basic typo- and existence- checking.
+is helpful for doing basic typo- and existence- checking. The config file is a basic key=value shell
+file that will be sourced by denv. This is a security risk and could be updated to a different type
+of config file if desired.
+
+  **denv_image** the image to use when running the denv
+
+  **denv_shell** the program to run as a interactive shell if running denv without any arguments
+
+  **denv_mounts** a space separated list of extra mounts to mount into denv when running
+
+There are additional "super user" options which can offer more fine-tuned control over denv.
+
+  **denv_runner** (optional) define which runner to use, will be deduced by denv if not provided
 
 ## skel-init
 
