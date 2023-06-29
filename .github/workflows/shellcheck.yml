@@ -10,7 +10,7 @@ jobs:
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
-    stes:
+    steps:
       - uses: actions/checkout@v3
       - name: Run ShellCheck
         uses: ludeeus/actions-shellcheck@v2
