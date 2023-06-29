@@ -4,8 +4,6 @@ name: ShellCheck
 on:
   push
 
-permissions: {}
-
 jobs:
   shellcheck:
     name: Shellcheck
