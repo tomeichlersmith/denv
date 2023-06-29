@@ -106,7 +106,7 @@ _denv_mounts_to_args() {
 # 4. _denv_run : run the container
 #   - entrypoint is the denv-entrypoint program 
 #   - use image ${denv_image} 
-#   - set home directory ${denv_home}
+#   - set home directory in the container to ${denv_workspace}
 #   - set user and group in container to current user and group
 #   - attach all mounts in space-separated list "${denv_mounts}"
 #   - pass on all current environment variables
@@ -207,7 +207,7 @@ _denv_run() {
       if tty -s; then
         interactive="--interactive --tty"
       fi
-      # --home ${denv_home} \
+      # --home ${denv_workspace} \
       ${denv_runner} run \
         --rm \
         ${interactive} \
@@ -230,7 +230,7 @@ _denv_run() {
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       ${denv_runner} exec \
         --hostname "${_hostname}" \
-        --home "${denv_home}" \
+        --home "${denv_workspace}" \
         --env DENV_CACHE="${denv_cache}" \
         --env DENV_NAME="${denv_name}" \
         ${mounts} \
@@ -239,7 +239,7 @@ _denv_run() {
       ;;
     norunner)
       echo "running ${denv_image} with "
-      echo "  HOME=\"${denv_home}\""
+      echo "  HOME=\"${denv_workspace}\""
       echo "  SHELL=\"${denv_shell}\""
       echo "  PWD=\"${PWD}\""
       # I want to ignore the return value of this function since it
@@ -315,7 +315,6 @@ _denv_load_config() {
 _denv_write_config() {
   config="${denv_workspace}/.denv/config"
   { 
-    echo "denv_home=\"${denv_home}\"";
     echo "denv_image=\"${denv_image}\"";
     echo "denv_shell=\"${denv_shell}\"";
     echo "denv_mounts=\"${denv_mounts}\"";
@@ -331,22 +330,6 @@ _denv_config_print() {
   printf "%s=\"%s\"\n" denv_mounts "${denv_mounts}"
   printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
   _denv_runner
-}
-
-# config the home directory of the denv
-# Arguments
-#  1 - path to new home directory for the denv
-# Outputs
-#  adds the old home to denv_mounts
-#  sets denv_home to the new home
-_denv_config_home() {
-  new_home="$1"
-  if [ ! -d "${new_home}" ]; then
-    _denv_error "New home directory does not exist."
-    return 1
-  fi
-  denv_mounts="${denv_home} ${denv_mounts}"
-  denv_home="${new_home}"
 }
 
 # pull down the ${denv_image} if it doesn't exist
@@ -439,7 +422,6 @@ _denv_config_help() {
 
   denv config [help|-h|--help]
   denv config print
-  denv config home HOMEDIR
   denv config image [pull|IMAGE]
   denv config mounts DIR0 [DIR1 DIR2 ...]
   denv config shell SHELL
@@ -447,7 +429,6 @@ _denv_config_help() {
  COMMANDS
   help    print this help and exit
   print   print the deduced config for viewing
-  home    set the directory the denv should use as its home directory
   image   set the image you wish to use
           the special keyword 'pull' can be used to
           not change the image being used but to re-download
@@ -470,7 +451,7 @@ _denv_config() {
       cmd="_denv_config_${1}"
       ${cmd}
       ;;
-    home|image|shell|mounts)
+    image|shell|mounts)
       _denv_deduce_workspace
       _denv_load_config
       cmd="_denv_config_${1}"
@@ -568,7 +549,6 @@ _denv_init() {
   fi
 
   # we have a clean workspace directory, lets make a new denv
-  denv_home="${denv_workspace}"
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""

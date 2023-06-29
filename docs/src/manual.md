@@ -12,8 +12,6 @@ denv v0.0.0
 
 **denv** config print
 
-**denv** config home DIR
-
 **denv** config image <pull | IMAGE>
 
 **denv** config mounts DIR0 [DIR1 DIR2 ...]

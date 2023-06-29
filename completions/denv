@@ -19,7 +19,7 @@ __denv() {
         COMPREPLY=()
         ;;
       config)
-        COMPREPLY=($(compgen -W "help print home image mounts shell" "$curr_word"))
+        COMPREPLY=($(compgen -W "help print image mounts shell" "$curr_word"))
         ;;
       *)
         # re-enable normal tab completion for everything else
@@ -33,7 +33,7 @@ __denv() {
   elif [[ "${COMP_WORDS[1]}" = "config" ]]; then
     # three or more arguments may be tab completed in config CLI tree
     case "${COMP_WORDS[2]}" in
-      home|mounts)
+      mounts)
         # directory tab completion
         COMPREPLY=($(compgen -d -- "$curr_word"))
         ;;
