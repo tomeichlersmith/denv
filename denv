@@ -191,6 +191,7 @@ _denv_pull() {
 #   - set user and group in container to current user and group
 #   - attach all mounts in space-separated list "${denv_mounts}"
 #   - pass on all current environment variables
+#     as well as the DENV_* variables
 #   - set SHELL to be ${denv_shell} in container
 _denv_run() {
   # shellcheck disable=SC2312
@@ -216,6 +217,8 @@ _denv_run() {
         ${interactive} \
         ${mounts} \
         --hostname "${_hostname}" \
+        --env DENV_NAME="${denv_name}" \
+        --env DENV_CACHE="${denv_cache}" \
         --user "${USER}" \
         --workdir "${PWD}" \
         "${denv_image}" \
@@ -239,6 +242,7 @@ _denv_run() {
         --env DENV_NAME="${denv_name}" \
         ${mounts} \
         "${sif_file}" \
+        "${denv_entrypoint}" \
         "$@"
       ;;
     norunner)
@@ -265,29 +269,27 @@ _denv_run() {
 #  and calling the runner functions defined above in the correct sequence
 ###################################################################################################
 
-# deduce where the denv config is being stored
-# aka find the workspace
-_denv_deduce_workspace() {
-  # start from PWD and go up directories until file .denv
-  # or reach root directory
-  denv_workspace="${PWD}"
-  while [ "${denv_workspace}" != "/" ]; do
-    if [ -d "${denv_workspace}/.denv" ]; then
-      return 0
-    fi
-    denv_workspace="$(dirname "${denv_workspace}" || true)"
-  done
-  _denv_error "Unable to deduce a denv workspace!" \
-    "Are you in a denv workspace? Do you still need to 'denv init'?"
-  return 1
-}
-
 # load the denv config from the input workspace
 # Arguments
 #  ${denv_workspace} env var
 # Outputs
 #  loaded config into runtime shell environment
 _denv_load_config() {
+  # deduce workspace if it isn't already defined
+  if [ -z "${denv_workspace+x}" ]; then
+    # start from PWD and go up directories until file .denv
+    # or reach root directory
+    denv_workspace="${PWD}"
+    while [ "${denv_workspace}" != "/" ]; do
+      if [ -d "${denv_workspace}/.denv" ]; then
+        return 0
+      fi
+      denv_workspace="$(dirname "${denv_workspace}" || true)"
+    done
+    _denv_error "Unable to deduce a denv workspace!" \
+      "Are you in a denv workspace? Do you still need to 'denv init'?"
+    return 1
+  fi
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
@@ -450,13 +452,11 @@ _denv_config() {
   fi
   case "$1" in
     print)
-      _denv_deduce_workspace
       _denv_load_config
       cmd="_denv_config_${1}"
       ${cmd}
       ;;
     image|shell|mounts)
-      _denv_deduce_workspace
       _denv_load_config
       cmd="_denv_config_${1}"
       if [ "$#" -eq "1" ]; then
@@ -602,7 +602,6 @@ HELP
 }
 _denv() {
   if [ $# -eq 0 ]; then
-    _denv_deduce_workspace
     _denv_load_config
     # shellcheck disable=SC2086
     _denv_run ${denv_shell}
@@ -623,7 +622,6 @@ _denv() {
       return $?
       ;;
     *)
-      _denv_deduce_workspace
       _denv_load_config
       # I think I know what I'm doing here
       # shellcheck disable=SC2068
