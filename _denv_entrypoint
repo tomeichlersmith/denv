@@ -88,7 +88,7 @@ if [ ! -f "${DENV_CACHE}/skel-init" ]; then
       } >> "${HOME}/.bashrc"
     fi
   fi
-  touch ${DENV_CACHE}/skel-init
+  touch "${DENV_CACHE}/skel-init"
 fi
 
 # intentionally allowing command line args to re-split into a command

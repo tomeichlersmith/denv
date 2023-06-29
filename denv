@@ -231,6 +231,7 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--bind")"
       # shellcheck disable=SC2312
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      # shellcheck disable=SC2086
       ${denv_runner} exec \
         --hostname "${_hostname}" \
         --home "${denv_workspace}" \
