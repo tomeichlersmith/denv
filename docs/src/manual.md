@@ -44,6 +44,11 @@ of its sub commands.
               as the home directory within the developer environment so that the environment can also
               have its own shell configuration files and **~/.local** paths.
 
+**DIR** directory to add to the list of mounts to be mirrored into the denv. These directories
+        are required to be full paths so that the user is cognizant of what paths will be available
+        in the container and what arent. One can use *realpath* to deduce a fullpath from a relative
+        path in a POSIX-compliant way if desired.
+
 **SHELL** the program to use as the interactive shell within the containerized environment.
 
 **COMMAND** a program to run inside of the containerized environment (can have its own arguments).
