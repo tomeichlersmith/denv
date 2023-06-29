@@ -20,7 +20,6 @@
 # POSIX
 set -o errexit
 set -o nounset
-set -x
 
 runner=""
 if [ -f /singularity ]; then
@@ -37,11 +36,22 @@ else
   exit 126
 fi
 
-if [ ! -f ${DENV_CACHE}/user-created ]; then
+# we have some variables that necessarily are defined outside this script
+# shellcheck disable=SC2154
+if [ -z "${DENV_CACHE+x}" ]; then
+  printf >&2 "ERROR: The necessary environment variables have not been passed into the runner."
+  exit 1
+fi
+
+if [ -n "${DENV_DEBUG+x}" ]; then
+  set -x
+fi
+
+if [ ! -f "${DENV_CACHE}/user-created" ]; then
   echo "Would create user for docker/podman"
 fi
 
-if [ ! -f ${DENV_CACHE}/skel-init ]; then
+if [ ! -f "${DENV_CACHE}/skel-init" ]; then
   # If we do not have profile files in the home, we should copy the
   # skeleton files, if present.
   # Ensure we copy only if the dotfile is not already present.
@@ -67,16 +77,20 @@ if [ ! -f ${DENV_CACHE}/skel-init ]; then
   fi
 
   if [ -f "${HOME}/.bashrc" ]; then
-    # for apptainer/singularity runners
-    {
-      echo "# apptainer/singularity set the environment varible PROMPT_COMMAND"
-      echo "# to overwrite PS1 with a container-specific prompt, we undo that"
-      echo "# overwwriting here to allow the '.bashrc'-generated prompt to persist"
-      echo "# https://github.com/tomeichlersmith/denv/issues/3"
-      echo "unset PROMPT_COMMAND"
-    } >> "${HOME}/.bashrc"
+    if [ "${runner}" = "singularity" ]; then
+      # for apptainer/singularity runners
+      {
+        echo "# apptainer/singularity set the environment varible PROMPT_COMMAND"
+        echo "# to overwrite PS1 with a container-specific prompt, we undo that"
+        echo "# overwwriting here to allow the '.bashrc'-generated prompt to persist"
+        echo "# https://github.com/tomeichlersmith/denv/issues/3"
+        echo "unset PROMPT_COMMAND"
+      } >> "${HOME}/.bashrc"
+    fi
   fi
   touch ${DENV_CACHE}/skel-init
 fi
 
+# intentionally allowing command line args to re-split into a command
+# shellcheck disable=SC2068
 $@

@@ -119,8 +119,8 @@ _denv_image_exists() {
   _denv_info "checking if ${denv_image} exists"
   case "${denv_runner}" in
     docker|podman)
-      images_matching_tag=$(${denv_runner} images -q "${denv_image}" 2> /dev/null)
-      test -z "${images}"
+      images_matching_tag="$(${denv_runner} images -q "${denv_image}" 2> /dev/null)"
+      test -z "${images_matching_tag}"
       return $?
       ;;
     apptainer|singularity)
@@ -167,11 +167,10 @@ _denv_pull() {
       echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
       ${denv_runner} build \
         --force \
-        ${sif_file} \
-        ${image_full}
+        "${sif_file}" \
+        "${image_full}"
       ;;
     norunner)
-      image_cache="${denv_workspace}/.denv/images"
       mkdir -p "${denv_image_cache}"
       # I want to ignore the return value of this function since it
       # is just writing a hidden filename for caching the image used by denv
@@ -211,13 +210,14 @@ _denv_run() {
         interactive="--interactive --tty"
       fi
       # --home ${denv_workspace} \
+      # shellcheck disable=SC2086
       ${denv_runner} run \
         --rm \
         ${interactive} \
         ${mounts} \
         --hostname "${_hostname}" \
         --user "${USER}" \
-        --workdir "$PWD" \
+        --workdir "${PWD}" \
         "${denv_image}" \
         "${denv_entrypoint}" \
         "$@"
@@ -603,6 +603,7 @@ _denv() {
   if [ $# -eq 0 ]; then
     _denv_deduce_workspace
     _denv_load_config
+    # shellcheck disable=SC2086
     _denv_run ${denv_shell}
     return $?
   fi

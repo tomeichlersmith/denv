@@ -12,4 +12,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run ShellCheck
         run: |
-          shellcheck -s sh -a -o all -Sstyle -Calways -x denv _denv_entrypoint install uninstall
+          shellcheck \
+            --shell=sh \
+            --check-sourced \
+            --enable=all \
+            --severity=style \
+            --color=always \
+            --external-sources \
+            denv _denv_entrypoint install uninstall
