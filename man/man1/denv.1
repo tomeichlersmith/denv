@@ -16,8 +16,6 @@ denv v0.0.0
 .PP
 \f[B]denv\f[R] config print
 .PP
-\f[B]denv\f[R] config home DIR
-.PP
 \f[B]denv\f[R] config image <pull | IMAGE>
 .PP
 \f[B]denv\f[R] config mounts DIR0 [DIR1 DIR2 \&...]
@@ -53,6 +51,14 @@ container to host the developer environment
 and configured, used by default as the home directory within the
 developer environment so that the environment can also have its own
 shell configuration files and \f[B]\[ti]/.local\f[R] paths.
+.PP
+\f[B]DIR\f[R] directory to add to the list of mounts to be mirrored into
+the denv.
+These directories are required to be full paths so that the user is
+cognizant of what paths will be available in the container and what
+arent.
+One can use \f[I]realpath\f[R] to deduce a fullpath from a relative path
+in a POSIX-compliant way if desired.
 .PP
 \f[B]SHELL\f[R] the program to use as the interactive shell within the
 containerized environment.
