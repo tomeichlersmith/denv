@@ -94,25 +94,10 @@ _denv_mounts_to_args() {
 ###################################################################################################
 # container runner interface
 #
-# all container runners must edit four functions
-# 1. _denv_runner : print name and version of runner to stdout
-# 2. _denv_image_exists : check ${denv_image} exists locally
-#   - return 0 if it does exist, and 1 if it doesn't exist
-# 3. _denv_pull : pull down ${denv_image} to a local copy
-#   - runners can use the directory ${denv_image_cache}
-#     to store image files if the runner requires the user to specify files
-#   - use _denv_image_to_filename function if you need a filename
-#     for a given image tag
-# 4. _denv_run : run the container
-#   - entrypoint is the denv-entrypoint program 
-#   - use image ${denv_image} 
-#   - set home directory in the container to ${denv_workspace}
-#   - set user and group in container to current user and group
-#   - attach all mounts in space-separated list "${denv_mounts}"
-#   - pass on all current environment variables
-#   - set SHELL to be ${denv_shell} in container
+# all container runners must edit the functions here
 ###################################################################################################
 
+# 1. _denv_runner : print name and version of runner to stdout
 _denv_runner() {
   case "${denv_runner}" in
     docker|podman|apptainer|singularity)
@@ -127,6 +112,9 @@ _denv_runner() {
       ;;
   esac
 }
+
+# 2. _denv_image_exists : check ${denv_image} exists locally
+#   - return 0 if it does exist, and 1 if it doesn't exist
 _denv_image_exists() {
   _denv_info "checking if ${denv_image} exists"
   case "${denv_runner}" in
@@ -157,6 +145,12 @@ _denv_image_exists() {
       ;;
   esac
 }
+
+# 3. _denv_pull : pull down ${denv_image} to a local copy
+#   - runners can use the directory ${denv_image_cache}
+#     to store image files if the runner requires the user to specify files
+#   - use _denv_image_to_filename function if you need a filename
+#     for a given image tag
 _denv_pull() {
   _denv_info "pulling ${denv_image}"
   case "${denv_runner}" in
@@ -190,6 +184,15 @@ _denv_pull() {
       ;;
   esac
 }
+
+# 4. _denv_run : run the container
+#   - entrypoint is the denv-entrypoint program 
+#   - use image ${denv_image} 
+#   - set home directory in the container to ${denv_workspace}
+#   - set user and group in container to current user and group
+#   - attach all mounts in space-separated list "${denv_mounts}"
+#   - pass on all current environment variables
+#   - set SHELL to be ${denv_shell} in container
 _denv_run() {
   # shellcheck disable=SC2312
   _hostname="${denv_name}.$(uname -n || true)"
