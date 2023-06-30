@@ -235,6 +235,10 @@ _denv_run() {
         # add to the environment
         environment="${environment} --env DENV_DEBUG=${DENV_DEBUG}"
       fi
+      # I'm going to go ahead and assume that the user running this program
+      # and currently configured in this shell is a valid user
+      # shellcheck disable=SC2312
+      userspec="$(id -u "${USER}"):$(id -g "${USER}")"
       # shellcheck disable=SC2086
       ${denv_runner} run \
         --rm \
@@ -244,7 +248,7 @@ _denv_run() {
         ${environment} \
         --workdir "${PWD}" \
         --entrypoint "${denv_entrypoint}" \
-        --user "$(id -u "${USER}"):$(id -g "${USER}")" \
+        --user "${userspec}" \
         "${denv_image}" \
         "$@"
       ;;
