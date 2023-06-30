@@ -201,6 +201,8 @@ if [ "${simple}" -eq "0" ]; then
   # not a simple installation, make the cheeky shortcut allowing users to use '\\' in place of 'denv'
   # at the command line
   cd "${dest_path}"
+  # I do not want to escape a single quote, I want to have a backslash filename
+  # shellcheck disable=SC1003
   ln -sf denv '\'
 fi
 
