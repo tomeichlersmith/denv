@@ -86,12 +86,13 @@ If you trust me (or have proofread the install script), you can install denv wit
     curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
 
 By default, this installs denv to ~/.local if you are a non-root user.
-You can define the install prefix (--prefix dir) and 
+You can define the install prefix (--prefix dir),
 choose to use the HEAD of the main branch rather
-than the last release (--next) both of which are optional.
+than the last release (--next), and disable the singe-character alias for denv
+(--simple), all of which are optional.
 
     curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \
-      sh -s -- --prefix dir --next
+      sh -s -- --prefix dir --next --simple
 
 ## git
 
