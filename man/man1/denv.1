@@ -114,14 +114,15 @@ curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh
 .PP
 By default, this installs denv to \[ti]/.local if you are a non-root
 user.
-You can define the install prefix (\[en]prefix dir) and choose to use
-the HEAD of the main branch rather than the last release (\[en]next)
-both of which are optional.
+You can define the install prefix (\[en]prefix dir), choose to use the
+HEAD of the main branch rather than the last release (\[en]next), and
+disable the singe-character alias for denv (\[en]simple), all of which
+are optional.
 .IP
 .nf
 \f[C]
 curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \[rs]
-  sh -s -- --prefix dir --next
+  sh -s -- --prefix dir --next --simple
 \f[R]
 .fi
 .SS git
