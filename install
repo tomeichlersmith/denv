@@ -36,6 +36,7 @@ Options:
                 ignored if not in the repository
   --next/-n:    install HEAD of main branch rather than last release
   --help/-h:    show this message
+  --simple:     dont add in the cheeky '\' alias for denv
   -v:     show more verbosity
 EOF
 }
@@ -44,6 +45,7 @@ version=v1.0.1
 next=0
 verbose=0
 devel=0
+simple=0
 prefix=""
 
 # Parse arguments
@@ -65,6 +67,10 @@ while [ "$#" -gt 0 ]; do
     -n | --next)
       shift
       next=1
+      ;;
+    --simple)
+      shift
+      simple=1
       ;;
     -p | --prefix)
       if [ -n "$2" ]; then
@@ -106,7 +112,7 @@ if [ -e "${curr_dir}/denv" ]; then
       printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
       exit 1
     fi
-    ${copy} "${dest_path}" _denv_entrypoint
+    ${copy} "${dest_path}" "${PWD}/_denv_entrypoint"
   else
     copy="install -D -m 0644 -t"
     if ! install -D -m 0755 -t "${dest_path}" denv; then
@@ -190,6 +196,13 @@ fi
 
 [ ! -w "${dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${dest_path}" && exit 1
 [ ! -w "${man_dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${man_dest_path}" && exit 1
+
+if [ "${simple}" -eq "0" ]; then
+  # not a simple installation, make the cheeky shortcut allowing users to use '\\' in place of 'denv'
+  # at the command line
+  cd "${dest_path}"
+  ln -sf denv '\'
+fi
 
 printf >&2 "\033[1;31m Successfully installed to %s.\n\033[0m" "${dest_path}"
 case "${PATH}" in

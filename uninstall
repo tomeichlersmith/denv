@@ -86,6 +86,7 @@ man_dest_path="${prefix}/share/man/man1"
 [ ! -w "${man_dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${man_dest_path}" && exit 1
 
 # uninstall
+rm -f "${dest_path}/\\"
 rm -f "${dest_path}/denv"
 rm -f "${dest_path}/_denv_entrypoint"
 for file in "${completion_dest_path}/denv"*; do
