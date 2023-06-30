@@ -29,7 +29,7 @@ denv_fullpath="$(realpath "$0" || true)"
 denv_entrypoint="$(dirname "${denv_fullpath}" || true)/_denv_entrypoint"
 
 if [ -n "${DENV_DEBUG+x}" ]; then
-  set -x
+  set -o xtrace
 fi
 
 if [ -n "${DENV_INFO+x}" ]; then
@@ -203,26 +203,49 @@ _denv_run() {
   case "${denv_runner}" in
     docker|podman)
       interactive=""
+      if tty -s; then
+        interactive="--interactive --tty"
+      fi
+      # need to mount workspace
+      denv_mounts="${denv_mounts} ${denv_workspace}"
+      # and need to mount group definition file
+      # mounting the passwd and group files may not work if host or contianer OS do not look 
+      # there for user/group definitions
+      denv_mounts="${denv_mounts} /etc/passwd /etc/group"
       # I want to ignore the return value of this function since it
       # is just concatenating strings for me
       # shellcheck disable=SC2312
       mounts="$(_denv_mounts_to_args "--volume")"
-      if tty -s; then
-        interactive="--interactive --tty"
+      environment="--env DENV_NAME=${denv_name}
+      --env DENV_RUNNER=${denv_runner}
+      --env DENV_IMAGE=${denv_image}
+      --env HOME=${denv_workspace}"
+      # deduce env variables, copied from distrobox
+      set +o xtrace # disable trace for this snippet
+      for i in $(printenv | grep '=' | grep -Ev ' |"|`|\$' | \
+        grep -Ev '^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)'); do
+        # environment filtered to ignore strange variables that are multiline or contain spaces in their values
+        # we also need to exclude important variables that we are defining special for the conatiner like HOME,
+        # HOSTNAME, and PATH
+        environment="--env ${i} ${environment}"
+      done
+      if [ -n "${DENV_DEBUG+x}" ]; then
+        # renable trace
+        set -o xtrace
+        # add to the environment
+        environment="${environment} --env DENV_DEBUG=${DENV_DEBUG}"
       fi
-      # --home ${denv_workspace} \
       # shellcheck disable=SC2086
       ${denv_runner} run \
         --rm \
         ${interactive} \
         ${mounts} \
         --hostname "${_hostname}" \
-        --env DENV_NAME="${denv_name}" \
-        --env DENV_CACHE="${denv_cache}" \
-        --user "${USER}" \
+        ${environment} \
         --workdir "${PWD}" \
+        --entrypoint "${denv_entrypoint}" \
+        --user "$(id -u "${USER}"):$(id -g "${USER}")" \
         "${denv_image}" \
-        "${denv_entrypoint}" \
         "$@"
       ;;
     apptainer|singularity)
@@ -269,6 +292,21 @@ _denv_run() {
 #  and calling the runner functions defined above in the correct sequence
 ###################################################################################################
 
+_denv_deduce_workspace() {
+  # start from PWD and go up directories until file .denv
+  # or reach root directory
+  denv_workspace="${PWD}"
+  while [ "${denv_workspace}" != "/" ]; do
+    if [ -d "${denv_workspace}/.denv" ]; then
+      return 0
+    fi
+    denv_workspace="$(dirname "${denv_workspace}" || true)"
+  done
+  _denv_error "Unable to deduce a denv workspace!" \
+    "Are you in a denv workspace? Do you still need to 'denv init'?"
+  return 1
+}
+
 # load the denv config from the input workspace
 # Arguments
 #  ${denv_workspace} env var
@@ -277,18 +315,7 @@ _denv_run() {
 _denv_load_config() {
   # deduce workspace if it isn't already defined
   if [ -z "${denv_workspace+x}" ]; then
-    # start from PWD and go up directories until file .denv
-    # or reach root directory
-    denv_workspace="${PWD}"
-    while [ "${denv_workspace}" != "/" ]; do
-      if [ -d "${denv_workspace}/.denv" ]; then
-        return 0
-      fi
-      denv_workspace="$(dirname "${denv_workspace}" || true)"
-    done
-    _denv_error "Unable to deduce a denv workspace!" \
-      "Are you in a denv workspace? Do you still need to 'denv init'?"
-    return 1
+    _denv_deduce_workspace
   fi
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091

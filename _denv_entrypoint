@@ -21,37 +21,54 @@
 set -o errexit
 set -o nounset
 
-runner=""
-if [ -f /singularity ]; then
-  runner="singularity"
-elif [ -f /run/.containerenv ]; then
-  runner="podman"
-elif [ -f /.dockerenv ]; then
-  runner="docker"
-else
-  printf >&2 "You must run %s inside a container!\n" " $(basename "$0")"
-  printf >&2 "_denv_entrypoint should only be used as an entrypoint for a denv!\n\n"
-  printf >&2 "This is not intended to be used manually, but instead used by denv\n"
-  printf >&2 "to set up the container's entrypoint.\n"
-  exit 126
+# Assumptions on the configuration of the container running this script
+# 1. The denv workspace is mounted to the home directory and HOME is defined
+# 2. Some other denv environment variables are defined
+#     DENV_RUNNER, DENV_IMAGE, DENV_NAME
+# 3. Optional environment variables should be defined for the container
+#    if they are defined for denv (e.g. DENV_DEBUG, DENV_INFO)
+
+if [ -n "${DENV_DEBUG+x}" ]; then
+  set -o xtrace
 fi
+
+if [ -n "${DENV_INFO+x}" ]; then
+  _denv_info() {
+    printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
+    shift
+    while [ "$#" -gt "0" ]; do
+      printf '       %s\n' "$1"
+      shift
+    done
+    printf "\033[0m"
+  }
+else
+  _denv_info() {
+    :
+  }
+fi
+
+# print each argument on its own line with the first line
+# prefixed with "ERROR: ".
+_denv_error() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf >&2 "       %s\n" "$1"
+    shift
+  done
+  printf >&2 "\033[0m"
+}
 
 # we have some variables that necessarily are defined outside this script
 # shellcheck disable=SC2154
-if [ -z "${DENV_CACHE+x}" ]; then
-  printf >&2 "ERROR: The necessary environment variables have not been passed into the runner."
+if [ -z "${DENV_RUNNER+x}" ] || [ -z "${DENV_IMAGE+x}" ] || [ -z "${DENV_NAME+x}" ] || [ -z "${HOME+x}" ]; then
+  _denv_error "The necessary environment variables have not been passed into the runner." \
+    "_denv_entrypoint should only be run within a container launced by denv."
   exit 1
 fi
 
-if [ -n "${DENV_DEBUG+x}" ]; then
-  set -x
-fi
-
-if [ ! -f "${DENV_CACHE}/user-created" ]; then
-  echo "Would create user for docker/podman"
-fi
-
-if [ ! -f "${DENV_CACHE}/skel-init" ]; then
+if [ ! -f "${HOME}/.denv/skel-init" ]; then
   # If we do not have profile files in the home, we should copy the
   # skeleton files, if present.
   # Ensure we copy only if the dotfile is not already present.
@@ -70,8 +87,6 @@ if [ ! -f "${DENV_CACHE}/skel-init" ]; then
       if [ ! -f "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}" ] &&
         [ ! -L "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}" ]; then
         cp "${skel_file}" "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}"
-        #chown "${container_user_uid}":"${container_user_gid}" \
-        #  "${HOME}/${file_path_for_home:+"${file_path_for_home}"/}${base_file_name}"
       fi
     done
   fi
@@ -88,7 +103,7 @@ if [ ! -f "${DENV_CACHE}/skel-init" ]; then
       } >> "${HOME}/.bashrc"
     fi
   fi
-  touch "${DENV_CACHE}/skel-init"
+  touch "${HOME}/.denv/skel-init"
 fi
 
 # intentionally allowing command line args to re-split into a command
