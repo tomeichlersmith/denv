@@ -328,7 +328,14 @@ _denv_load_config() {
   denv_image_cache="${denv_workspace}/.denv/images"
   denv_name="denv"
   if [ -z "${denv_runner+x}" ]; then
-    if command -v docker >/dev/null 2>&1; then
+    if [ -n "${DENV_RUNNER+x}" ]; then
+      denv_runner="${DENV_RUNNER}"
+      if ! command -v ${denv_runner} >/dev/null 2>&1; then
+        _denv_error "The container runner set via DENV_RUNNER=${DENV_RUNNER} is not a valid command." \
+          "You should only be setting DENV_RUNNER if you have more than one runner installed and wish to use denv with a specific one."
+        return 1
+      fi
+    elif command -v docker >/dev/null 2>&1; then
       denv_runner="docker"
     elif command -v podman >/dev/null 2>&1; then
       denv_runner="podman"
