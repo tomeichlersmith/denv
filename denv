@@ -120,7 +120,7 @@ _denv_image_exists() {
   case "${denv_runner}" in
     docker|podman)
       images_matching_tag="$(${denv_runner} images -q "${denv_image}" 2> /dev/null)"
-      test -z "${images_matching_tag}"
+      test -n "${images_matching_tag}"
       return $?
       ;;
     apptainer|singularity)
