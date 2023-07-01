@@ -417,7 +417,7 @@ _denv_config_image() {
       # any other argument should be treated as the 
       # new image tag to use for the denv
       denv_image="$1"
-      _denv_config_checked_pull
+      _denv_config_checked_pull "${DENV_NOPROMPT+DONT_PROMPT_USER}"
       ;;
   esac
 }
@@ -576,6 +576,10 @@ _denv_init() {
 
   # check if we already been init'ed
   if [ -d "${denv_workspace}/.denv" ];then
+    if [ -n "${DENV_NOPROMPT+x}" ]; then
+      _denv_error "denv prompt disabled but unwilling to delete a denv without user input."
+      return 1
+    fi
     printf "\033[1mThis workspace already has a denv. Would you like to overwrite it?\033[0m [Y/n] "
     read -r ans
     case "${ans}" in
@@ -609,7 +613,7 @@ GITIGNORE
 
   # reload config for any deduced parameters
   _denv_load_config
-  _denv_config_checked_pull
+  _denv_config_checked_pull "${DENV_NOPROMPT+DONT_PROMPT_USER}"
 }
 
 # print the denv version

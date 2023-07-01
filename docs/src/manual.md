@@ -114,6 +114,11 @@ to modify its behavior in an advanced way without having to provide many command
   the case where multiple managers are installed and you wish to override the default denv behavior of
   using the first runner that it finds available.
 
+  **DENV_NOPROMPT** disable all user prompting. This makes the following decisions in the places
+  where there would be prompts.
+  - 'denv init' errors out if there is already a denv in the deduced workspace
+  - 'denv init' and 'denv config image' will not pull an image if it already exists
+
 # FILES
 
 This part of the manual is an attempt to list and explain the files within a `.denv` directory.
