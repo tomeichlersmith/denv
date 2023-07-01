@@ -330,7 +330,7 @@ _denv_load_config() {
   if [ -z "${denv_runner+x}" ]; then
     if [ -n "${DENV_RUNNER+x}" ]; then
       denv_runner="${DENV_RUNNER}"
-      if ! command -v ${denv_runner} >/dev/null 2>&1; then
+      if ! command -v "${denv_runner}" >/dev/null 2>&1; then
         _denv_error "The container runner set via DENV_RUNNER=${DENV_RUNNER} is not a valid command." \
           "You should only be setting DENV_RUNNER if you have more than one runner installed and wish to use denv with a specific one."
         return 1
