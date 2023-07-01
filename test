@@ -1,0 +1,74 @@
+#!/bin/sh
+# testing script for denv, should not be installed with it
+#   set DENV_RUNNER environment variable to the runner to use with denv
+#   for the testing
+
+# POSIX
+set -o errexit
+set -o nounset
+#set -o xtrace
+
+# disable denv prompt
+export DENV_NOPROMPT=1
+
+workspace=$(mktemp -d || true)
+
+err() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\033[0m\n" "$1"
+}
+
+die() {
+  err "$@"
+  cd
+  rm -r ${workspace}
+  exit 1
+}
+
+check_pass() {
+  if ! $@ >check.log 2>&1; then
+    cat check.log
+    die "$@ failed to run"
+  fi
+}
+
+check_fail() {
+  if $@ >check.log 2>&1; then
+    cat check.log
+    die "$@ passed when it should have failed"
+  fi
+}
+
+check_equal() {
+  # when gathering the output of the container run
+  # outside of the container, sometimes the carriage
+  # part of the output is kept so we clean it out
+  lhs="$($1 | tr -d '\r')"
+  rhs="$($2 | tr -d '\r')"
+  if test "${lhs}" != "${rhs}"; then
+    die "${lhs} != ${rhs} when comparing '${1}' and '${2}'"
+  fi
+}
+
+cd ${workspace}
+
+# denv should fail since we haven't init'ed yet
+check_fail denv
+# can we init?
+check_pass denv init ubuntu:22.04
+# double init should fail in NOPROMPT mode
+check_fail denv init ubuntu:18.04
+# can the user inspect the config?
+check_pass denv config print
+# make sure exit codes are propagated through denv
+check_fail denv false
+# check user is passed into the container
+check_equal 'whoami' 'denv whoami'
+# make sure denv is in the right os
+check_pass denv grep -q '22.04' /etc/os-release
+# switch os
+check_pass denv config image ubuntu:18.04
+# and check
+check_pass denv grep -q '18.04' /etc/os-release
+
+cd
+rm -r ${workspace}
