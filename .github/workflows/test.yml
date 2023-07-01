@@ -27,8 +27,6 @@ jobs:
     strategy:
       matrix:
         runner: [docker, podman, singularity, apptainer]
-    env:
-      DENV_RUNNER=${{matrix.runner}}
     steps:
       - uses: actions/checkout@v3
       - uses: eWaterCycle/setup-singularity@v7
@@ -40,4 +38,6 @@ jobs:
         with:
           apptainer-version: 1.1.9
       - name: Test
+        env:
+          DENV_RUNNER=${{matrix.runner}}
         run: ./test
