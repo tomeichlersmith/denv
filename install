@@ -21,6 +21,28 @@
 set -o errexit
 set -o nounset
 
+_denv_info() {
+  printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf '       %s\n' "$1"
+    shift
+  done
+  printf "\033[0m"
+}
+
+# print each argument on its own line with the first line
+# prefixed with "ERROR: ".
+_denv_error() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf >&2 "       %s\n" "$1"
+    shift
+  done
+  printf >&2 "\033[0m"
+}
+
 # Print usage to stdout.
 # Arguments:
 #   None
@@ -41,7 +63,7 @@ Options:
 EOF
 }
 
-version=v1.0.1
+version=v0.0.0
 next=0
 verbose=0
 devel=0
@@ -104,19 +126,35 @@ man_dest_path="${prefix}/share/man/man1"
 curr_dir=$(dirname "$0")
 cd "${curr_dir}" || exit 1
 
-# if files are available, install files in dest directory
+# make sure destination is writable
+if [ ! -w "${dest_path}" ]; then
+  _denv_error "Cannot write into ${dest_path}, permission denied"
+  exit 1
+fi
+if [ ! -w "${man_dest_path}" ]; then
+  _denv_error "Cannot write into ${man_dest_path}, permission denied"
+  exit 1
+fi
+if [ ! -w "${completion_dest_path}" ]; then
+  _denv_error "Cannot write into ${completion_dest_path}, permission denied"
+  exit 1
+fi
+
+# if files are available here, install files in dest directory
 if [ -e "${curr_dir}/denv" ]; then
   if [ "${devel}" -ne 0 ]; then
     copy="ln -sf -t"
     if ! ${copy} "${dest_path}" "${PWD}/denv"; then
-      printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
+      _denv_error "Copying to ${dest_path} failed." \
+        "Do you have permission to write there?"
       exit 1
     fi
     ${copy} "${dest_path}" "${PWD}/_denv_entrypoint"
   else
     copy="install -D -m 0644 -t"
     if ! install -D -m 0755 -t "${dest_path}" denv; then
-      printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
+      _denv_error "Copying to ${dest_path} failed." \
+        "Do you have permission to write there?"
       exit 1
     fi
     install -D -m 0755 -t "${dest_path}" _denv_entrypoint
@@ -132,11 +170,12 @@ if [ -e "${curr_dir}/denv" ]; then
     done
   fi
 else
-  printf >&2 "\033[1;31m Checking dependencies...\n\033[0m"
+  # files are not here so we are going to download from github
+  _denv_info "Checking dependencies..."
   # check that we have base dependencies
   if ! { command -v curl > /dev/null || command -v wget > /dev/null; } || ! command -v tar > /dev/null; then
-    printf >&2 "Online install depends on tar and either curl or wget\n"
-    printf >&2 "Ensure you have all dependencies installed.\n"
+    _denv_error "Online install depends on 'tar' and either 'curl' or 'wget'" \
+      "Ensure these dependencies are installed and then rerun the online install."
     exit 1
   fi
 
@@ -146,7 +185,7 @@ else
     download="wget -qO"
   fi
 
-  printf >&2 "\033[1;31m Downloading...\n\033[0m"
+  _denv_info "Downloading..."
   if [ "${next}" -eq 0 ]; then
     release_ver="tomeichlersmith/denv/archive/refs/tags/${version}.tar.gz"
     release_name=$(echo "${release_ver}" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$')
@@ -160,7 +199,7 @@ else
   # download our target
   ${download} "${release_name}" "https://github.com/${release_ver}"
   # uncompress
-  printf >&2 "\033[1;31m Unpacking...\n\033[0m"
+  _denv_info "Unpacking..."
   if [ "${verbose}" -ne 0 ]; then
     tar xvf "${release_name}"
   else
@@ -172,7 +211,8 @@ else
   # deploy
   copy="install -D -m 0644 -t"
   if ! install -D -m 0755 -t "${dest_path}" denv; then
-    printf >&2 "Do you have permission to write to %s?\n" "${dest_path}"
+    _denv_error "Copying to ${dest_path} failed." \
+      "Do you have permission to write there?"
     exit 1
   fi
   install -D -m 0755 -t "${dest_path}" _denv_entrypoint
@@ -194,9 +234,6 @@ else
   fi
 fi
 
-[ ! -w "${dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${dest_path}" && exit 1
-[ ! -w "${man_dest_path}" ] && printf >&2 "Cannot write into %s, permission denied.\n" "${man_dest_path}" && exit 1
-
 if [ "${simple}" -eq "0" ]; then
   # not a simple installation, make the cheeky shortcut allowing users to use '\\' in place of 'denv'
   # at the command line
@@ -206,15 +243,13 @@ if [ "${simple}" -eq "0" ]; then
   ln -sf denv '\'
 fi
 
-printf >&2 "\033[1;31m Successfully installed to %s.\n\033[0m" "${dest_path}"
+_denv_info "Successfully installed denv to ${dest_path}"
 case "${PATH}" in
   *"${dest_path}"*)
-    if [ "${verbose}" -ne 0 ]; then
-      printf >&2  "  Found %s in PATH\n" "${dest_path}"
-    fi
+    _denv_info "Found ${dest_path} in PATH, you're all set!"
     ;;
   *)
-    printf >&2 "\033[1;31m Unable to find %s in PATH.\n\033[0m" "${dest_path}"
-    printf >&2 "\033[1;31m Be sure that %s is in your \$PATH environment variable for denv to work.\n\033[0m" "${dest_path}"
+    _denv_error "Unable to find ${dest_path} in PATH." \
+      "Be sure that directory in is your \$PATH environment variable for denv to work."
     ;;
 esac
