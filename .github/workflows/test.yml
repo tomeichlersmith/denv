@@ -39,5 +39,5 @@ jobs:
           apptainer-version: 1.1.9
       - name: Test
         env:
-          DENV_RUNNER=${{matrix.runner}}
+          DENV_RUNNER: ${{matrix.runner}}
         run: ./test
