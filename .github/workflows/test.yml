@@ -33,7 +33,7 @@ jobs:
         if: ${{matrix.runner == 'singularity'}}
         with:
           singularity-version: 3.8.3
-      - uses: eWaterCycle/setup-apptainer@v7
+      - uses: eWaterCycle/setup-apptainer@v2
         if: ${{matrix.runner == 'apptainer'}}
         with:
           apptainer-version: 1.1.9
