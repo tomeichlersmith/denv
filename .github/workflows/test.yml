@@ -40,4 +40,6 @@ jobs:
       - name: Test
         env:
           DENV_RUNNER: ${{matrix.runner}}
-        run: ./test
+        run: |
+          ./install
+          ./test
