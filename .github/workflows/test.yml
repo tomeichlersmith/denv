@@ -41,5 +41,5 @@ jobs:
         env:
           DENV_RUNNER: ${{matrix.runner}}
         run: |
-          ./install
+          sudo ./install
           ./test
