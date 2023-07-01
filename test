@@ -18,23 +18,25 @@ err() {
 }
 
 die() {
-  err "$@"
+  err "$*"
   cd
-  rm -r ${workspace}
+  rm -r "${workspace}"
   exit 1
 }
 
 check_pass() {
+  # shellcheck disable=SC2068
   if ! $@ >check.log 2>&1; then
     cat check.log
-    die "$@ failed to run"
+    die "$* failed to run"
   fi
 }
 
 check_fail() {
+  # shellcheck disable=SC2068
   if $@ >check.log 2>&1; then
     cat check.log
-    die "$@ passed when it should have failed"
+    die "$* passed when it should have failed"
   fi
 }
 
@@ -49,7 +51,7 @@ check_equal() {
   fi
 }
 
-cd ${workspace}
+cd "${workspace}"
 
 # denv should fail since we haven't init'ed yet
 check_fail denv
@@ -71,4 +73,4 @@ check_pass denv config image ubuntu:18.04
 check_pass denv grep -q '18.04' /etc/os-release
 
 cd
-rm -r ${workspace}
+rm -r "${workspace}"

@@ -1,0 +1,43 @@
+---
+name: ShellCheck and Test
+
+on:
+  push
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run ShellCheck
+        run: |
+          shellcheck \
+            --shell=sh \
+            --check-sourced \
+            --enable=all \
+            --severity=style \
+            --color=always \
+            --external-sources \
+            denv _denv_entrypoint install uninstall test
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner: [docker, podman, singularity, apptainer]
+    env:
+      DENV_RUNNER=${{matrix.runner}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: eWaterCycle/setup-singularity@v7
+        if: ${{matrix.runner == 'singularity'}}
+        with:
+          singularity-version: 3.8.3
+      - uses: eWaterCycle/setup-apptainer@v7
+        if: ${{matrix.runner == 'apptainer'}}
+        with:
+          apptainer-version: 1.1.9
+      - name: Test
+        run: ./test

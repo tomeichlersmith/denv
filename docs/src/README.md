@@ -2,7 +2,7 @@
 containerized development environments across many runners
 
 [![Generate Manual](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml)
-[![ShellCheck](https://github.com/tomeichlersmith/denv/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/shellcheck.yml)
+[![Tests](https://github.com/tomeichlersmith/denv/actions/workflows/test.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/test.yml)
 
 Develop code in identical command line interface environments across different container managers and their runners.
 
