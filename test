@@ -67,6 +67,8 @@ check_equal() {
 
 cd "${workspace}"
 
+# we assume user will set DENV_RUNNER when running tests
+# shellcheck disable=SC2154
 inf "Testing denv with ${DENV_RUNNER}"
 
 # denv should fail since we haven't init'ed yet
