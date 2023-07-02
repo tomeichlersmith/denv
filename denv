@@ -265,8 +265,9 @@ _denv_run() {
       ${denv_runner} exec \
         --hostname "${_hostname}" \
         --home "${denv_workspace}" \
-        --env DENV_CACHE="${denv_cache}" \
         --env DENV_NAME="${denv_name}" \
+        --env DENV_RUNNER=${denv_runner} \
+        --env DENV_IMAGE=${denv_image} \
         ${mounts} \
         "${sif_file}" \
         "${denv_entrypoint}" \
