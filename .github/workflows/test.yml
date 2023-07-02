@@ -11,15 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run ShellCheck
-        run: |
-          shellcheck \
-            --shell=sh \
-            --check-sourced \
-            --enable=all \
-            --severity=style \
-            --color=always \
-            --external-sources \
-            denv _denv_entrypoint install uninstall test
+        run: ./ci/check
 
   test:
     name: Test
@@ -43,4 +35,4 @@ jobs:
       - name: Test
         env:
           DENV_RUNNER: ${{matrix.runner}}
-        run: ./test
+        run: ./ci/test

@@ -325,7 +325,6 @@ _denv_load_config() {
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
-  denv_cache="${denv_workspace}/.denv"
   denv_image_cache="${denv_workspace}/.denv/images"
   denv_name="denv"
   if [ -z "${denv_runner+x}" ]; then

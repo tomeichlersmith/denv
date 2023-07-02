@@ -1,0 +1,10 @@
+#!/bin/sh
+shellcheck \
+  --shell=sh \
+  --check-sourced \
+  --enable=all \
+  --severity=style \
+  --color=always \
+  --external-sources \
+  denv _denv_entrypoint \
+  install uninstall ci/test
