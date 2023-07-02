@@ -13,12 +13,20 @@ export DENV_NOPROMPT=1
 
 workspace=$(mktemp -d || true)
 
-err() {
-  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\033[0m\n" "$1"
+inf() {
+  printf "\033[1mINFO: \033[0m%s\n" "$*"
+}
+
+fail() {
+  printf >&2 "\033[1;31mFAIL: \033[0m\033[31m%s\033[0m\n" "$*"
+}
+
+pass() {
+  printf "\033[1;32mPASS: \033[0m\033[32m%s\033[0m\n" "$*" 
 }
 
 die() {
-  err "$*"
+  fail "$*"
   cd
   rm -r "${workspace}"
   exit 1
@@ -28,7 +36,9 @@ check_pass() {
   # shellcheck disable=SC2068
   if ! $@ >check.log 2>&1; then
     cat check.log
-    die "$* failed to run"
+    fail "$* failed to run"
+  else
+    pass "'$*' ran successfully"
   fi
 }
 
@@ -36,7 +46,9 @@ check_fail() {
   # shellcheck disable=SC2068
   if $@ >check.log 2>&1; then
     cat check.log
-    die "$* passed when it should have failed"
+    fail "'$*' passed when it should have failed"
+  else
+    pass "'$*' failed when it should have failed"
   fi
 }
 
@@ -48,10 +60,14 @@ check_equal() {
   rhs="$($2 | tr -d '\r')"
   if test "${lhs}" != "${rhs}"; then
     die "${lhs} != ${rhs} when comparing '${1}' and '${2}'"
+  else
+    pass "${lhs} == ${rhs} when comparing '${1}' and '${2}'"
   fi
 }
 
 cd "${workspace}"
+
+inf "Testing denv with ${DENV_RUNNER}"
 
 # denv should fail since we haven't init'ed yet
 check_fail denv
