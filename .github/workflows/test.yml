@@ -25,6 +25,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         runner: [docker, podman, singularity, apptainer]
     steps:
@@ -37,9 +38,9 @@ jobs:
         if: ${{matrix.runner == 'apptainer'}}
         with:
           apptainer-version: 1.1.9
+      - name: Install
+        run: sudo ./install
       - name: Test
         env:
           DENV_RUNNER: ${{matrix.runner}}
-        run: |
-          sudo ./install
-          ./test
+        run: ./test
