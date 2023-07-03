@@ -206,8 +206,6 @@ _denv_run() {
       if tty -s; then
         interactive="--interactive --tty"
       fi
-      # need to mount workspace
-      denv_mounts="${denv_mounts} ${denv_workspace}"
       # and need to mount group definition file
       # mounting the passwd and group files may not work if host or contianer OS do not look 
       # there for user/group definitions
@@ -216,6 +214,15 @@ _denv_run() {
       # is just concatenating strings for me
       # shellcheck disable=SC2312
       mounts="$(_denv_mounts_to_args "--volume")"
+      # need to mount workspace in a special way for podman
+      # https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
+      if [ "${denv_runner}" = "podman" ]; then
+        # shellcheck disable=SC2312
+        #mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}:idmap"
+        mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
+      else
+        mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
+      fi
       environment="--env DENV_NAME=${denv_name}
       --env DENV_RUNNER=${denv_runner}
       --env DENV_IMAGE=${denv_image}
@@ -239,6 +246,12 @@ _denv_run() {
       # and currently configured in this shell is a valid user
       # shellcheck disable=SC2312
       userspec="$(id -u "${USER}"):$(id -g "${USER}")"
+      # until podman makes a release v4.6.0 with idmap
+      # the simplest solution is to just have the in-container user be root
+      # https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
+      if [ "${denv_runner}" = "podman" ]; then
+        userspec="root"
+      fi
       # shellcheck disable=SC2086
       ${denv_runner} run \
         --rm \

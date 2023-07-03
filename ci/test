@@ -82,7 +82,12 @@ check_pass denv config print
 # make sure exit codes are propagated through denv
 check_fail denv false
 # check user is passed into the container
-check_equal 'whoami' 'denv whoami'
+# for podman, we are waiting for idmap to get into a release
+# its already in v4.6.0-rc1
+# https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
+if [ "${DENV_RUNNER}" != "podman" ]; then
+  check_equal 'whoami' 'denv whoami'
+fi
 # make sure denv is in the right os
 check_pass denv grep -q '22.04' /etc/os-release
 # switch os
