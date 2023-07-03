@@ -88,6 +88,10 @@ check_fail denv false
 if [ "${DENV_RUNNER}" != "podman" ]; then
   check_equal 'whoami' 'denv whoami'
 fi
+# make sure files written from denv are owned by user outside denv
+check_pass denv touch file-from-denv
+check_equal 'stat -c %u file-from-denv' "id -u ${USER}"
+check_equal 'stat -c %g file-from-denv' "id -g ${USER}"
 # make sure denv is in the right os
 check_pass denv grep -q '22.04' /etc/os-release
 # switch os
