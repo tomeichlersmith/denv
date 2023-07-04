@@ -25,3 +25,10 @@ a development environment across these four container managers.
 - [devbox](https://github.com/jetpack-io/devbox): "similar to a package manager ... except the packages it manages are at the operating-system level", a helpful tool based on `nix`, written in `go`
   - This is the newest project and probably most closely aligned to my goals; however, it would require understanding how to write NixPkgs for all my dependencies (which is not an easy task given how specialized so many of the packages are) and I am not currently able to functionally install it on the HPCs which use apptainer/singularity.
 - [toolbox](https://github.com/containers/toolbox): built on top of `podman`, similar in spirit to distrobox and devbox
+
+## Quick Start
+```
+curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
+denv init <dev-image-to-use>
+denv
+```
