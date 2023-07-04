@@ -2,7 +2,15 @@
 name: ShellCheck and Test
 
 on:
-  push
+  push:
+    paths:
+      - 'denv'
+      - '_denv_entrypoint'
+      - 'install'
+      - 'uninstall'
+      - 'ci/test'
+      - 'ci/check'
+  workflow_dispatch:
 
 jobs:
   shellcheck:
