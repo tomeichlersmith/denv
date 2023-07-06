@@ -128,14 +128,14 @@ cd "${curr_dir}" || exit 1
 
 # make sure destination is writable
 if [ ! -d "${dest_path}" ]; then
-  mkdir -p ${dest_path}
+  mkdir -p "${dest_path}"
 fi
 if [ ! -w "${man_dest_path}" ]; then
   _denv_error "Cannot write into ${man_dest_path}, permission denied"
   exit 1
 fi
 if [ ! -d "${completion_dest_path}" ]; then
-  mkdir -p ${completion_dest_path}
+  mkdir -p "${completion_dest_path}"
 fi
 
 # if files are available here, install files in dest directory
