@@ -10,7 +10,7 @@ denv v0.0.0
 \f[B]denv\f[R] version
 .PP
 \f[B]denv\f[R] init [help|-h|\[en]help] IMAGE [WORKSPACE]
-[\[en]no-gitignore]
+[\[en]no-gitignore] [\[en]force] [\[en]name NAME]
 .PP
 \f[B]denv\f[R] config [help|-h|\[en]help]
 .PP
@@ -42,6 +42,12 @@ message for \f[B]denv\f[R] or one of its sub commands
 .PP
 \f[B]--no-gitignore\f[R] do not generate a gitignore file when setting
 up a new denv configuration
+.PP
+\f[B]--force\f[R] forces re-initialization of a denv even if the current
+workspace has one
+.PP
+\f[B]--name\f[R] sets the name for the denv workspace that is being
+initialized
 .SS ARGUMENTS
 .PP
 \f[B]IMAGE\f[R] the name of a container image to use when starting a
@@ -177,6 +183,8 @@ The config file is a basic key=value shell file that will be sourced by
 denv.
 This is a security risk and could be updated to a different type of
 config file if desired.
+.PP
+\f[B]denv_name\f[R] the name for this denv
 .PP
 \f[B]denv_image\f[R] the image to use when running the denv
 .PP
