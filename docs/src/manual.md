@@ -6,7 +6,7 @@ denv v0.0.0
 
 **denv** version
 
-**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore]
+**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--force] [--name NAME]
 
 **denv** config [help|-h|--help]
 
@@ -35,6 +35,10 @@ of its sub commands.
 **\-\-help**, **\-h**, or **help** print a short help message for **denv** or one of its sub commands
 
 **\-\-no\-gitignore** do not generate a gitignore file when setting up a new denv configuration
+
+**\-\-force** forces re-initialization of a denv even if the current workspace has one
+
+**\-\-name** sets the name for the denv workspace that is being initialized
 
 ## ARGUMENTS
 
@@ -130,6 +134,8 @@ While it is plain-text and you can edit it directly. Editing it with the denv co
 is helpful for doing basic typo- and existence- checking. The config file is a basic key=value shell
 file that will be sourced by denv. This is a security risk and could be updated to a different type
 of config file if desired.
+
+  **denv_name** the name for this denv
 
   **denv_image** the image to use when running the denv
 
