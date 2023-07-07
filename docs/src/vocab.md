@@ -15,3 +15,11 @@ They may have different definitions outside of this manual.
   - The default installation of `denv` comes with an alias for the command which is
     the special backslash character, so one can run `denv` also by running `\\` at
     the command line. This means I often read `\\` as `denv` in my head.
+- **container**: while not technically correct, I usually think of containers as
+  light-weight virtual machines (VMs). This gets the point across that they have
+  a different environment and can contain software that couldn't run on the host.
+- **image**: the data that can be used to launch a container with specific
+  software in it. Usually, images consist of _layers_ which are created by
+  running different commands within the image during the build process.
+  - Look into [Developing the Environment](./env_dev.md) to learn more
+    about building images for use with `denv` in mind.
