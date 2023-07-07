@@ -43,6 +43,44 @@ do not exist in a directory pointed to by your `PATH` variable then you will nee
 full path to run.
 
 ## Usage
-`denv` is a relatively simple program with very few commands and even fewer options.
+`denv` is a relatively simple program with very few commands and even fewer options,
+but to help you get started, lets start a denv with a dependency you would want to
+be completely isolated from your computer: python2.7.
 
-**NEED TO GO THROUGH AN EXAMPLE**
+First, we will work in an example workspace that can easily be cleaned up.
+```
+mkdir denv-eg
+cd denv-eg
+```
+Now we can initialize the environment.
+```
+denv init python:2.7.18
+```
+This step will download the image to your computer if you do not already have it.
+It will also be the first step that checks if you have a supported container runner.
+Now we can enter the denv itself.
+```
+denv
+```
+The prompt will likely change since `denv` changes the hostname for the container to
+include the name given to the denv (in this case just "denv").
+Here, we now have a terminal where the python available is Python 2.7.
+```
+python --version
+# output: Python 2.7.18
+```
+This example is pretty trivial (especially given the plethora of other solutions for
+isolated python environments), but it does show the basic workflow of `denv` - users
+configure it to have a certain container image defining the environment in-which to
+develop and then users enter this environment to do their work.
+We can clean up the denv by exiting our workspace and deleting the directory.
+```
+cd ..
+rm -r denv-eg
+```
+_Note:_ Container runners maintain image caches outside of the denv workspace so if
+you wish to remove the `python:2.7.18` image from your system, you will need to look
+at the documentation for your runner on how to do that. Generally, keeping extra images
+in your cache is good because it saves time re-downloading image layers that have been
+downloaded before, so you really should only worry about deleting the image if you are
+running out of disk space.
