@@ -143,10 +143,6 @@ of config file if desired.
 
   **denv_mounts** a space separated list of extra mounts to mount into denv when running
 
-There are additional "super user" options which can offer more fine-tuned control over denv.
-
-  **denv_runner** (optional) define which runner to use, will be deduced by denv if not provided
-
 ## skel-init
 
 This is an empty file that, if it exists, signals to the entrypoint executable that the files from /etc/skel have
