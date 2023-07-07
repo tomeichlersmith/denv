@@ -94,6 +94,13 @@ check_equal 'stat -c %u file-from-denv' "id -u ${USER}"
 check_equal 'stat -c %g file-from-denv' "id -g ${USER}"
 # make sure denv is in the right os
 check_pass denv grep -q '22.04' /etc/os-release
+# make sure denv sources the bashrc by getting denv to fail
+# to open an interactive shell if the .bashrc is sourced
+echo "exit 1" >> .bashrc
+check_fail denv
+# still can run non-interactive commands since they don't
+#  source the bashrc
+check_pass denv true
 # switch os
 check_pass denv config image ubuntu:18.04
 # and check
