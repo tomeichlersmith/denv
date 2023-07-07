@@ -23,3 +23,7 @@ They may have different definitions outside of this manual.
   running different commands within the image during the build process.
   - Look into [Developing the Environment](./env_dev.md) to learn more
     about building images for use with `denv` in mind.
+- **workspace**: the special directory containing all of the files that are being
+  worked on. This is simply a shorthand for this special directory and can, for
+  most use cases, map pretty cleanly to the "repository root directory" or (if
+  you are using `git`), the directory that contains the hidden directory `.git`.
