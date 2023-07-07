@@ -125,17 +125,11 @@ _denv_image_exists() {
       ;;
     apptainer|singularity)
       [ -d "${denv_image_cache}" ] || return 1;
-      # I want to ignore the return value of this function since it
-      # is just writing a hidden filename for caching the image used by denv
-      # shellcheck disable=SC2312
       test -f "${denv_image_cache}/$(_denv_image_to_filename).sif"
       return $?
       ;;
     norunner)
       [ -d "${denv_image_cache}" ] || return 1;
-      # I want to ignore the return value of this function since it
-      # is just writing a hidden filename for caching the image used by denv
-      # shellcheck disable=SC2312
       test -f "${denv_image_cache}/$(_denv_image_to_filename)"
       return $?
       ;;
@@ -159,9 +153,6 @@ _denv_pull() {
       ;;
     apptainer|singularity)
       [ -d "${denv_image_cache}" ] || mkdir -p "${denv_image_cache}"
-      # I want to ignore the return value of this function since it
-      # is just writing a hidden filename for caching the image used by denv
-      # shellcheck disable=SC2312
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       image_full="${denv_image}"
       echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
@@ -172,9 +163,6 @@ _denv_pull() {
       ;;
     norunner)
       mkdir -p "${denv_image_cache}"
-      # I want to ignore the return value of this function since it
-      # is just writing a hidden filename for caching the image used by denv
-      # shellcheck disable=SC2312
       touch "${denv_image_cache}/$(_denv_image_to_filename)"
       ;;
     *)
@@ -194,7 +182,6 @@ _denv_pull() {
 #     as well as the DENV_* variables
 #   - set SHELL to be ${denv_shell} in container
 _denv_run() {
-  # shellcheck disable=SC2312
   _hostname="${denv_name}.$(uname -n || true)"
   # we will be running now and not writing the config
   # so we can update the denv_mounts list
@@ -210,14 +197,10 @@ _denv_run() {
       # mounting the passwd and group files may not work if host or contianer OS do not look 
       # there for user/group definitions
       denv_mounts="${denv_mounts} /etc/passwd /etc/group"
-      # I want to ignore the return value of this function since it
-      # is just concatenating strings for me
-      # shellcheck disable=SC2312
       mounts="$(_denv_mounts_to_args "--volume")"
       # need to mount workspace in a special way for podman
       # https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
       if [ "${denv_runner}" = "podman" ]; then
-        # shellcheck disable=SC2312
         #mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}:idmap"
         mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       else
@@ -242,9 +225,6 @@ _denv_run() {
         # add to the environment
         environment="${environment} --env DENV_DEBUG=${DENV_DEBUG}"
       fi
-      # I'm going to go ahead and assume that the user running this program
-      # and currently configured in this shell is a valid user
-      # shellcheck disable=SC2312
       userspec="$(id -u "${USER}"):$(id -g "${USER}")"
       # until podman makes a release v4.6.0 with idmap
       # the simplest solution is to just have the in-container user be root
@@ -268,11 +248,7 @@ _denv_run() {
     apptainer|singularity)
       # apptainer/singularity do not pull automatically when attempting to run
       _denv_config_checked_pull DO_NOT_PROMPT_USER
-      # I want to ignore the return value of this function since it
-      # is just concatenating strings for me
-      # shellcheck disable=SC2312
       mounts="$(_denv_mounts_to_args "--bind")"
-      # shellcheck disable=SC2312
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       # shellcheck disable=SC2086
       ${denv_runner} exec \
@@ -291,9 +267,6 @@ _denv_run() {
       echo "  HOME=\"${denv_workspace}\""
       echo "  SHELL=\"${denv_shell}\""
       echo "  PWD=\"${PWD}\""
-      # I want to ignore the return value of this function since it
-      # is just concatenating strings for me
-      # shellcheck disable=SC2312
       [ -z "${denv_mounts}" ] || echo "  $(_denv_mounts_to_args "--bind")"
       ;;
     *)
@@ -395,10 +368,6 @@ _denv_config_print() {
 #  1 - disable user prompt if provided, just assume no pull
 #  denv_image (same as _denv_image_exists and _denv_pull)
 _denv_config_checked_pull() {
-  # I do want to fail-quiet here and so I implicitly
-  # disable the 'set -e' flag which would normally
-  # exit the program with any non-zero exit status
-  # shellcheck disable=SC2310
   if ! _denv_image_exists; then
     _denv_pull
   elif [ -z "${1+x}" ]; then
