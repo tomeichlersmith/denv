@@ -19,17 +19,13 @@ inf() {
 
 fail() {
   printf >&2 "\033[1;31mFAIL: \033[0m\033[31m%s\033[0m\n" "$*"
+  cd
+  rm -r "${workspace}"
+  exit 1
 }
 
 pass() {
   printf "\033[1;32mPASS: \033[0m\033[32m%s\033[0m\n" "$*" 
-}
-
-die() {
-  fail "$*"
-  cd
-  rm -r "${workspace}"
-  exit 1
 }
 
 check_pass() {
@@ -59,7 +55,7 @@ check_equal() {
   lhs="$($1 | tr -d '\r')"
   rhs="$($2 | tr -d '\r')"
   if test "${lhs}" != "${rhs}"; then
-    die "${lhs} != ${rhs} when comparing '${1}' and '${2}'"
+    fail "${lhs} != ${rhs} when comparing '${1}' and '${2}'"
   else
     pass "${lhs} == ${rhs} when comparing '${1}' and '${2}'"
   fi
@@ -81,6 +77,12 @@ check_fail denv init ubuntu:18.04
 check_pass denv config print
 # make sure exit codes are propagated through denv
 check_fail denv false
+# make sure name setting works
+check_equal 'denv printenv DENV_NAME' "basename ${PWD}"
+# can force re-init of denv
+check_pass denv init ubuntu:22.04 --force --name newname
+# make sure update was applied
+check_equal 'denv printenv DENV_NAME' 'echo newname'
 # check user is passed into the container
 # for podman, we are waiting for idmap to get into a release
 # its already in v4.6.0-rc1
