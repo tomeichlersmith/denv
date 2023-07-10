@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with denv; if not, see <http://www.gnu.org/licenses/>.
 
-denv_version=0.1.0
+denv_version=0.2.0
 
 # POSIX
 set -o errexit
