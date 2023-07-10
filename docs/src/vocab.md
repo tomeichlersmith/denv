@@ -27,3 +27,8 @@ They may have different definitions outside of this manual.
   worked on. This is simply a shorthand for this special directory and can, for
   most use cases, map pretty cleanly to the "repository root directory" or (if
   you are using `git`), the directory that contains the hidden directory `.git`.
+- **runner**: a program that uses a _image_ to start up a _container_ with which
+  the user can interact. In this project, I use "container runner" and "container
+  manager" interchangeably even though they aren't technically the same. The
+  requirements on a "runner" to be a backend for denv are defined in
+  [Adding a new Runner](./new_runner.md).
