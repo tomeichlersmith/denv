@@ -125,7 +125,7 @@ _denv_image_exists() {
       ;;
     apptainer|singularity)
       [ -d "${denv_image_cache}" ] || return 1;
-      test -f "${denv_image_cache}/$(_denv_image_to_filename).sif"
+      test -e "${denv_image_cache}/$(_denv_image_to_filename).sif"
       return $?
       ;;
     norunner)
@@ -154,12 +154,24 @@ _denv_pull() {
     apptainer|singularity)
       [ -d "${denv_image_cache}" ] || mkdir -p "${denv_image_cache}"
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
-      image_full="${denv_image}"
-      echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
-      ${denv_runner} build \
-        --force \
-        "${sif_file}" \
-        "${image_full}"
+      if [ -e "${denv_image}" ]; then
+        _denv_info "This path exists on the filesystem, assuming unpacked image."
+        # if the passed image is a file system path,
+        # we assume it is an already unpacked image
+        # and so we just symlink to it in our cache
+        ln -s "${denv_image}" "${sif_file}" 
+      else
+        _denv_info "Image does not exist on filesystem, assuming registry tag."
+        # passed image is not a file so we assume it
+        # is the name of an image in some remote registry
+        # using the docker:// registry as default
+        image_full="${denv_image}"
+        echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
+        ${denv_runner} build \
+          --force \
+          "${sif_file}" \
+          "${image_full}"
+      fi
       ;;
     norunner)
       mkdir -p "${denv_image_cache}"
