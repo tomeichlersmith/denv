@@ -13,6 +13,6 @@
 
 # Contributing
 
-- [How to Contribute]()
+- [How to Contribute](./contributing.md)
 - [Adding a new Runner]()
 - [What to Test]()

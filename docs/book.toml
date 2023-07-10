@@ -4,3 +4,10 @@ language = "en"
 multilingual = false
 src = "src"
 title = "denv"
+
+[output.html]
+mathjax-support = true
+site-url = "/denv/"
+git-repository-url = "https://github.com/tomeichlersmith/denv/tree/main/"
+edit-url-template = "https://github.com/tomeichlersmith/denv/edit/main/{path}"
+
