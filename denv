@@ -235,6 +235,7 @@ _denv_run() {
       # shellcheck disable=SC2086
       ${denv_runner} run \
         --rm \
+        --network host \
         ${interactive} \
         ${mounts} \
         --hostname "${_hostname}" \
