@@ -15,4 +15,3 @@
 
 - [How to Contribute](./contributing.md)
 - [Adding a new Runner](./new_runner.md)
-- [What to Test]()

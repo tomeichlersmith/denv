@@ -45,3 +45,53 @@ that runs the images.
 - **Environment Variables**: besides hidden (beginning with `_`) and 
   special (e.g. `HOME` and `HOSTNAME`) varaibles, all environment variables
   should be passed into the denv along with a few denv-specific variables
+
+## What to Test
+If you are developing a new runner to be wrapped by `denv`, the natural next
+question to ask is how should I test that it is functional. 
+
+First and foremost, make sure your additions to `denv` still pass the
+non-interactive tests.
+```
+./ci/check
+DENV_RUNNER=<your-runner> ./ci/test
+```
+These can be enabled in your fork of denv so that they run automatically on GitHub
+when you push to a branch on your fork. In order for GitHub to be able to test
+your runner, you will need to install it into the runner during the testing workflow
+(`.github/workflows/test.yml`).
+
+Besides the non-interactive tests, there are some additional, manual tests that
+I haven't figured out how to automate since they check interactions between
+the host and denv environments.
+
+### Make sure GUI Programs can be launched
+There is a small image that can be used to test whether GUI programs can be
+run from within a denv. Both launching from a in-denv shell and launching
+it directly from outside the denv should work properly.
+```
+mkdir gui-test
+denv init fr3nd/xeyes
+# from a in-denv shell
+denv
+xeyes
+exit
+# from a non-interactive shell
+denv xeyes
+```
+
+### Make sure Network and Ports are Connected
+My main reason for supporting this is to allow me to interact with a
+[Jupyter Lab](https://jupyterlab.readthedocs.io/en/latest/) instance 
+running from within the denv. The Jupyter Project has built some
+images with their software installed which can be used for testing.
+```
+mkdir net-test
+cd net-test
+denv init jupyter/datascience-notebook
+denv jupyter lab --no-browser
+```
+The user should be able to access the localhost link displayed by
+jupyter. **Note**: Developers should know that these images have
+a very special user and entrypoint configuration specialized for
+jupyter lab which may cause extra complications.
