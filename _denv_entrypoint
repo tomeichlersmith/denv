@@ -92,7 +92,7 @@ if [ ! -f "${HOME}/.denv/skel-init" ]; then
   fi
 
   if [ -f "${HOME}/.bashrc" ]; then
-    if [ "${DENV_RUNNER}" = "singularity" ]; then
+    if [ "${DENV_RUNNER}" = "singularity" ] || [ "${DENV_RUNNER}" = "apptainer" ]; then
       # for apptainer/singularity runners
       {
         echo "# apptainer/singularity set the environment varible PROMPT_COMMAND"
