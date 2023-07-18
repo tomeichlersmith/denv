@@ -11,7 +11,8 @@ on:
 jobs:
   gen_man:
     permissions:
-      contents: write
+      pull-requests: write
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
