@@ -43,10 +43,18 @@ help() {
 
  USAGE:
 
-  ./ci/set-version X.Y.Z
+  ./ci/set-version [options] X.Y.Z
 
  ARGUMENTS
   X.Y.Z : new version string to use
+
+ OPTIONS
+  -h, --help : print this help and exit
+  --commit   : make a commit, tag, and push
+  --dry-run  : just show what would be done in
+               a git-diff-like format
+  --force    : ignore if there are untracked
+               or modified files in your git working tree
 
 HELP
 }
@@ -56,24 +64,77 @@ if [ "$#" -eq 0 ]; then
   exit 0
 fi
 
-if [ "$#" -gt 1 ]; then
-  help
-  error "./ci/set-version requires one and only one argument"
+version=""
+commit=0
+dry_run=0
+force=0
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      help
+      exit 0
+      ;;
+    --commit)
+      commit=1
+      ;;
+    --dry-run)
+      dry_run=1
+      ;;
+    --force)
+      force=1
+      ;;
+    -*)
+      error "Unrecognized option '$1'"
+      exit 1
+      ;;
+    *)
+      if [ -z "${version}" ]; then
+        version="$1"
+      else
+        error "./ci/set-version only accepts a single argument"
+        exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+
+if [ -z "${version}" ]; then
+  error "need to define the version we should use"
   exit 1
 fi
 
-if ! validate_version "${1}"; then
-  error "version string '${1}' does not match X.Y.Z"
+if ! validate_version "${version}"; then
+  error "version string '${version}' does not match X.Y.Z"
   exit 1
 fi
 
-if check_changes; then
+if ! check_changes && [ "${force}" -eq "0" ]; then
   error "Some untracked or modified files are still in the git area. Did you commit all the changes?"
   exit 1
 fi
 
-update "${1}"
-git add docs/src/manual.md install denv
-git commit -m "set version to v${1}"
-git tag "v${1}"
-git push --tags
+update "${version}"
+
+# use git diff to print what we changed and then
+# show what other commands would be run given the command options
+if [ "${dry_run}" -eq "1" ]; then
+  git diff docs/src/manual.md install denv
+  if [ "${commit}" -eq "1" ]; then
+    echo git add docs/src/manual.md install denv
+    echo git commit -m "set version to v${1}"
+    echo git tag "v${1}"
+    echo git push --tags
+  fi
+  # undo the changes we made
+  git restore docs/src/manual.md install denv
+  exit 0
+fi
+
+# down here if not in a dry, run keep the applied changes
+if [ "${commit}" -eq "1" ]; then
+  git add docs/src/manual.md install denv
+  git commit -m "set version to v${1}"
+  git tag "v${1}"
+  git push --tags
+fi
