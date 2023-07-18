@@ -27,6 +27,6 @@ jobs:
           git switch -c auto-man-update
           git add man
           git commit -m "Auto Man Page Update from ${{ github.event.head_commit.message }}" || exit 0
-          gh pr create --fill
+          gh pr create --head auto-man-update --base main --fill
         env:
           GH_TOKEN: ${{ github.token }}
