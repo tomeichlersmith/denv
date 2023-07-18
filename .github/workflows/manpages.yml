@@ -24,10 +24,9 @@ jobs:
         run: |
           git config --global user.name denv-docs-bot
           git config --global user.email denv-docs-bot@users.noreply.github.com
-          git switch -c man-update
+          git switch -c auto-man-update
           git add man
-          git commit -m "Auto Man Page Update" || exit 0
-          git push -fu origin man-update
-          gh pr create -B main -H man-update --title "Auto Man Page Update"
+          git commit -m "Auto Man Page Update from ${{ github.event.head_commit.message }}" || exit 0
+          gh pr create --fill
         env:
           GH_TOKEN: ${{ github.token }}
