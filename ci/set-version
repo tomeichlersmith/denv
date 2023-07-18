@@ -19,13 +19,13 @@ update() {
 # ARGS
 #  1 - version string to test
 validate_version() {
-  expr match "${1}" '^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' > /dev/null
+  expr "${1}" : '^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' > /dev/null
 }
 
 # check if there are any changes the user hasn't commited yet
 check_changes() {
   # checks for any untracked or modified files
-  git ls-files --other --modified --directory --exclude-standard > /dev/null | sed q1
+  git ls-files --other --modified --directory --exclude-standard | sed q1 > /dev/null
 }
 
 error() {
