@@ -4,6 +4,8 @@ name: Generate Manual
 
 on:
   push:
+    branches:
+      - 'main'
     paths:
       - 'docs/src/manual.md'
   workflow_dispatch:
