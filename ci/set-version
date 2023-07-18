@@ -74,6 +74,6 @@ fi
 
 update "${1}"
 git add docs/src/manual.md install denv
-git commit -m "set version to ${1}"
-git tag "${1}"
+git commit -m "set version to v${1}"
+git tag "v${1}"
 git push --tags
