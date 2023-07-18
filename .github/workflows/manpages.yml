@@ -29,3 +29,5 @@ jobs:
           git commit -m "Auto Man Page Update" || exit 0
           git push -fu origin man-update
           gh pr create -B main -H man-update --title "Auto Man Page Update"
+        env:
+          GH_TOKEN: ${{ github.token }}
