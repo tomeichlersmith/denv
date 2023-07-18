@@ -42,6 +42,14 @@ Instead of expecting users to correctly write configurations into
 the `.bashrc` in their workspace, one can make heavy use of environment
 variables in the image definition.
 
+## apptainer support
+Apptainer and singularity take a slightly different approach to
+running containers than docker or podman and so there are some
+restrictions on the images you should impose to ease this difference.
+
+Take a look at [Docker-Apptainer Compatibility](https://apptainer.org/docs/user/main/docker_and_oci.html#best-practices-for-docker-apptainer-compatibility) in the apptainer docs to learn
+more.
+
 ## distrobox
 This is probably the biggest tip. Remember when I said that distrobox
 inspired denv and denv has a smaller feature set? Well, I think distrobox
