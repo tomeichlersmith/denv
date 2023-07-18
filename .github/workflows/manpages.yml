@@ -30,6 +30,7 @@ jobs:
           git switch -c auto-man-update
           git add man
           git commit -m "Auto Man Page Update from ${{ github.event.head_commit.message }}" || exit 0
+          git push -fu origin auto-man-update
           gh pr create --base main --head auto-man-update --title "Auto Man Page Update" --body "triggered by ${{ github.sha }}"
         env:
           GH_TOKEN: ${{ github.token }}
