@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install pandoc
-          ./man/gen-man
+          ./ci/gen-man
       - name: push updated manual
         run: |
           git config --global user.name denv-docs-bot
