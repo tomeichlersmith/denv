@@ -52,3 +52,10 @@ When changing the `denv` version number, one must change it in three locations.
 - `denv` itself at the top
 - `install` so future pullers will get the latest version
 - `docs/src/manual.md` so the man page is regenerated with the new version number
+
+This is annoying to always have to remember to do, so there is a short shell
+script to do this for your.
+```
+./ci/set-version X.Y.Z
+```
+which can also commit and push the changes with a tag if you so wish.
