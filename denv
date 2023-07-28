@@ -285,9 +285,9 @@ _denv_run() {
 ###################################################################################################
 
 _denv_deduce_workspace() {
-  # start from PWD and go up directories until file .denv
+  # start from present working directory and go up directories until find .denv
   # or reach root directory
-  denv_workspace="${PWD}"
+  denv_workspace="$(pwd -P || true)"
   while [ "${denv_workspace}" != "/" ]; do
     if [ -d "${denv_workspace}/.denv" ]; then
       return 0
