@@ -21,13 +21,18 @@ This is the main origin for `denv` - provide a common interface for using images
 a development environment across these four container managers.
 
 ## Alternatives
+In general, most of these alternatives are either more popular than denv or maintained 
+by larger groups of people (or both), so I would suggest using one of these projects if
+they work for your use case.
 
 - [distrobox](https://github.com/89luca89/distrobox): main inspiration for denv, POSIX-sh program with a larger feature set than denv but currently restricted to docker or podman
   - I attempted to develop distrobox in such a way as to support apptainer and singularity; however, the added features mainly centered around editing the container while it is being run were not supported by the apptainer/singularity installations on the HPCs I have access to.
 - [VS Code devcontainers](https://github.com/microsoft/vscode-dev-containers): designed to be used in conjuction with the VS Code IDE, also currently restricted to docker (or podman with some tweaking)
+- [devpod](https://github.com/loft-sh/devpod): Codespaces but open-source, client-only and unopinionated: Works with any IDE and lets you use any cloud, kubernetes or just localhost docker. Similarly restricted to docker/podman as VS Code devcontainers - focused more on providing a [GitHub Codespaces](https://github.com/features/codespaces)-like service that isn't locked in to VS Code and GitHub.
 - [devbox](https://github.com/jetpack-io/devbox): "similar to a package manager ... except the packages it manages are at the operating-system level", a helpful tool based on `nix`, written in `go`
   - This is the newest project and probably most closely aligned to my goals; however, it would require understanding how to write NixPkgs for all my dependencies (which is not an easy task given how specialized so many of the packages are) and I am not currently able to functionally install it on the HPCs which use apptainer/singularity.
 - [toolbox](https://github.com/containers/toolbox): built on top of `podman`, similar in spirit to distrobox and devbox
+- [repro-env](https://github.com/kpcyrd/repro-env): rust-wrapper for `podman`, focused on specifying a manifest file which is then evolved into a lock file specifying SHAs for container images and packages, allows env to only evolve when developer desires.
 
 ## Quick Start
 Install the latest release on GitHub.

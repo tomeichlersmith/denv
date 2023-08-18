@@ -46,3 +46,16 @@ If the code being developed is anything larger than an extremely small one-line 
 please open an issue and reference the issue number in your branch name. Generally,
 I like the format `<issue_number>-short-title` for example `19-connect-net` was used
 when developing network-connection supported related to issue 19.
+
+## Version Control
+When changing the `denv` version number, one must change it in three locations.
+- `denv` itself at the top
+- `install` so future pullers will get the latest version
+- `docs/src/manual.md` so the man page is regenerated with the new version number
+
+This is annoying to always have to remember to do, so there is a short shell
+script to do this for your.
+```
+./ci/set-version X.Y.Z
+```
+which can also commit and push the changes with a tag if you so wish.

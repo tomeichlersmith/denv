@@ -1,6 +1,6 @@
 # NAME
 
-denv v0.2.0
+denv v0.2.1
 
 # SYNOPSIS
 
@@ -159,9 +159,7 @@ means any image that are configured to be used by denv will then be re-downloade
 
 # CONTRIBUTING
 
-Feel free to create a fork of https://github.com/tomeichlersmith/denv and open a Pull Request with any bug patches or feature improvements. We aim to keep denv as a single file with optional completion and manual files in parallel. Check that denv is still POSIX with dash.
-
-    dash -n denv
+Feel free to create a fork of https://github.com/tomeichlersmith/denv and open a Pull Request with any bug patches or feature improvements. We aim to keep denv as a single file with optional completion and manual files in parallel.
 
 Install shellcheck from https://github.com/koalaman/shellcheck and use it to make sure denv avoids common shell scripting errors.
 
