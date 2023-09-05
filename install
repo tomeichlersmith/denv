@@ -118,6 +118,12 @@ if  [ -z "${prefix}" ]; then
     prefix="${HOME}/.local"
   fi
 fi
+
+if [ ! -w "${prefix}" ]; then
+  _denv_error "Cannot write into ${prefix}, permission denied"
+  exit 1
+fi
+
 completion_dest_path="${prefix}/share/bash-completion/completions/"
 dest_path="${prefix}/bin"
 man_dest_path="${prefix}/share/man/man1"
@@ -130,9 +136,8 @@ cd "${curr_dir}" || exit 1
 if [ ! -d "${dest_path}" ]; then
   mkdir -p "${dest_path}"
 fi
-if [ ! -w "${man_dest_path}" ]; then
-  _denv_error "Cannot write into ${man_dest_path}, permission denied"
-  exit 1
+if [ ! -d "${man_dest_path}" ]; then
+  mkdir -p "${man_dest_path}"
 fi
 if [ ! -d "${completion_dest_path}" ]; then
   mkdir -p "${completion_dest_path}"
