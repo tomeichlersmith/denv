@@ -23,16 +23,12 @@ denv_version=0.2.1
 set -o errexit
 set -o nounset
 
-if ! hash realpath &> /dev/null; then
-  realpath() {
-    d="$(dirname "$1")"
-    d="$(cd "${d}" && pwd -P)"
-    echo "${d}/$(basename "$1")"
-  }
-fi
-
 # deduce full path to our executable so we can locate the entrypoint executable
-denv_fullpath="$(realpath "$0")"
+# we need to write our own function to deduce the full path to denv
+# because MacOS does not have the 'realpath' function out of the box.
+denv_install_dir="$(dirname "$0")"
+denv_install_dir="$(cd "${denv_install_dir}" && pwd -P)"
+denv_fullpath="${denv_install_dir}/denv"
 # deduce full path to entrypoint executable
 denv_entrypoint="$(dirname "${denv_fullpath}" || true)/_denv_entrypoint"
 
