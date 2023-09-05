@@ -147,30 +147,30 @@ fi
 # if files are available here, install files in dest directory
 if [ -e "${curr_dir}/denv" ]; then
   if [ "${devel}" -ne 0 ]; then
-    copy="ln -sf -t"
-    if ! ${copy} "${dest_path}" "${PWD}/denv"; then
+    copy="ln -sf"
+    if ! ${copy} "${PWD}/denv" "${dest_path}"; then
       _denv_error "Copying to ${dest_path} failed." \
         "Do you have permission to write there?"
       exit 1
     fi
-    ${copy} "${dest_path}" "${PWD}/_denv_entrypoint"
+    ${copy} "${PWD}/_denv_entrypoint" "${dest_path}"
   else
-    copy="install -D -m 0644 -t"
-    if ! install -D -m 0755 -t "${dest_path}" denv; then
+    copy="install -m 0644"
+    if ! install -m 0755 denv "${dest_path}"; then
       _denv_error "Copying to ${dest_path} failed." \
         "Do you have permission to write there?"
       exit 1
     fi
-    install -D -m 0755 -t "${dest_path}" _denv_entrypoint
+    install -m 0755 _denv_entrypoint "${dest_path}"
   fi
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
-      ${copy} "${man_dest_path}" "${file}"
+      ${copy} "${file}" "${man_dest_path}"
     done
   fi
   if [ -e "completions" ]; then
     for file in "${PWD}"/completions/*; do
-      ${copy} "${completion_dest_path}" "${file}"
+      ${copy} "${file}" "${completion_dest_path}"
     done
   fi
 else
@@ -213,21 +213,21 @@ else
   cd "denv-$(echo "${release_name}" | sed 's|.tar.gz||' || true)"
 
   # deploy
-  copy="install -D -m 0644 -t"
-  if ! install -D -m 0755 -t "${dest_path}" denv; then
+  copy="install -m 0644"
+  if ! install -m 0755 denv "${dest_path}"; then
     _denv_error "Copying to ${dest_path} failed." \
       "Do you have permission to write there?"
     exit 1
   fi
-  install -D -m 0755 -t "${dest_path}" _denv_entrypoint
+  install -m 0755 _denv_entrypoint "${dest_path}"
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
-      ${copy} "${man_dest_path}" "${file}"
+      ${copy} "${file}" "${man_dest_path}"
     done
   fi
   if [ -e "completions" ]; then
     for file in "${PWD}"/completions/*; do
-      ${copy} "${completion_dest_path}" "${file}"
+      ${copy} "${file}" "${completion_dest_path}"
     done
   fi
 
