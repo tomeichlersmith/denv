@@ -119,9 +119,11 @@ if  [ -z "${prefix}" ]; then
   fi
 fi
 
-if [ ! -w "${prefix}" ]; then
-  _denv_error "Cannot write into ${prefix}, permission denied"
-  exit 1
+if [ ! -d "${prefix}" ]; then
+  if ! mkdir -p "${prefix}"; then
+    _denv_error "Cannot write into ${prefix}, permission denied"
+    exit 1
+  fi
 fi
 
 completion_dest_path="${prefix}/share/bash-completion/completions/"
