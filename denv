@@ -23,8 +23,16 @@ denv_version=0.2.1
 set -o errexit
 set -o nounset
 
+if ! hash realpath; then
+  realpath() {
+    d="$(dirname "$1")"
+    d="$(cd "${d}" && pwd -P)"
+    echo "${d}/$(basename "$1")"
+  }
+fi
+
 # deduce full path to our executable so we can locate the entrypoint executable
-denv_fullpath="$(realpath "$0" || true)"
+denv_fullpath="$(realpath "$0")"
 # deduce full path to entrypoint executable
 denv_entrypoint="$(dirname "${denv_fullpath}" || true)/_denv_entrypoint"
 
