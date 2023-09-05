@@ -96,7 +96,8 @@ while [ "$#" -gt 0 ]; do
       ;;
     -p | --prefix)
       if [ -n "$2" ]; then
-        prefix="$2"
+        [ -d "$2" ] || mkdir -p "$2"
+        prefix="$(cd "$2" && pwd -P)"
         shift
         shift
       fi
@@ -119,11 +120,9 @@ if  [ -z "${prefix}" ]; then
   fi
 fi
 
-if [ ! -d "${prefix}" ]; then
-  if ! mkdir -p "${prefix}"; then
-    _denv_error "Cannot write into ${prefix}, permission denied"
-    exit 1
-  fi
+if [ ! -w "${prefix}" ]; then
+  _denv_error "Cannot write into ${prefix}, permission denied"
+  exit 1
 fi
 
 completion_dest_path="${prefix}/share/bash-completion/completions/"
