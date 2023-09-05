@@ -163,5 +163,8 @@ Feel free to create a fork of https://github.com/tomeichlersmith/denv and open a
 
 Install shellcheck from https://github.com/koalaman/shellcheck and use it to make sure denv avoids common shell scripting errors.
 
-    shellcheck -s sh -a -o all -Sstyle -Calways -x denv
+    ./ci/check
 
+Make sure that denv still passes the non-interactive tests.
+
+    DENV_RUNNER=<your-runner> ./ci/test

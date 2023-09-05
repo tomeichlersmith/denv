@@ -8,10 +8,12 @@ They may have different definitions outside of this manual.
 
 - **denv**: a shortening of "*d*evenlopment *env*ironment" and is used to refer to
   both the command that is being documented here `denv` *and* the environment that
-  the command spawns when run successfully. Generally, you should read its means
-  as the environment when preceded by "the" and the command otherwise. An overly
-  convoluted example is "The denv is created by running denv.". The first use refers
-  to the spawned environment and the second refers to the command.
+  the command spawns when run successfully. Generally, you should read it
+  as the environment when it is an improper noun (i.e. preceded by an article like "the" 
+  or "a") and the command otherwise. An overly convoluted example is "The denv is 
+  created by running denv.". The first use refers to the spawned environment and 
+  the second refers to the command. In this manual, I try to represent "denv" as
+  code when it refers to the command.
   - The default installation of `denv` comes with an alias for the command which is
     the special backslash character, so one can run `denv` also by running `\\` at
     the command line. This means I often read `\\` as `denv` in my head.

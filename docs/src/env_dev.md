@@ -12,7 +12,7 @@ for this are (in rough order):
 
 1. Most HPCs do not have `apptainer`/`singularity` installations
    that support building from a recipe file. I wanted a tool whose
-   interface and uesr experince can be uniform including these runners
+   interface and user experince can be uniform including these runners
    and their common limitations.
 2. Avoid build repetition. Many projects I work on have dependencies
    that take hours to build even on fast multi-core machines. This means
@@ -57,7 +57,7 @@ is a good companion for denv - especially for denv users who wish to
 develop the environment a bit.
 
 I often open a distrobox with a specific image in order to try adding
-new dependencies and once that installation process if deduced, I can
+new dependencies and once that installation process is deduced, I can
 build the dependency into the image and use it later with denv.
 
 ## Version Control
