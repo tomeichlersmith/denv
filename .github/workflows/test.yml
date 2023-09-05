@@ -24,11 +24,15 @@ jobs:
 
   test:
     name: Test
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         runner: [docker, podman, singularity, apptainer]
+        include:
+          - os: macos-latest
+            runner: docker
+    runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
       - uses: eWaterCycle/setup-singularity@v7
