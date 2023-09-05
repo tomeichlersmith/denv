@@ -43,6 +43,8 @@ jobs:
         if: ${{matrix.runner == 'apptainer'}}
         with:
           apptainer-version: 1.1.9
+      - uses: douglascamata/setup-docker-macos-action@v1-alpha
+        if: ${{matrix.os == 'macos-latest'}}
       - name: Install
         run: sudo ./install
       - name: Test

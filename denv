@@ -23,7 +23,7 @@ denv_version=0.2.1
 set -o errexit
 set -o nounset
 
-if ! hash realpath; then
+if ! hash realpath &> /dev/null; then
   realpath() {
     d="$(dirname "$1")"
     d="$(cd "${d}" && pwd -P)"
