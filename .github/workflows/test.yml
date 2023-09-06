@@ -45,6 +45,9 @@ jobs:
           apptainer-version: 1.1.9
       - uses: douglascamata/setup-docker-macos-action@v1-alpha
         if: ${{matrix.os == 'macos-latest'}}
+      - name: enable debug mode if requested
+        if: ${{runner.debug == '1'}}
+        run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
       - name: Install
         run: sudo ./install
       - name: Test
