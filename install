@@ -157,12 +157,12 @@ if [ -e "${curr_dir}/denv" ]; then
     ${copy} "${PWD}/_denv_entrypoint" "${dest_path}"
   else
     copy="install -m 0644"
-    if ! install -m 0755 denv "${dest_path}"; then
+    if ! install -m 0775 denv "${dest_path}"; then
       _denv_error "Copying to ${dest_path} failed." \
         "Do you have permission to write there?"
       exit 1
     fi
-    install -m 0755 _denv_entrypoint "${dest_path}"
+    install -m 0775 _denv_entrypoint "${dest_path}"
   fi
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
@@ -215,12 +215,12 @@ else
 
   # deploy
   copy="install -m 0644"
-  if ! install -m 0755 denv "${dest_path}"; then
+  if ! install -m 0775 denv "${dest_path}"; then
     _denv_error "Copying to ${dest_path} failed." \
       "Do you have permission to write there?"
     exit 1
   fi
-  install -m 0755 _denv_entrypoint "${dest_path}"
+  install -m 0775 _denv_entrypoint "${dest_path}"
   if [ -e "man" ]; then
     for file in "${PWD}"/man/man1/*; do
       ${copy} "${file}" "${man_dest_path}"
