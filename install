@@ -20,6 +20,7 @@
 # POSIX
 set -o errexit
 set -o nounset
+set -o xtrace
 
 _denv_info() {
   printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
@@ -247,7 +248,22 @@ if [ "${simple}" -eq "0" ]; then
   ln -sf denv '\'
 fi
 
-_denv_info "Successfully installed denv to ${dest_path}"
+# double check that the installation is functional
+unset DENV_INSTALL_FAILURE
+for executable in "denv" "_denv_entrypoint"; do
+  if [ -x "${dest_path}/${executable}" ] && [ -f "${dest_path}/${executable}" ]; then
+    continue
+  fi
+  _denv_error "'${executable}' does not exist as an executable file at '${dest_path}/${executable}'"
+  DENV_INSTALL_FAILURE=1
+done
+
+if [ -z "${DENV_INSTALL_FAILURE+x}" ]; then
+  _denv_info "Successfully installed denv to ${dest_path}"
+else
+  _denv_error "Installation corrupted!"
+fi
+
 case "${PATH}" in
   *"${dest_path}"*)
     _denv_info "Found ${dest_path} in PATH, you're all set!"
