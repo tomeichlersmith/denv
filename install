@@ -20,7 +20,10 @@
 # POSIX
 set -o errexit
 set -o nounset
-set -o xtrace
+
+if [ -n "${DENV_DEBUG+x}" ]; then
+  set -o xtrace
+fi
 
 _denv_info() {
   printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
