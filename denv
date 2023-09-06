@@ -591,17 +591,17 @@ _denv_init() {
   if [ -d "${denv_workspace}/.denv" ];then
     if [ "${force}" = "0" ]; then
       _denv_info "overwriting previous denv workspace"
-      rm -rf "${denv_workspace}/.denv"
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
-      _denv_error "denv prompt disabled but unwilling to delete a denv without user input."
+      _denv_error "denv prompt disabled but unwilling to overwrite a denv without user input."
       return 1
     else
       printf "\033[1mThis workspace already has a denv. Would you like to overwrite it?\033[0m [Y/n] "
       read -r ans
       case "${ans}" in
         Y|y)
-          # delete old denv and continue below
-          rm -rf "${denv_workspace}/.denv"
+          # pretend like there isn't a .denv there
+          # we will overwrite .denv/config and .denv/.gitignore
+          # in this function
           ;;
         *)
           _denv_info "Exiting without modifying..."
@@ -609,6 +609,8 @@ _denv_init() {
           ;;
       esac
     fi
+  else
+    mkdir "${denv_workspace}/.denv"
   fi
 
   # set the default denv name to the workspace directory name
@@ -619,7 +621,6 @@ _denv_init() {
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""
-  mkdir "${denv_workspace}/.denv"
   _denv_write_config
   if [ "${gitignore}" = "1" ]; then
     _denv_info "Writing a gitignore for the .denv directory."
