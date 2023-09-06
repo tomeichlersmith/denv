@@ -202,7 +202,7 @@ _denv_run() {
   # we will be running now and not writing the config
   # so we can update the denv_mounts list
   [ -d /tmp/.X11-unix ] && denv_mounts="${denv_mounts} /tmp/.X11-unix"
-  denv_mounts="${denv_mounts} ${denv_entrypoint}"
+  denv_mounts="${denv_mounts} $(dirname "${denv_entrypoint}")"
   case "${denv_runner}" in
     docker|podman)
       interactive=""
