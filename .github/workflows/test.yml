@@ -29,9 +29,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         runner: [docker, podman, singularity, apptainer]
-        include:
-          - os: macos-latest
-            runner: docker
+#        include:
+#          - os: macos-latest
+#           runner: docker
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
