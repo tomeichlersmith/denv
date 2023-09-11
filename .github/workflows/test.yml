@@ -18,7 +18,7 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run ShellCheck
         run: ./ci/check
 
@@ -30,7 +30,7 @@ jobs:
       matrix:
         runner: [docker, podman, singularity, apptainer]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: eWaterCycle/setup-singularity@v7
         if: ${{matrix.runner == 'singularity'}}
         with:
