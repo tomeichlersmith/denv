@@ -107,5 +107,4 @@ if [ ! -f "${HOME}/.denv/skel-init" ]; then
 fi
 
 # intentionally allowing command line args to re-split into a command
-# shellcheck disable=SC2068
-$@
+sh -lc "$*"
