@@ -256,7 +256,7 @@ _denv_run() {
         ${mounts} \
         --hostname "${_hostname}" \
         ${environment} \
-        --workdir "${PWD}" \
+        --workdir "$(pwd -P)" \
         --entrypoint "${denv_entrypoint}" \
         --user "${userspec}" \
         "${denv_image}" \
@@ -268,7 +268,7 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--bind")"
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       # shellcheck disable=SC2086
-      ${denv_runner} exec \
+      PWD=$(pwd -P) ${denv_runner} exec \
         --hostname "${_hostname}" \
         --home "${denv_workspace}" \
         --env DENV_NAME="${denv_name}" \
@@ -283,7 +283,7 @@ _denv_run() {
       echo "running ${denv_image} with "
       echo "  HOME=\"${denv_workspace}\""
       echo "  SHELL=\"${denv_shell}\""
-      echo "  PWD=\"${PWD}\""
+      echo "  PWD=\"$(pwd -P)\""
       [ -z "${denv_mounts}" ] || echo "  $(_denv_mounts_to_args "--bind")"
       ;;
     *)
