@@ -58,4 +58,3 @@ script to do this for you.
 ```
 ./ci/set-version X.Y.Z
 ```
-which can also commit and push the changes with a tag if you so wish.
