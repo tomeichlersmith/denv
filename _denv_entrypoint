@@ -106,5 +106,6 @@ if [ ! -f "${HOME}/.denv/skel-init" ]; then
   touch "${HOME}/.denv/skel-init"
 fi
 
-# intentionally allowing command line args to re-split into a command
+# use a login shell to give users an opportunity to update env variables
+# via the ~/.profile file if desired
 sh -lc "$*"
