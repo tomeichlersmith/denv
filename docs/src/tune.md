@@ -57,6 +57,18 @@ run() {
 }
 ```
 
+### `sh` and `.profile`
+Inside the denv, we use `sh -lc` to run the command provided to `denv`.
+The `c` flag is used to specify the command being run, but of more importance
+to us is the `l` flag which forces `sh` to be a _login_ shell.
+
+For our purposes, this means that various initialization files will be sourced
+while launched `sh` and before the command is run, specifically, one of the files
+that can be used is at `~/.profile` (or `<workspace>/.profile` outside the denv).
+Updating this file with changes to `*PATH` variables (like `PATH`, `LD_LIBRARY_PATH`,
+and `PYTHONPATH`) can be helpful so that executables can be run interactively
+(i.e. `denv` then `my-executable`) and non-interactively (i.e. `denv my-executable`).
+
 ## extra mounts
 By default, `denv` only allows the container to view the files within
 the workspace[^1]. This works for many projects; however,
