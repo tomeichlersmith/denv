@@ -93,6 +93,13 @@ check_equal 'denv printenv DENV_NAME' 'echo newname'
 if [ "${DENV_RUNNER}" != "podman" ]; then
   check_equal 'whoami' 'denv whoami'
 fi
+# "install" a simple executable and make sure it is available non-interactively
+mkdir -p .local/bin
+cat > .local/bin/hello <<\WORLD
+echo world
+WORLD
+chmod +x .local/bin/hello
+check_equal 'denv hello' './.local/bin/hello'
 # make sure files written from denv are owned by user outside denv
 check_pass denv touch file-from-denv
 check_equal 'stat -c %u file-from-denv' "id -u ${USER}"
