@@ -89,15 +89,20 @@ check_fail denv false
 # make sure name setting works
 check_equal 'denv printenv DENV_NAME' "basename ${PWD}"
 # make sure we can set environment variables for non-interactive denv
-export MY_ENV_VAR=yes
-check_equal 'denv printenv MY_ENV_VAR' 'echo yes'
-check_pass denv config env copy MY_VAR
-check_fail 'denv printenv MY_ENV_VAR'
-check_fail 'denv printenv MY_VAR'
-export MY_VAR=yes
-check_equal 'denv printenv MY_VAR' 'echo yes'
-check_pass denv config env set MY_VAR=no
-check_equal 'denv printenv MY_VAR' 'echo no'
+export foo=bar
+check_equal 'denv printenv foo' 'printenv foo'
+check_pass denv config env all no
+check_pass 'printenv foo'
+check_fail 'denv printenv foo'
+check_pass denv config env copy baz myfoo=mybar
+check_fail 'printenv myfoo'
+check_equal 'denv printenv myfoo' 'echo mybar'
+check_fail 'denv printenv baz'
+export baz=hooray
+check_pass 'printenv baz'
+check_equal 'denv printenv baz' 'printenv baz'
+export myfoo='host-value'
+check_equal 'denv printenv myfoo' 'echo mybar'
 # can force re-init of denv
 check_pass denv init ubuntu:22.04 --force --name newname
 # make sure update was applied
