@@ -312,7 +312,7 @@ _denv_deduce_workspace() {
   return 1
 }
 
-_denv_bad_env_var_name_regex="^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
 
 # load the denv config from the input workspace
 # Arguments
