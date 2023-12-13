@@ -95,7 +95,7 @@ _denv_mounts_to_args() {
   echo "${mount_args}"
 }
 
-# conver the environment variable related configuration parameters
+# convert the environment variable related configuration parameters
 # to a string list of arguments for the container runner
 # Arguments
 #  1 - option name to prefix each environment variable with
@@ -349,8 +349,7 @@ _denv_load_config() {
   _denv_info "using ${denv_runner} as runner"
 
   # deduce environment variables from configuration
-  #set +o xtrace $ disable tracing even in DEBUG for this snippet since its alot
-  # copy-able environment variables, copied from distrobox
+  # copy-able environment variables, code copied from distrobox
   copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev '^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)')"
   if [ "${denv_env_var_copy_all}" -eq "1" ]; then
     # deduce env variables, copied from distrobox
@@ -369,8 +368,6 @@ _denv_load_config() {
   denv_environment="${denv_environment} HOME=${denv_workspace}"
 
   if [ -n "${DENV_DEBUG+x}" ]; then
-    # renable trace
-    set -o xtrace
     # add to the environment
     denv_environment="${denv_environment} DENV_DEBUG=${DENV_DEBUG}"
   fi
