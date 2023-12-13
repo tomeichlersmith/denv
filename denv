@@ -506,7 +506,7 @@ _denv_config_env_help() {
   denv config env print
   denv config env all {yes|no}
   denv config env copy VAR0[=VAL0] [VAR1[=VAL1] ...]
-  denv config env reset {all|copy|set}
+  denv config env reset
 
  COMMANDS
   help    print this help and exit
