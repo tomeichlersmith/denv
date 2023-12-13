@@ -699,7 +699,7 @@ _denv_init_help() {
   cat <<\HELP
 
   denv init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore]
-            [--force] [--name NAME]
+            [--force] [--name NAME] [--no-copy-all]
 
  ARGUMENT
   help       : print this help and exit
@@ -708,10 +708,11 @@ _denv_init_help() {
                optional, defaults to present working directory
   
  OPTIONS
-  -h, --help     : print this help and exit
-  --no-gitignore : don't generate a gitignore for the .denv directory
-  --force        : overwrite an existing denv if it exists
-  --name         : set a name for this denv
+  -h, --help      : print this help and exit
+  --no-gitignore  : don't generate a gitignore for the .denv directory
+  --force         : overwrite an existing denv if it exists
+  --name          : set a name for this denv
+  --no-copy-all   : don't enable copying of host environment variables
 
 HELP
 }
@@ -722,6 +723,7 @@ _denv_init() {
     _denv_error "Provide at least an image to use for running"
     return 1
   fi
+  copyall=1
   gitignore=1
   force=1
   positionals=""
@@ -733,6 +735,9 @@ _denv_init() {
         ;;
       --no-gitignore)
         gitignore=0
+        ;;
+      --no-copy-all)
+        copyall=0
         ;;
       --force)
         force=0
@@ -799,7 +804,11 @@ _denv_init() {
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""
-  denv_env_var_copy_all="true"
+  if [ "${copyall}" = "1" ]; then
+    denv_env_var_copy_all="true"
+  else
+    denv_env_var_copy_all="false"
+  fi
   denv_env_var_copy=""
   denv_env_var_set=""
   _denv_write_config
