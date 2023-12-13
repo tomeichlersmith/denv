@@ -312,6 +312,9 @@ _denv_deduce_workspace() {
   return 1
 }
 
+_denv_bad_env_var_name_regex="^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
+_denv_bad_env_value_regex=' |"|`|\$'
+
 # load the denv config from the input workspace
 # Arguments
 #  ${denv_workspace} env var
@@ -350,7 +353,7 @@ _denv_load_config() {
 
   # deduce environment variables from configuration
   # copy-able environment variables, code copied from distrobox
-  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev '^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)')"
+  copyable_environment="$(printenv | grep '=' | grep -Ev "'${_denv_bad_env_value_regex}'" | grep -Ev "${_denv_bad_env_var_name_regex}")"
   if [ "${denv_env_var_copy_all}" -eq "1" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
@@ -557,6 +560,15 @@ _denv_config_env() {
     copy)
       denv_env_var_copy_all=0
       shift
+      if echo "$*" | grep -E "${_denv_bad_env_var_name_regex}"; then
+        _denv_error "The passed variables named above are special and should not be used in the denv."
+        return 1
+      fi
+      if echo "$*" | grep "="; then
+        _denv_error "'denv config env copy' is used for copying environment variables from the host." \
+          "If you want to set an environment variable and ignore the host value, use 'denv config env set'."
+        return 1
+      fi
       # TODO: validate passed variable names
       if [ -z "${denv_env_var_copy}" ]; then
         denv_env_var_copy="$*"
@@ -566,6 +578,14 @@ _denv_config_env() {
       ;;
     set)
       shift
+      if echo "$*" | grep -E "${_denv_bad_env_var_name_regex}"; then
+        _denv_error "The passed variables named above are special and should not be used in the denv."
+        return 1
+      fi
+      if echo "$*" | grep -E "'${_denv_bad_env_value_regex}'"; then
+        _denv_error "Values cannot use special characters (space, slash, tick, etc...)"
+        return 1
+      fi
       # TODO: validate passed varialbe names and values
       if [ -z "${denv_env_var_set}" ]; then
         denv_env_var_set="$*"
