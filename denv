@@ -393,7 +393,7 @@ _denv_write_config() {
     echo "denv_image=\"${denv_image}\"";
     echo "denv_shell=\"${denv_shell}\"";
     echo "denv_mounts=\"${denv_mounts}\"";
-    echo "denv_env_var_copy_all=${denv_env_var_copy_all}";
+    echo "denv_env_var_copy_all=\"${denv_env_var_copy_all}\"";
     echo "denv_env_var_copy=\"${denv_env_var_copy}\"";
     echo "denv_env_var_set=\"${denv_env_var_set}\"";
   } > "${config}"
@@ -412,7 +412,7 @@ _denv_config_print() {
   printf "%s=\"%s\"\n" denv_mounts "${denv_mounts}"
   printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
   _denv_runner
-  if [ ! "${denv_env_var_copy_all}" -eq "1" ] || [ -n "${1:-}" ]; then
+  if [ ! "${denv_env_var_copy_all}" = "true" ] || [ -n "${1:-}" ]; then
     _denv_config_env print
   fi
 }
@@ -545,15 +545,15 @@ _denv_config_env() {
       shift
       if [ "$#" -eq "0" ]; then
         # default with no arguments is yes
-        denv_env_var_copy_all=1
+        denv_env_var_copy_all="true"
         return 0;
       fi
       case "$1" in
         no|n)
-          denv_env_var_copy_all=0
+          denv_env_var_copy_all="false"
           ;;
         yes|y)
-          denv_env_var_copy_all=1
+          denv_env_var_copy_all="true"
           ;;
         *)
           _denv_error "'$1' is not 'yes' or no'"
@@ -562,7 +562,7 @@ _denv_config_env() {
       esac
       ;;
     copy)
-      denv_env_var_copy_all=0
+      denv_env_var_copy_all="false"
       shift
       if echo "$*" | grep -E "${_denv_bad_env_var_name_regex}"; then
         _denv_error "The passed variables named above are special and should not be used in the denv."
@@ -606,7 +606,7 @@ _denv_config_env() {
       fi
       case "$1" in
         all)
-          denv_env_var_copy_all=1
+          denv_env_var_copy_all="true"
           denv_env_var_copy=""
           denv_env_var_set=""
           ;;
@@ -799,7 +799,7 @@ _denv_init() {
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""
-  denv_env_var_copy_all=1
+  denv_env_var_copy_all="true"
   denv_env_var_copy=""
   denv_env_var_set=""
   _denv_write_config
