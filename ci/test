@@ -11,7 +11,14 @@ set -o nounset
 # disable denv prompt
 export DENV_NOPROMPT=1
 
-workspace=$(mktemp -d || true)
+if [ -z "${1:-}" ]; then
+  workspace=$(mktemp -d || true)
+  delete=1
+else
+  workspace="${1}"
+  mkdir "${workspace}"
+  workspace="$(cd "${workspace}" && pwd -P)"
+fi
 
 inf() {
   printf "\033[1mINFO: \033[0m%s\n" "$*"
@@ -19,8 +26,10 @@ inf() {
 
 fail() {
   printf >&2 "\033[1;31mFAIL: \033[0m\033[31m%s\033[0m\n" "$*"
-  cd
-  rm -r "${workspace}"
+  if [ -n "${delete:+x}" ]; then
+    cd
+    rm -r "${workspace}"
+  fi
   exit 1
 }
 
@@ -118,5 +127,7 @@ check_pass denv config image ubuntu:18.04
 # and check
 check_pass denv grep -q '18.04' /etc/os-release
 
-cd
-rm -r "${workspace}"
+if [ -n "${delete:+x}" ]; then
+  cd
+  rm -r "${workspace}"
+fi
