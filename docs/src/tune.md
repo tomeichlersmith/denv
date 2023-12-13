@@ -86,6 +86,16 @@ and to already exist. This prevents user typos as well as insures the user
 knows what path will be available within the denv (i.e. symlinks _outside_
 the denv may not map properly _inside_ the denv).
 
+## Environment Variables
+The default behavior of `denv` is to copy all of the host environment
+variables into the denv so that the environment within the denv is "familiar"
+to the user. Sometimes, this behavior is not desirable and so users can choose
+to disable it and seletively copy environment variables. In addition, users can
+choose to set specific values of environment variables within the denv that will
+stay that value regardless on what the value of that variable is on the host.
+
+Some examples of using this behavior are provided [in the manual](manual.md#sharing-environment-variables).
+
 [^1]: This isn't exactly true. denv also mounts a few helper files as well
 (e.g. the entrypoint program `_denv_entrypoint`); however, those are single-file
 mounts that can be ignored by normal users.
