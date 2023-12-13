@@ -95,6 +95,21 @@ _denv_mounts_to_args() {
   echo "${mount_args}"
 }
 
+# conver the environment variable related configuration parameters
+# to a string list of arguments for the container runner
+# Arguments
+#  1 - option name to prefix each environment variable with
+#  denv_environment - space-separated key=value pairs to put into the denv
+# Outputs
+#  list of env-var-related arugments to provide to run command
+_denv_environment_to_args() {
+  env_args=""
+  for ev in ${denv_environment}; do
+    env_args="${1} ${ev} ${env_args}"
+  done
+  echo "${env_args}"
+}
+
 ###################################################################################################
 # container runner interface
 #
@@ -222,25 +237,7 @@ _denv_run() {
       else
         mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       fi
-      environment="--env DENV_NAME=${denv_name}
-      --env DENV_RUNNER=${denv_runner}
-      --env DENV_IMAGE=${denv_image}
-      --env HOME=${denv_workspace}"
-      # deduce env variables, copied from distrobox
-      set +o xtrace # disable trace for this snippet
-      for i in $(printenv | grep '=' | grep -Ev ' |"|`|\$' | \
-        grep -Ev '^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)'); do
-        # environment filtered to ignore strange variables that are multiline or contain spaces in their values
-        # we also need to exclude important variables that we are defining special for the conatiner like HOME,
-        # HOSTNAME, and PATH
-        environment="--env ${i} ${environment}"
-      done
-      if [ -n "${DENV_DEBUG+x}" ]; then
-        # renable trace
-        set -o xtrace
-        # add to the environment
-        environment="${environment} --env DENV_DEBUG=${DENV_DEBUG}"
-      fi
+      environment="$(_denv_environment_to_args --env)"
       userspec="$(id -u "${USER}"):$(id -g "${USER}")"
       # until podman makes a release v4.6.0 with idmap
       # the simplest solution is to just have the in-container user be root
@@ -267,13 +264,13 @@ _denv_run() {
       _denv_config_checked_pull DO_NOT_PROMPT_USER
       mounts="$(_denv_mounts_to_args "--bind")"
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      environment="$(_denv_environment_to_args "--env")"
       # shellcheck disable=SC2086
       PWD=$(pwd -P) ${denv_runner} exec \
         --hostname "${_hostname}" \
         --home "${denv_workspace}" \
-        --env DENV_NAME="${denv_name}" \
-        --env DENV_RUNNER=${denv_runner} \
-        --env DENV_IMAGE=${denv_image} \
+        --cleanenv \
+        ${environment} \
         ${mounts} \
         "${sif_file}" \
         "${denv_entrypoint}" \
@@ -350,6 +347,40 @@ _denv_load_config() {
     denv_runner="norunner"
   fi
   _denv_info "using ${denv_runner} as runner"
+
+  # deduce environment variables from configuration
+  #set +o xtrace $ disable tracing even in DEBUG for this snippet since its alot
+  # copy-able environment variables, copied from distrobox
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev '^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)')"
+  if [ "${denv_env_var_copy_all}" -eq "1" ]; then
+    # deduce env variables, copied from distrobox
+    denv_environment="${copyable_environment}"
+  else
+    match_any_pattern="^($(echo "${denv_env_var_copy}" | sed 's/ /|/g'))="
+    denv_environment="$(echo "${copyable_environment}" | grep -E "${match_any_pattern}" || true)"
+  fi
+
+  denv_environment="${denv_environment} ${denv_env_var_set}"
+
+  # always add necessary environment variables
+  denv_environment="${denv_environment} DENV_NAME=${denv_name}"
+  denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
+  denv_environment="${denv_environment} DENV_IMAGE=${denv_image}"
+  denv_environment="${denv_environment} HOME=${denv_workspace}"
+
+  if [ -n "${DENV_DEBUG+x}" ]; then
+    # renable trace
+    set -o xtrace
+    # add to the environment
+    denv_environment="${denv_environment} DENV_DEBUG=${DENV_DEBUG}"
+  fi
+
+  # env sifts out the unique variable names for us and uses the last value set
+  # this is the behavior we want since we add the `set` variables _after_
+  # the `copy` variables allowing the user to overwrite any host variables
+  # disabling double-quote warning so that we can re-split the space-separated list
+  # shellcheck disable=SC2086
+  denv_environment="$(env -i ${denv_environment})"
 }
 
 # write the current config to the file
@@ -363,12 +394,18 @@ _denv_write_config() {
     echo "denv_image=\"${denv_image}\"";
     echo "denv_shell=\"${denv_shell}\"";
     echo "denv_mounts=\"${denv_mounts}\"";
+    echo "denv_env_var_copy_all=${denv_env_var_copy_all}";
+    echo "denv_env_var_copy=\"${denv_env_var_copy}\"";
+    echo "denv_env_var_set=\"${denv_env_var_set}\"";
   } > "${config}"
 }
 
 # print the current denv config
 # Arguments
 #  all denv_* env vars
+#  1 - optional, if provided then print deduced env vars
+#      if we aren't copying the host env vars, then we will
+#      print them as well, expecting the list to be shorter
 _denv_config_print() {
   printf "%s=\"%s\"\n" denv_workspace "${denv_workspace}"
   printf "%s=\"%s\"\n" denv_name "${denv_name}"
@@ -376,6 +413,11 @@ _denv_config_print() {
   printf "%s=\"%s\"\n" denv_mounts "${denv_mounts}"
   printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
   _denv_runner
+  if [ ! "${denv_env_var_copy_all}" -eq "1" ] || [ -n "${1:-}" ]; then
+    # disabling double-quote warning so that we can re-split the space-separated list
+    # shellcheck disable=SC2086
+    printf "%s\n" ${denv_environment}
+  fi
 }
 
 # pull down the ${denv_image} if it doesn't exist
@@ -455,6 +497,116 @@ _denv_config_mounts() {
   done
 }
 
+# configure environment variables for within the denv
+# Arguments
+#  1 - {all,copy,set}
+# Outputs
+#  updates the denv_env_var* config variables appropriately
+_denv_config_env_help() {
+  cat <<\HELP
+
+  denv config env [help|-h|--help]
+  denv config env all {yes|no}
+  denv config env copy VAR0 [VAR1 VAR2 ...]
+  denv config env set VAR0=VAL0 [VAR1=VAL1 ...]
+  denv config env reset {all|copy|set}
+
+ COMMANDS
+  help    print this help and exit
+  all     configure denv to copy "all" copy-able environment variables
+          into the denv, this means any variables set to be copied manually
+          will be ignored
+  copy    configure denv to copy specific environment variables (the VAR arguments)
+          into the denv. This disables the copy all feature as well.
+  set     Set specific environment variables as KEY=VALUE pairs to be defined within
+          the denv.
+  reset   reset the various environment variable lists.
+          all  - reset to the copy all state *AND* clear the copy and set lists
+          copy - clear the copy list
+          set  - clear the set list
+
+HELP
+}
+_denv_config_env() {
+  if [ -z "${1}" ]; then
+    _denv_config_env_help
+    return 1
+  fi
+  case "$1" in
+    help|-h|--help)
+      _denv_config_env_help
+      return 0
+      ;;
+    all)
+      shift
+      if [ "$#" -eq "0" ]; then
+        # default with no arguments is yes
+        denv_env_var_copy_all=1
+        return 0;
+      fi
+      case "$1" in
+        no|n)
+          denv_env_var_copy_all=0
+          ;;
+        yes|y)
+          denv_env_var_copy_all=1
+          ;;
+        *)
+          _denv_error "'$1' is not 'yes' or no'"
+          return 1;
+          ;;
+      esac
+      ;;
+    copy)
+      denv_env_var_copy_all=0
+      shift
+      # TODO: validate passed variable names
+      if [ -z "${denv_env_var_copy}" ]; then
+        denv_env_var_copy="$*"
+      else
+        denv_env_var_copy="${denv_env_var_copy} $*"
+      fi
+      ;;
+    set)
+      shift
+      # TODO: validate passed varialbe names and values
+      if [ -z "${denv_env_var_set}" ]; then
+        denv_env_var_set="$*"
+      else
+        denv_env_var_set="${denv_env_var_set} $*"
+      fi
+      ;;
+    reset)
+      shift
+      if [ -z "${1}" ]; then
+        _denv_config_env_help
+        _denv_error "'denv config env reset' requires an argument."
+        return 1;
+      fi
+      case "$1" in
+        all)
+          denv_env_var_copy_all=1
+          denv_env_var_copy=""
+          denv_env_var_set=""
+          ;;
+        copy)
+          denv_env_var_copy=""
+          ;;
+        set)
+          denv_env_var_set=""
+          ;;
+        *)
+          _denv_error "'$1' is not a recognized keyword for 'denv config env reset'"
+          return 1
+      esac
+      ;;
+    *)
+      _denv_error "'$1' is not a recognized keyword 'all', 'copy', or 'set'"
+      return 1
+      ;;
+  esac
+}
+
 # config some config variable
 # Arguments
 #  1 - varible to config
@@ -463,14 +615,16 @@ _denv_config_help() {
   cat <<\HELP
 
   denv config [help|-h|--help]
-  denv config print
+  denv config print [include-env]
   denv config image [pull|IMAGE]
   denv config mounts DIR0 [DIR1 DIR2 ...]
   denv config shell SHELL
+  denv config env [args...]
 
  COMMANDS
   help    print this help and exit
   print   print the deduced config for viewing
+          if an argument is provided, then show the environment variables as well
   image   set the image you wish to use
           the special keyword 'pull' can be used to
           not change the image being used but to re-download
@@ -478,6 +632,9 @@ _denv_config_help() {
   mounts  add one or more directories to be mounted to the denv
   shell   change which program is executed when opening
           the denv without any arguments
+  env     configure which environment variables are put
+          into the container environment
+          `denv config env help` for more detail
 
 HELP
 }
@@ -490,9 +647,9 @@ _denv_config() {
     print)
       _denv_load_config
       cmd="_denv_config_${1}"
-      ${cmd}
+      ${cmd} "${2:-}"
       ;;
-    image|shell|mounts)
+    image|shell|mounts|env)
       _denv_load_config
       cmd="_denv_config_${1}"
       if [ "$#" -eq "1" ]; then
@@ -621,6 +778,9 @@ _denv_init() {
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""
+  denv_env_var_copy_all=1
+  denv_env_var_copy=""
+  denv_env_var_set=""
   _denv_write_config
   if [ "${gitignore}" = "1" ]; then
     _denv_info "Writing a gitignore for the .denv directory."
