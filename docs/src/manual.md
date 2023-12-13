@@ -6,17 +6,25 @@ denv v0.3.0
 
 **denv** version
 
-**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--force] [--name NAME]
+**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--no-copy-all] [--force] [--name NAME]
 
 **denv** config [help|-h|--help]
 
-**denv** config print
+**denv** config print [env]
 
 **denv** config image <pull | IMAGE>
 
 **denv** config mounts DIR0 [DIR1 DIR2 ...]
 
 **denv** config shell SHELL
+
+**denv** config env [help|-h|--help]
+
+**denv** config env print
+
+**denv** config env all [yes|no]
+
+**denv** config env copy VAR0[=VAL0] [VAR1[=VAL1] ...]
 
 **denv** [COMMAND] [args...]
 
@@ -35,6 +43,8 @@ of its sub commands.
 **\-\-help**, **\-h**, or **help** print a short help message for **denv** or one of its sub commands
 
 **\-\-no\-gitignore** do not generate a gitignore file when setting up a new denv configuration
+
+**\-\-no\-copy\-all** do not enable copying of all host environment variables within the new denv
 
 **\-\-force** forces re-initialization of a denv even if the current workspace has one
 
@@ -58,12 +68,22 @@ of its sub commands.
 **COMMAND** a program to run inside of the containerized environment (can have its own arguments).
             If no COMMAND is given, then SHELL will be executed.
 
+**VAR** environment variable name either in the host environment that should be copied into the denv
+        (if not value is specified with an '=' sign) or defined to a specific value (when a value
+        is specified with an '=' sign). These names cannot match special shell environment
+        names (e.g. 'HOME') or special denv names (e.g. 'DENV_RUNNER').
+
+**VAL** environment variable value used with **denv config env copy**. These values cannot have the
+        special characters: space \' \', tick \'`\', quote \'"\', or dollar-sign \'$\'.
+
 
 # EXAMPLES
 
 **denv** is meant to be used after building a containerized developer environment. Look at the
 online manual for help getting started on developing the environment itself, but for these examples,
 we will assume that you already have an image built in which you wish to develop.
+
+## Basic Start-Up
 
 First, we go into the directory that holds the code we wish to develop and tell denv that this
 workspace should be running a specific image for its developer environment.
@@ -80,6 +100,36 @@ outside of the denv. The init command produces a configuration file `.denv/confi
 can share between users and so it is excluded from the default `.gitignore` generated within
 `.denv`. All other files within `.denv` are internal to denv and can only be modified at
 your own risk.
+
+## Sharing Environment Variables
+
+The syntax for sharing environment variables with the denv is a bit terse, so it is helpful
+to display some examples.
+
+By default (without **\-\-no\-copy\-all** when running **denv init**), **denv** will copy all
+possible environment variables from the host into the denv. This means one can
+
+    export foo=bar
+    printenv foo      # prints out "bar"
+    denv printenv foo # also prints "bar"
+
+In some situations, this is over-sharing and you can disable this so that host environment
+variables are not copied into the denv anymore.
+
+    denv config env all no
+    export foo=bar
+    printenv foo      # prints out "bar"
+    denv printenv foo # does not print anything and returns the error code 1
+
+Even with copying all environment variables disabled, one can still copy specific values
+from the host or set specific variables to have specific values for the denv.
+
+    denv config env copy baz myfoo=mybaz
+    denv printenv myfoo # prints "mybaz"
+    printenv myfoo      # does not print anything and returns error code 1
+    denv printenv baz   # not set in host yet so does not print anything
+    export baz="hooray"
+    denv printenv baz   # prints "hooray"
 
 # INSTALLATION
 
@@ -121,8 +171,8 @@ to modify its behavior in an advanced way without having to provide many command
   **DENV_NOPROMPT** disable all user prompting. This makes the following decisions in the places
   where there would be prompts.
 
-  - 'denv init' errors out if there is already a denv in the deduced workspace
-  - 'denv init' and 'denv config image' will not pull an image if it already exists
+  - **denv init** errors out if there is already a denv in the deduced workspace
+  - **denv init** and **denv config image** will not pull an image if it already exists
 
 # FILES
 
