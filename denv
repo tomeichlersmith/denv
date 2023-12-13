@@ -414,9 +414,7 @@ _denv_config_print() {
   printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
   _denv_runner
   if [ ! "${denv_env_var_copy_all}" -eq "1" ] || [ -n "${1:-}" ]; then
-    # disabling double-quote warning so that we can re-split the space-separated list
-    # shellcheck disable=SC2086
-    printf "%s\n" ${denv_environment}
+    _denv_config_env print
   fi
 }
 
@@ -506,6 +504,7 @@ _denv_config_env_help() {
   cat <<\HELP
 
   denv config env [help|-h|--help]
+  denv config env print
   denv config env all {yes|no}
   denv config env copy VAR0 [VAR1 VAR2 ...]
   denv config env set VAR0=VAL0 [VAR1=VAL1 ...]
@@ -513,6 +512,7 @@ _denv_config_env_help() {
 
  COMMANDS
   help    print this help and exit
+  print   print the deduced environment variables that will be put into the container
   all     configure denv to copy "all" copy-able environment variables
           into the denv, this means any variables set to be copied manually
           will be ignored
@@ -536,6 +536,11 @@ _denv_config_env() {
     help|-h|--help)
       _denv_config_env_help
       return 0
+      ;;
+    print)
+      # disabling double-quote warning so that we can re-split the space-separated list
+      # shellcheck disable=SC2086
+      printf "%s\n" ${denv_environment}
       ;;
     all)
       shift
