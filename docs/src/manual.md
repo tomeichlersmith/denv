@@ -1,6 +1,6 @@
 # NAME
 
-denv v0.3.0
+denv v0.4.0
 
 # SYNOPSIS
 
