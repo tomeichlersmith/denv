@@ -505,8 +505,7 @@ _denv_config_env_help() {
   denv config env [help|-h|--help]
   denv config env print
   denv config env all {yes|no}
-  denv config env copy VAR0 [VAR1 VAR2 ...]
-  denv config env set VAR0=VAL0 [VAR1=VAL1 ...]
+  denv config env copy VAR0[=VAL0] [VAR1[=VAL1] ...]
   denv config env reset {all|copy|set}
 
  COMMANDS
@@ -517,12 +516,12 @@ _denv_config_env_help() {
           will be ignored
   copy    configure denv to copy specific environment variables (the VAR arguments)
           into the denv. This disables the copy all feature as well.
-  set     Set specific environment variables as KEY=VALUE pairs to be defined within
-          the denv.
-  reset   reset the various environment variable lists.
-          all  - reset to the copy all state *AND* clear the copy and set lists
-          copy - clear the copy list
-          set  - clear the set list
+          Any argument with '=' is assumed to be a static KEY=VALUE pair to pass
+          into the denv as an environment variable while arguments without '=' have
+          the VALUE deduced from the host environment (or left unset if the host environment
+          is not set).
+  reset   reset the environment variables to be copied into the denv to an empty state.
+          Clears the lists of environment variables to be copied and sets "all" to "no".
 
 HELP
 }
@@ -564,65 +563,38 @@ _denv_config_env() {
     copy)
       denv_env_var_copy_all="false"
       shift
-      if echo "$*" | grep -E "${_denv_bad_env_var_name_regex}"; then
-        _denv_error "The passed variables named above are special and should not be used in the denv."
-        return 1
-      fi
-      if echo "$*" | grep "="; then
-        _denv_error "'denv config env copy' is used for copying environment variables from the host." \
-          "If you want to set an environment variable and ignore the host value, use 'denv config env set'."
-        return 1
-      fi
-      # TODO: validate passed variable names
-      if [ -z "${denv_env_var_copy}" ]; then
-        denv_env_var_copy="$*"
-      else
-        denv_env_var_copy="${denv_env_var_copy} $*"
-      fi
-      ;;
-    set)
-      shift
-      if echo "$*" | grep -E "${_denv_bad_env_var_name_regex}"; then
-        _denv_error "The passed variables named above are special and should not be used in the denv."
-        return 1
-      fi
-      if echo "$*" | grep -E ' |"|`|\$'; then
-        _denv_error "Values cannot use special characters (space ' ', quote '\"', tick '\`', dollar-sign '$')"
-        return 1
-      fi
-      # TODO: validate passed varialbe names and values
-      if [ -z "${denv_env_var_set}" ]; then
-        denv_env_var_set="$*"
-      else
-        denv_env_var_set="${denv_env_var_set} $*"
-      fi
+      while [ "$#" -gt "0" ]; do
+        if echo "${1}" | grep -E "${_denv_bad_env_var_name_regex}"; then
+          _denv_error "The passed variables named above are special and should not be used in the denv."
+          return 1
+        fi
+        if echo "${1}" | grep -E ' |"|`|\$'; then
+          _denv_error "Values cannot use special characters (space ' ', quote '\"', tick '\`', dollar-sign '$')"
+          return 1
+        fi
+        if echo "${1}" | grep -q "="; then
+          if [ -z "${denv_env_var_set}" ]; then
+            denv_env_var_set="${1}"
+          else
+            denv_env_var_set="${denv_env_var_set} ${1}"
+          fi
+        else
+          if [ -z "${denv_env_var_copy}" ]; then
+            denv_env_var_copy="${1}"
+          else
+            denv_env_var_copy="${denv_env_var_copy} ${1}"
+          fi
+        fi
+        shift
+      done
       ;;
     reset)
-      shift
-      if [ -z "${1}" ]; then
-        _denv_config_env_help
-        _denv_error "'denv config env reset' requires an argument."
-        return 1;
-      fi
-      case "$1" in
-        all)
-          denv_env_var_copy_all="true"
-          denv_env_var_copy=""
-          denv_env_var_set=""
-          ;;
-        copy)
-          denv_env_var_copy=""
-          ;;
-        set)
-          denv_env_var_set=""
-          ;;
-        *)
-          _denv_error "'$1' is not a recognized keyword for 'denv config env reset'"
-          return 1
-      esac
+      denv_env_var_copy_all="true"
+      denv_env_var_copy=""
+      denv_env_var_set=""
       ;;
     *)
-      _denv_error "'$1' is not a recognized keyword 'all', 'copy', or 'set'"
+      _denv_error "'$1' is not a recognized keyword 'help', 'print', 'all', 'copy', or 'reset'"
       return 1
       ;;
   esac
