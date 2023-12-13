@@ -313,7 +313,6 @@ _denv_deduce_workspace() {
 }
 
 _denv_bad_env_var_name_regex="^(HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
-_denv_bad_env_value_regex=' |"|`|\$'
 
 # load the denv config from the input workspace
 # Arguments
@@ -353,8 +352,8 @@ _denv_load_config() {
 
   # deduce environment variables from configuration
   # copy-able environment variables, code copied from distrobox
-  copyable_environment="$(printenv | grep '=' | grep -Ev "'${_denv_bad_env_value_regex}'" | grep -Ev "${_denv_bad_env_var_name_regex}")"
-  if [ "${denv_env_var_copy_all}" -eq "1" ]; then
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}")"
+  if [ "${denv_env_var_copy_all}" = "true" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
   else
@@ -587,8 +586,8 @@ _denv_config_env() {
         _denv_error "The passed variables named above are special and should not be used in the denv."
         return 1
       fi
-      if echo "$*" | grep -E "'${_denv_bad_env_value_regex}'"; then
-        _denv_error "Values cannot use special characters (space, slash, tick, etc...)"
+      if echo "$*" | grep -E ' |"|`|\$'; then
+        _denv_error "Values cannot use special characters (space ' ', quote '\"', tick '\`', dollar-sign '$')"
         return 1
       fi
       # TODO: validate passed varialbe names and values
