@@ -19,7 +19,7 @@ __denv() {
         COMPREPLY=()
         ;;
       config)
-        COMPREPLY=($(compgen -W "help print image mounts shell" "$curr_word"))
+        COMPREPLY=($(compgen -W "help print image mounts shell env" "$curr_word"))
         ;;
       *)
         # re-enable normal tab completion for everything else
@@ -36,6 +36,30 @@ __denv() {
       mounts)
         # directory tab completion
         COMPREPLY=($(compgen -d -- "$curr_word"))
+        ;;
+      env)
+        if [[ "${COMP_CWORD}" = "3" ]]; then
+          COMPREPLY=($(compgen -W "help print copy all reset" "$curr_word"))
+        elif [[ "${COMP_CWORD}" = "4" ]]; then
+          case "${COMP_WORDS[3]}" in
+            help|print|reset)
+              COMPREPLY=()
+              ;;
+            all)
+              COMPREPLY=($(compgen -W "yes no" "$curr_word"))
+              ;;
+            copy)
+              copyable=$(printenv \
+                          | grep -Ev ' |`|"|\$' \
+                          | grep -Ev '^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG|_)' \
+                          | sed 's|=.*||g')
+              COMPREPLY=($(compgen -W "${copyable}" "$curr_word"))
+              ;;
+            *)
+              COMPREPLY=()
+              ;;
+          esac
+        fi
         ;;
       *)
         # no tab completion again
