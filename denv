@@ -504,7 +504,7 @@ _denv_config_env_help() {
 
   denv config env [help|-h|--help]
   denv config env print
-  denv config env all {yes|no}
+  denv config env all {[yes|true|on]|[no|false|off]}
   denv config env copy VAR0[=VAL0] [VAR1[=VAL1] ...]
   denv config env reset
 
@@ -512,8 +512,8 @@ _denv_config_env_help() {
   help    print this help and exit
   print   print the deduced environment variables that will be put into the container
   all     configure denv to copy "all" copy-able environment variables
-          into the denv, this means any variables set to be copied manually
-          will be ignored
+          into the denv (passing yes, true, or on), meaning any variables set to be copied manually
+          will be ignored, or disable this copy-all feature (by passing no, false, or off).
   copy    configure denv to copy specific environment variables (the VAR arguments)
           into the denv. This disables the copy all feature as well.
           Any argument with '=' is assumed to be a static KEY=VALUE pair to pass
@@ -548,10 +548,10 @@ _denv_config_env() {
         return 0;
       fi
       case "$1" in
-        no|n)
+        no|false|off)
           denv_env_var_copy_all="false"
           ;;
-        yes|y)
+        yes|true|on)
           denv_env_var_copy_all="true"
           ;;
         *)
@@ -561,7 +561,6 @@ _denv_config_env() {
       esac
       ;;
     copy)
-      denv_env_var_copy_all="false"
       shift
       while [ "$#" -gt "0" ]; do
         if echo "${1}" | grep -E "${_denv_bad_env_var_name_regex}"; then
@@ -579,6 +578,11 @@ _denv_config_env() {
             denv_env_var_set="${denv_env_var_set} ${1}"
           fi
         else
+          if [ "${denv_env_var_copy_all}" = "true" ]; then
+            _denv_error "denv is configured to copy all environment variables from the host already." \
+              "If you wish to only copy specific variables, disable copy-all first with 'denv config env all off'."
+            return 1
+          fi
           if [ -z "${denv_env_var_copy}" ]; then
             denv_env_var_copy="${1}"
           else
