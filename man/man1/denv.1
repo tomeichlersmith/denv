@@ -4,13 +4,14 @@
 .hy
 .SH NAME
 .PP
-denv v0.4.0
+denv v0.4.1
 .SH SYNOPSIS
 .PP
 \f[B]denv\f[R] version
 .PP
 \f[B]denv\f[R] init [help|-h|\[en]help] IMAGE [WORKSPACE]
-[\[en]no-gitignore] [\[en]no-copy-all] [\[en]force] [\[en]name NAME]
+[\[en]no-gitignore] [\[en]clean-env|\[en]no-copy-all] [\[en]force]
+[\[en]name NAME]
 .PP
 \f[B]denv\f[R] config [help|-h|\[en]help]
 .PP
@@ -45,20 +46,23 @@ Generally, the \f[C]help\f[R] option (with aliases \f[C]-h\f[R] and
 \f[C]--help\f[R]) print out a short help message for \f[B]denv\f[R] or
 one of its sub commands.
 .PP
-\f[B]--help\f[R], \f[B]-h\f[R], or \f[B]help\f[R] print a short help
-message for \f[B]denv\f[R] or one of its sub commands
+\f[B]\f[CB]--help\f[B]\f[R], \f[B]\f[CB]-h\f[B]\f[R], or \f[B]help\f[R]
+print a short help message for \f[B]denv\f[R] or one of its sub commands
 .PP
-\f[B]--no-gitignore\f[R] do not generate a gitignore file when setting
-up a new denv configuration
+\f[B]\f[CB]--no-gitignore\f[B]\f[R] do not generate a gitignore file
+when setting up a new denv configuration
 .PP
-\f[B]--no-copy-all\f[R] do not enable copying of all host environment
-variables within the new denv
+\f[B]\f[CB]--clean-env\f[B]\f[R] or \f[B]\f[CB]--no-copy-all\f[B]\f[R]
+do not enable copying of all host environment variables within the new
+denv.
+Later activation (or deactivation) of copying all host environment
+variables can be done with \f[B]denv config env all\f[R]
 .PP
-\f[B]--force\f[R] forces re-initialization of a denv even if the current
-workspace has one
+\f[B]\f[CB]--force\f[B]\f[R] forces re-initialization of a denv even if
+the current workspace has one
 .PP
-\f[B]--name\f[R] sets the name for the denv workspace that is being
-initialized
+\f[B]\f[CB]--name\f[B]\f[R] sets the name for the denv workspace that is
+being initialized
 .SS ARGUMENTS
 .PP
 \f[B]IMAGE\f[R] the name of a container image to use when starting a
@@ -135,9 +139,10 @@ be modified at your own risk.
 The syntax for sharing environment variables with the denv is a bit
 terse, so it is helpful to display some examples.
 .PP
-By default (without \f[B]--no-copy-all\f[R] when running \f[B]denv
-init\f[R]), \f[B]denv\f[R] will copy all possible environment variables
-from the host into the denv.
+By default (without \f[B]\f[CB]--no-copy-all\f[B]\f[R] or
+\f[B]\f[CB]--clean-env\f[B]\f[R] when running \f[B]denv init\f[R]),
+\f[B]denv\f[R] will copy all possible environment variables from the
+host into the denv.
 This means one can
 .IP
 .nf
