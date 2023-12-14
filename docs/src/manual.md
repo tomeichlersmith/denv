@@ -6,7 +6,7 @@ denv v0.4.0
 
 **denv** version
 
-**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--no-copy-all] [--force] [--name NAME]
+**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--clean-env|--no-copy-all] [--force] [--name NAME]
 
 **denv** config [help|-h|--help]
 
@@ -40,15 +40,16 @@ environment is left to the construction of the image. Generally, the `help` opti
 (with aliases `-h` and `--help`) print out a short help message for **denv** or one
 of its sub commands.
 
-**\-\-help**, **\-h**, or **help** print a short help message for **denv** or one of its sub commands
+**`--help`**, **`-h`**, or **help** print a short help message for **denv** or one of its sub commands
 
-**\-\-no\-gitignore** do not generate a gitignore file when setting up a new denv configuration
+**`--no-gitignore`** do not generate a gitignore file when setting up a new denv configuration
 
-**\-\-no\-copy\-all** do not enable copying of all host environment variables within the new denv
+**`--clean-env`** or **`--no-copy-all`** do not enable copying of all host environment variables within the new denv.
+  Later activation (or deactivation) of copying all host environment variables can be done with **denv config env all**
 
-**\-\-force** forces re-initialization of a denv even if the current workspace has one
+**`--force`** forces re-initialization of a denv even if the current workspace has one
 
-**\-\-name** sets the name for the denv workspace that is being initialized
+**`--name`** sets the name for the denv workspace that is being initialized
 
 ## ARGUMENTS
 
@@ -106,7 +107,7 @@ your own risk.
 The syntax for sharing environment variables with the denv is a bit terse, so it is helpful
 to display some examples.
 
-By default (without **\-\-no\-copy\-all** when running **denv init**), **denv** will copy all
+By default (without **`--no-copy-all`** or **`--clean-env`** when running **denv init**), **denv** will copy all
 possible environment variables from the host into the denv. This means one can
 
     export foo=bar
