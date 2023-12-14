@@ -675,7 +675,7 @@ _denv_init_help() {
   cat <<\HELP
 
   denv init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore]
-            [--force] [--name NAME] [--no-copy-all]
+            [--force] [--name NAME] [--clean-env|--no-copy-all]
 
  ARGUMENT
   help       : print this help and exit
@@ -688,7 +688,10 @@ _denv_init_help() {
   --no-gitignore  : don't generate a gitignore for the .denv directory
   --force         : overwrite an existing denv if it exists
   --name          : set a name for this denv
-  --no-copy-all   : don't enable copying of host environment variables
+  --clean-env     : don't enable copying of host environment variables
+                    --no-copy-all is another alias which more closely
+                    mimics the underlying implementation and wording of
+                    'denv config env'
 
 HELP
 }
@@ -712,7 +715,7 @@ _denv_init() {
       --no-gitignore)
         gitignore=0
         ;;
-      --no-copy-all)
+      --clean-env|--no-copy-all)
         copyall=0
         ;;
       --force)
