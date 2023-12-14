@@ -30,22 +30,22 @@ denv v0.4.1
 
 # DESCRIPTION
 
-**denv** is a light, POSIX-compliant wrapper around a few common container managers,
+**`denv`** is a light, POSIX-compliant wrapper around a few common container managers,
 allowing the user to efficiently interact with container-ized envorinments uniformly
 across systems with different installed managers.
 
 ## OPTIONS
-**denv** is light on options since most configuration of the actual development
+**`denv`** is light on options since most configuration of the actual development
 environment is left to the construction of the image. Generally, the `help` option
-(with aliases `-h` and `--help`) print out a short help message for **denv** or one
+(with aliases `-h` and `--help`) print out a short help message for **`denv`** or one
 of its sub commands.
 
-**`--help`**, **`-h`**, or **help** print a short help message for **denv** or one of its sub commands
+**`--help`**, **`-h`**, or **`help`** print a short help message for **`denv`** or one of its sub commands
 
 **`--no-gitignore`** do not generate a gitignore file when setting up a new denv configuration
 
 **`--clean-env`** or **`--no-copy-all`** do not enable copying of all host environment variables within the new denv.
-  Later activation (or deactivation) of copying all host environment variables can be done with **denv config env all**
+  Later activation (or deactivation) of copying all host environment variables can be done with **`denv config env all`**
 
 **`--force`** forces re-initialization of a denv even if the current workspace has one
 
@@ -53,34 +53,34 @@ of its sub commands.
 
 ## ARGUMENTS
 
-**IMAGE**   the name of a container image to use when starting a container to host the developer environment
+**`IMAGE`**   the name of a container image to use when starting a container to host the developer environment
 
-**WORKSPACE** the directory where the environment should be stored and configured, used by default
+**`WORKSPACE`** the directory where the environment should be stored and configured, used by default
               as the home directory within the developer environment so that the environment can also
               have its own shell configuration files and **~/.local** paths.
 
-**DIR** directory to add to the list of mounts to be mirrored into the denv. These directories
+**`DIR`** directory to add to the list of mounts to be mirrored into the denv. These directories
         are required to be full paths so that the user is cognizant of what paths will be available
         in the container and what arent. One can use *realpath* to deduce a fullpath from a relative
         path in a POSIX-compliant way if desired.
 
-**SHELL** the program to use as the interactive shell within the containerized environment.
+**`SHELL`** the program to use as the interactive shell within the containerized environment.
 
-**COMMAND** a program to run inside of the containerized environment (can have its own arguments).
+**`COMMAND`** a program to run inside of the containerized environment (can have its own arguments).
             If no COMMAND is given, then SHELL will be executed.
 
-**VAR** environment variable name either in the host environment that should be copied into the denv
+**`VAR`** environment variable name either in the host environment that should be copied into the denv
         (if not value is specified with an '=' sign) or defined to a specific value (when a value
         is specified with an '=' sign). These names cannot match special shell environment
         names (e.g. 'HOME') or special denv names (e.g. 'DENV_RUNNER').
 
-**VAL** environment variable value used with **denv config env copy**. These values cannot have the
+**`VAL`** environment variable value used with **`denv config env copy`**. These values cannot have the
         special characters: space \' \', tick \'`\', quote \'"\', or dollar-sign \'$\'.
 
 
 # EXAMPLES
 
-**denv** is meant to be used after building a containerized developer environment. Look at the
+**`denv`** is meant to be used after building a containerized developer environment. Look at the
 online manual for help getting started on developing the environment itself, but for these examples,
 we will assume that you already have an image built in which you wish to develop.
 
@@ -107,7 +107,7 @@ your own risk.
 The syntax for sharing environment variables with the denv is a bit terse, so it is helpful
 to display some examples.
 
-By default (without **`--no-copy-all`** or **`--clean-env`** when running **denv init**), **denv** will copy all
+By default (without **`--no-copy-all`** or **`--clean-env`** when running **`denv init`**), **`denv`** will copy all
 possible environment variables from the host into the denv. This means one can
 
     export foo=bar
@@ -194,6 +194,19 @@ of config file if desired.
   **denv_shell** the program to run as a interactive shell if running denv without any arguments
 
   **denv_mounts** a space separated list of extra mounts to mount into denv when running
+
+  **denv_env_var_copy_all** a boolean flag signalling if **`denv`** should copy all possible host environment
+    variables into the denv (`"true"`) or not (`"false"`).
+
+  **denv_env_var_copy** a space-separated list of host environment variables to copy into the denv.
+    This is ignored if **denv_env_var_copy_all** is `"true"`. There are some restrictions on the names
+    of variables that can be used and so editing this value directly is not recomended. Use **`denv config env copy`**
+    which does this validation.
+
+  **denv_env_var_set** a space-separate list of key=value pairs that will be set as environment variables
+    within the denv. These values override any values that could be copied from the host. There are restrictions
+    on the names and values that can be kept here so editing this value directly is not recommended.
+    Use **`denv config env copy`** to edit this value while validating that the rules are followed.
 
 ## skel-init
 
