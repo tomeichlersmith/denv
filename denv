@@ -242,7 +242,7 @@ _denv_run() {
       if [ "${denv_runner}" = "podman" ]; then
         userspec="--userns=keep-id"
       fi
-      # shellcheck disable=SC2086
+      # shellcheck disable=SC2086,SC2248
       ${denv_runner} run \
         --rm \
         --network host \
