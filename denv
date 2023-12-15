@@ -238,12 +238,9 @@ _denv_run() {
         mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       fi
       environment="$(_denv_environment_to_args --env)"
-      userspec="$(id -u "${USER}"):$(id -g "${USER}")"
-      # until podman makes a release v4.6.0 with idmap
-      # the simplest solution is to just have the in-container user be root
-      # https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
+      userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
       if [ "${denv_runner}" = "podman" ]; then
-        userspec="root"
+        userspec="--userns=keep-id"
       fi
       # shellcheck disable=SC2086
       ${denv_runner} run \
@@ -255,7 +252,7 @@ _denv_run() {
         ${environment} \
         --workdir "$(pwd -P)" \
         --entrypoint "${denv_entrypoint}" \
-        --user "${userspec}" \
+        "${userspec}" \
         "${denv_image}" \
         "$@"
       ;;
