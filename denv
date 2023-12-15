@@ -252,7 +252,7 @@ _denv_run() {
         ${environment} \
         --workdir "$(pwd -P)" \
         --entrypoint "${denv_entrypoint}" \
-        "${userspec}" \
+        ${userspec} \
         "${denv_image}" \
         "$@"
       ;;
