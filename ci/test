@@ -108,12 +108,7 @@ check_pass denv init ubuntu:22.04 --force --name newname
 # make sure update was applied
 check_equal 'denv printenv DENV_NAME' 'echo newname'
 # check user is passed into the container
-# for podman, we are waiting for idmap to get into a release
-# its already in v4.6.0-rc1
-# https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
-if [ "${DENV_RUNNER}" != "podman" ]; then
-  check_equal 'whoami' 'denv whoami'
-fi
+check_equal 'whoami' 'denv whoami'
 # "install" a simple executable and make sure it is available non-interactively
 mkdir -p .local/bin
 cat > .local/bin/hello <<\WORLD
