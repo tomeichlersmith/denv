@@ -36,15 +36,15 @@ that runs the images.
 
 - **User Ownership**: any files written when in the denv should be owned
   by the user once they exit the denv
-- **Launching GUI Programs**: the user should be able to launch an GUI
+- **Launching GUI Programs**: the user should be able to launch a GUI
   program from within the denv
 - **Network and Port Connection**: the user should be able to use the host
   network and connect to ports on `localhost` within the denv
 - **Home Directory**: the in-denv home directory should be set to the
   workspace outside of the denv
-- **Environment Variables**: besides hidden (beginning with `_`) and 
-  special (e.g. `HOME` and `HOSTNAME`) varaibles, all environment variables
-  should be passed into the denv along with a few denv-specific variables
+- **Environment Variables**: the user is able to configure which environment
+  variables to pass into the denv, so the runner needs to be able to define
+  environment variables for the spawned container at runtime
 
 ## What to Test
 If you are developing a new runner to be wrapped by `denv`, the natural next
