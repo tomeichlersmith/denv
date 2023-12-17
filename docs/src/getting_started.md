@@ -10,8 +10,7 @@ on the system you wish to use `denv` on. Generally, the runners can be separated
 - Personal Laptops and Desktops: [docker](https://docs.docker.com/engine/install/) or [podman](https://podman.io/)
   - Both of these are more widely used in software industry and so they are generally easier to install and use;
     however, they require certain elevated privileges that make them undesirable for academic clusters.
-  - Version requirements on docker or podman have not bee investigated, although, `idmap` support within `podman`
-    is expected to be required to use the full features of `denv` [tomeichlersmith/denv Issue #9](https://github.com/tomeichlersmith/denv/issues/9)
+  - Version requirements on docker or podman have not been investigated.
 - Computing Clusters: [apptainer](https://apptainer.org/) or [singularityCE](https://sylabs.io/singularity/)
   - These are commonly chosen by computing clusters due to their ability to be very strictly configured
     so users can run them without elevated priveleges thus avoiding some security vulnerabilities.
