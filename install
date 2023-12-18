@@ -62,7 +62,6 @@ Options:
                 ignored if not in the repository
   --next/-n:    install HEAD of main branch rather than last release
   --help/-h:    show this message
-  --simple:     dont add in the cheeky '\' alias for denv
   -v:     show more verbosity
 EOF
 }
@@ -71,7 +70,6 @@ version=v0.4.1
 next=0
 verbose=0
 devel=0
-simple=0
 prefix=""
 
 # Parse arguments
@@ -93,10 +91,6 @@ while [ "$#" -gt 0 ]; do
     -n | --next)
       shift
       next=1
-      ;;
-    --simple)
-      shift
-      simple=1
       ;;
     -p | --prefix)
       if [ -n "$2" ]; then
@@ -240,15 +234,6 @@ else
   if [ -n "${tmp_dir}" ] && [ -e "${tmp_dir}" ]; then
     rm -rf "${tmp_dir}"
   fi
-fi
-
-if [ "${simple}" -eq "0" ]; then
-  # not a simple installation, make the cheeky shortcut allowing users to use '\\' in place of 'denv'
-  # at the command line
-  cd "${dest_path}"
-  # I do not want to escape a single quote, I want to have a backslash filename
-  # shellcheck disable=SC1003
-  ln -sf denv '\'
 fi
 
 # double check that the installation is functional
