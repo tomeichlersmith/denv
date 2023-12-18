@@ -229,14 +229,8 @@ _denv_run() {
       # there for user/group definitions
       denv_mounts="${denv_mounts} /etc/passwd /etc/group"
       mounts="$(_denv_mounts_to_args "--volume")"
-      # need to mount workspace in a special way for podman
-      # https://github.com/containers/podman/commit/82a050a58f2ef2cf940c2ef49e1f8c4b17ab8beb
-      if [ "${denv_runner}" = "podman" ]; then
-        #mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}:idmap"
-        mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
-      else
-        mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
-      fi
+      # need to mount workspace manually for docker/podman
+      mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       environment="$(_denv_environment_to_args --env)"
       userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
       if [ "${denv_runner}" = "podman" ]; then
