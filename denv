@@ -383,7 +383,15 @@ _denv_load_config() {
   denv_environment="${denv_environment} DENV_NAME=${denv_name}"
   denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
   denv_environment="${denv_environment} DENV_IMAGE=${denv_image}"
-  denv_environment="${denv_environment} HOME=${denv_workspace}"
+  case "${denv_runner}" in
+    singularity|apptainer)
+      # should /not/ pass the HOME environment variable
+      # the program handles that when using the --home flag at run time
+      ;;
+    *)
+      denv_environment="${denv_environment} HOME=${denv_workspace}"
+      ;;
+  esac
 
   if [ -n "${DENV_DEBUG+x}" ]; then
     # add to the environment
