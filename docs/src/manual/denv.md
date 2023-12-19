@@ -6,25 +6,9 @@ denv v0.4.1
 
 **denv** version
 
-**denv** init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore] [--clean-env|--no-copy-all] [--force] [--name NAME]
+**denv** init [args]
 
-**denv** config [help|-h|--help]
-
-**denv** config print [env]
-
-**denv** config image <pull | IMAGE>
-
-**denv** config mounts DIR0 [DIR1 DIR2 ...]
-
-**denv** config shell SHELL
-
-**denv** config env [help|-h|--help]
-
-**denv** config env print
-
-**denv** config env all [yes|no]
-
-**denv** config env copy VAR0[=VAL0] [VAR1[=VAL1] ...]
+**denv** config [args]
 
 **denv** [COMMAND] [args...]
 
@@ -33,6 +17,10 @@ denv v0.4.1
 **`denv`** is a light, POSIX-compliant wrapper around a few common container managers,
 allowing the user to efficiently interact with container-ized envorinments uniformly
 across systems with different installed managers.
+
+# SEE ALSO
+
+denv-init(1), denv-config(1)
 
 ## OPTIONS
 **`denv`** is light on options since most configuration of the actual development
