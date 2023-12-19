@@ -2,19 +2,158 @@
 .\"
 .TH "DENV" "1" "Dec 2023" "denv" "User Manual"
 .hy
+.SH NAME
 .PP
-\f[B]denv\f[R] config print [env]
+denv config
+.SH SYNOPSIS
 .PP
-\f[B]denv\f[R] config image <pull | IMAGE>
+\f[B]denv config\f[R] [help|-h|\[en]help]
 .PP
-\f[B]denv\f[R] config mounts DIR0 [DIR1 DIR2 \&...]
+\f[B]denv config\f[R] print [env]
 .PP
-\f[B]denv\f[R] config shell SHELL
+\f[B]denv config\f[R] image <pull | IMAGE>
 .PP
-\f[B]denv\f[R] config env [help|-h|\[en]help]
+\f[B]denv config\f[R] mounts DIR0 [DIR1 DIR2 \&...]
 .PP
-\f[B]denv\f[R] config env print
+\f[B]denv config\f[R] shell SHELL
 .PP
-\f[B]denv\f[R] config env all [yes|no]
+\f[B]denv config\f[R] env [help|-h|\[en]help]
 .PP
-\f[B]denv\f[R] config env copy VAR0[=VAL0] [VAR1[=VAL1] \&...]
+\f[B]denv config\f[R] env print
+.PP
+\f[B]denv config\f[R] env all [yes|no]
+.PP
+\f[B]denv config\f[R] env copy VAR0[=VAL0] [VAR1[=VAL1] \&...]
+.SH DESCRIPTION
+.PP
+Manipulate the configuration of a denv that already exists.
+The commands here will all fail if a denv hasn\[cq]t been created, see
+\f[B]denv-init(1)\f[R] to create a new denv.
+.PP
+\f[B]\f[CB]denv config\f[B]\f[R] is separated into a set of sub-commands
+that are focused on manipulating the different aspects of the denv
+configuration.
+These correspond to the different keywords specified after `config'.
+.SS COMMANDS
+.PP
+\f[B]help\f[R] print a help message for
+\f[B]\f[CB]denv config\f[B]\f[R].
+This is the command that is issued if no keywords are given.
+It also has the aliases \f[B]\f[CB]-h\f[B]\f[R] and
+\f[B]\f[CB]--help\f[B]\f[R].
+.PP
+\f[B]print\f[R] print the loaded denv configuration.
+This is helpful for debugging purposes and inspecting the denv that you
+currently have configured.
+.PP
+\f[B]image\f[R] set (and potentially pull) the container image that
+should be used with the denv that you currently reside in.
+.PP
+\f[B]mounts\f[R] provide additional directories to mount into the denv
+during running.
+.PP
+\f[B]shell\f[R] set the shell that should be executed by denv if no
+other command is given by the user.
+.PP
+\f[B]env\f[R] manipulate and view the environment variables that will be
+provided to the denv at run time.
+.SH ARGUMENTS
+.PP
+Below are different arguments that can be provided separated by which
+command they correspond to.
+.SS print
+.PP
+\f[B]env\f[R] If any argument is provided to print, then all of the
+environment variables that will be passed into the denv are printed
+after the deduced configuration.
+Without an argument, print will just show the deduced configuration and
+only print the environment variables if copy-all is false.
+.SS image
+.PP
+\f[B]IMAGE\f[R] The provided argument is the image tag that should be
+used for running with the denv.
+If this argument is the special key-word `pull', then it won\[cq]t
+change the actual image tag and instead re-download the currently
+configured image from the registry.
+.PP
+For apptainer and singularity runners, this IMAGE can also be a
+filesystem path to a unpacked image that is already downloaded (and
+unpacked) somewhere else on the computer.
+In this case, we simply symlink the image to our image cache so denv can
+operate like normal.
+Work is on-going to investigate supporting this workflow for other
+container runners <https://github.com/tomeichlersmith/denv/issues/37>.
+.SS mounts
+.PP
+\f[B]DIR\f[R] Each of the space-separate arguments are interpreted as a
+directory that should be included in the list of mounts for the
+container that denv spawns.
+These are in addition to the mount of the denv workspace to the
+container home directory.
+They are mounted into the container at the same filesystem location that
+they have on the host.
+These directories are required to be full paths so that the user is
+cognizant of what paths will be available in the container and what
+arent.
+One can use \f[B]realpath(1)\f[R] to deduce a fullpath from a relative
+path in a POSIX-compliant way if desired.
+.SS shell
+.PP
+\f[B]\f[CB]SHELL\f[B]\f[R] the program to use as the interactive shell
+within the containerized environment.
+No checks on what this program is or if it is even available within the
+container are done.
+As the name implies, \f[B]\f[CB]denv\f[B]\f[R] expects it to be some
+shell that the user can interact with but technically it is just the
+default program that is run when the user does not provide any arguments
+to \f[B]\f[CB]denv\f[B]\f[R].
+.SS env
+.PP
+The \f[B]\f[CB]env\f[B]\f[R] subcommand has its own sub-commands due to
+the variability of defining which environment variables should be copied
+into the containerized environment.
+.PP
+\f[B]help\f[R] print a help message for this subcommand.
+This has aliases \f[B]\f[CB]-h\f[B]\f[R] and \f[B]\f[CB]--help\f[B]\f[R]
+as well.
+.PP
+\f[B]print\f[R] print out the environment variables and their values
+that will be passed into the container.
+.PP
+\f[B]all\f[R] toggle the decision on if all possible environment
+variables from the host environment should be copied.
+\f[B]\f[CB]yes\f[B]\f[R], \f[B]\f[CB]true\f[B]\f[R],
+\f[B]\f[CB]on\f[B]\f[R] all mean to copy all possible variables from the
+host environment, while their inverses \f[B]\f[CB]no\f[B]\f[R],
+\f[B]\f[CB]false\f[B]\f[R], \f[B]\f[CB]off\f[B]\f[R] mean to disable
+this feature and only copy variables that are explicitly defined via the
+\f[B]\f[CB]copy\f[B]\f[R] command below.
+Variables defined with a specific value overwrite any values that would
+be copied from the environment.
+.PP
+\f[B]copy\f[R] configure which environment variables to copy into the
+denv at runtime.
+Each of the space-separated arguments to this command are treated
+separated and are interpreted as a \f[B]VAR* with an optional \f[R]VAL**
+distinguished by a `=' character.
+.IP \[bu] 2
+\f[B]\f[CB]VAR\f[B]\f[R] environment variable name either in the host
+environment that should be copied into the denv (if no value is
+specified with an `=' sign) or defined to a specific value (when a value
+is specified with an `=' sign).
+These names cannot match special shell environment names (e.g.\ `HOME')
+or special denv names (e.g.\ `DENV_RUNNER').
+.IP \[bu] 2
+\f[B]\f[CB]VAL\f[B]\f[R] environment variable value to use instead of
+the value from the host environment.
+These values cannot have the special characters: space \[aq] \[aq], tick
+\[aq]\[ga]\[aq], quote \[aq]\[dq]\[aq], or dollar-sign \[aq]$\[aq].
+Providing a value for a specific environment variable means that
+variable does not need to exist in the host environment.
+Moreover, providing a values takes precedence: if a value is provided,
+the denv will receive that value, ignoring any value that may exist in
+the environment (even if \f[B]all\f[R] is toggled to on and all
+environment variables are being copied).
+.SH SEE ALSO
+.PP
+\f[B]denv(1)\f[R], \f[B]denv-init(1)\f[R]
