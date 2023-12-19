@@ -4,6 +4,8 @@ denv v0.4.1
 
 # SYNOPSIS
 
+**denv** [help|-h|--help]
+
 **denv** version
 
 **denv** init [args]
@@ -16,55 +18,29 @@ denv v0.4.1
 
 **`denv`** is a light, POSIX-compliant wrapper around a few common container managers,
 allowing the user to efficiently interact with container-ized envorinments uniformly
-across systems with different installed managers.
+across systems with different installed managers. It has few commands, prioritizing
+simplicity so that users can easily and quickly pass their own commands to be run
+within the specialized and isolated environment.
+
+# COMMANDS
+
+**`help`** prints a short help message and exits. The aliases **`-h`** and **`--help`**
+           also exist for this command.
+
+**`version`** prints the name and version of the currently installed `denv`
+
+**`init`** initialize a new denv. See **denv-init(1)** for details.
+
+**`config`** manipulate the configuration of the current denv. See **denv-config(1)** for details.
+
+**`COMMAND`** any other command not matching one of the options above is provided to the
+              configured denv to run within the containerized environment. The rest of the
+              command line is passed along with COMMAND so its args are seen as if they
+              were run manually within the shell of the container.
 
 # SEE ALSO
 
-denv-init(1), denv-config(1)
-
-## OPTIONS
-**`denv`** is light on options since most configuration of the actual development
-environment is left to the construction of the image. Generally, the `help` option
-(with aliases `-h` and `--help`) print out a short help message for **`denv`** or one
-of its sub commands.
-
-**`--help`**, **`-h`**, or **`help`** print a short help message for **`denv`** or one of its sub commands
-
-**`--no-gitignore`** do not generate a gitignore file when setting up a new denv configuration
-
-**`--clean-env`** or **`--no-copy-all`** do not enable copying of all host environment variables within the new denv.
-  Later activation (or deactivation) of copying all host environment variables can be done with **`denv config env all`**
-
-**`--force`** forces re-initialization of a denv even if the current workspace has one
-
-**`--name`** sets the name for the denv workspace that is being initialized
-
-## ARGUMENTS
-
-**`IMAGE`**   the name of a container image to use when starting a container to host the developer environment
-
-**`WORKSPACE`** the directory where the environment should be stored and configured, used by default
-              as the home directory within the developer environment so that the environment can also
-              have its own shell configuration files and **~/.local** paths.
-
-**`DIR`** directory to add to the list of mounts to be mirrored into the denv. These directories
-        are required to be full paths so that the user is cognizant of what paths will be available
-        in the container and what arent. One can use *realpath* to deduce a fullpath from a relative
-        path in a POSIX-compliant way if desired.
-
-**`SHELL`** the program to use as the interactive shell within the containerized environment.
-
-**`COMMAND`** a program to run inside of the containerized environment (can have its own arguments).
-            If no COMMAND is given, then SHELL will be executed.
-
-**`VAR`** environment variable name either in the host environment that should be copied into the denv
-        (if not value is specified with an '=' sign) or defined to a specific value (when a value
-        is specified with an '=' sign). These names cannot match special shell environment
-        names (e.g. 'HOME') or special denv names (e.g. 'DENV_RUNNER').
-
-**`VAL`** environment variable value used with **`denv config env copy`**. These values cannot have the
-        special characters: space \' \', tick \'`\', quote \'"\', or dollar-sign \'$\'.
-
+**denv-init(1)**, **denv-config(1)**
 
 # EXAMPLES
 

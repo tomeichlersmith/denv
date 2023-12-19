@@ -7,6 +7,8 @@
 denv v0.4.1
 .SH SYNOPSIS
 .PP
+\f[B]denv\f[R] [help|-h|\[en]help]
+.PP
 \f[B]denv\f[R] version
 .PP
 \f[B]denv\f[R] init [args]
@@ -20,72 +22,33 @@ denv v0.4.1
 few common container managers, allowing the user to efficiently interact
 with container-ized envorinments uniformly across systems with different
 installed managers.
+It has few commands, prioritizing simplicity so that users can easily
+and quickly pass their own commands to be run within the specialized and
+isolated environment.
+.SH COMMANDS
+.PP
+\f[B]\f[CB]help\f[B]\f[R] prints a short help message and exits.
+The aliases \f[B]\f[CB]-h\f[B]\f[R] and \f[B]\f[CB]--help\f[B]\f[R] also
+exist for this command.
+.PP
+\f[B]\f[CB]version\f[B]\f[R] prints the name and version of the
+currently installed \f[C]denv\f[R]
+.PP
+\f[B]\f[CB]init\f[B]\f[R] initialize a new denv.
+See \f[B]denv-init(1)\f[R] for details.
+.PP
+\f[B]\f[CB]config\f[B]\f[R] manipulate the configuration of the current
+denv.
+See \f[B]denv-config(1)\f[R] for details.
+.PP
+\f[B]\f[CB]COMMAND\f[B]\f[R] any other command not matching one of the
+options above is provided to the configured denv to run within the
+containerized environment.
+The rest of the command line is passed along with COMMAND so its args
+are seen as if they were run manually within the shell of the container.
 .SH SEE ALSO
 .PP
-denv-init(1), denv-config(1)
-.SS OPTIONS
-.PP
-\f[B]\f[CB]denv\f[B]\f[R] is light on options since most configuration
-of the actual development environment is left to the construction of the
-image.
-Generally, the \f[C]help\f[R] option (with aliases \f[C]-h\f[R] and
-\f[C]--help\f[R]) print out a short help message for
-\f[B]\f[CB]denv\f[B]\f[R] or one of its sub commands.
-.PP
-\f[B]\f[CB]--help\f[B]\f[R], \f[B]\f[CB]-h\f[B]\f[R], or
-\f[B]\f[CB]help\f[B]\f[R] print a short help message for
-\f[B]\f[CB]denv\f[B]\f[R] or one of its sub commands
-.PP
-\f[B]\f[CB]--no-gitignore\f[B]\f[R] do not generate a gitignore file
-when setting up a new denv configuration
-.PP
-\f[B]\f[CB]--clean-env\f[B]\f[R] or \f[B]\f[CB]--no-copy-all\f[B]\f[R]
-do not enable copying of all host environment variables within the new
-denv.
-Later activation (or deactivation) of copying all host environment
-variables can be done with \f[B]\f[CB]denv config env all\f[B]\f[R]
-.PP
-\f[B]\f[CB]--force\f[B]\f[R] forces re-initialization of a denv even if
-the current workspace has one
-.PP
-\f[B]\f[CB]--name\f[B]\f[R] sets the name for the denv workspace that is
-being initialized
-.SS ARGUMENTS
-.PP
-\f[B]\f[CB]IMAGE\f[B]\f[R] the name of a container image to use when
-starting a container to host the developer environment
-.PP
-\f[B]\f[CB]WORKSPACE\f[B]\f[R] the directory where the environment
-should be stored and configured, used by default as the home directory
-within the developer environment so that the environment can also have
-its own shell configuration files and \f[B]\[ti]/.local\f[R] paths.
-.PP
-\f[B]\f[CB]DIR\f[B]\f[R] directory to add to the list of mounts to be
-mirrored into the denv.
-These directories are required to be full paths so that the user is
-cognizant of what paths will be available in the container and what
-arent.
-One can use \f[I]realpath\f[R] to deduce a fullpath from a relative path
-in a POSIX-compliant way if desired.
-.PP
-\f[B]\f[CB]SHELL\f[B]\f[R] the program to use as the interactive shell
-within the containerized environment.
-.PP
-\f[B]\f[CB]COMMAND\f[B]\f[R] a program to run inside of the
-containerized environment (can have its own arguments).
-If no COMMAND is given, then SHELL will be executed.
-.PP
-\f[B]\f[CB]VAR\f[B]\f[R] environment variable name either in the host
-environment that should be copied into the denv (if not value is
-specified with an `=' sign) or defined to a specific value (when a value
-is specified with an `=' sign).
-These names cannot match special shell environment names (e.g.\ `HOME')
-or special denv names (e.g.\ `DENV_RUNNER').
-.PP
-\f[B]\f[CB]VAL\f[B]\f[R] environment variable value used with
-\f[B]\f[CB]denv config env copy\f[B]\f[R].
-These values cannot have the special characters: space \[aq] \[aq], tick
-\[aq]\[ga]\[aq], quote \[aq]\[dq]\[aq], or dollar-sign \[aq]$\[aq].
+\f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R]
 .SH EXAMPLES
 .PP
 \f[B]\f[CB]denv\f[B]\f[R] is meant to be used after building a
