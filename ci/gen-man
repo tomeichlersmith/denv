@@ -9,12 +9,21 @@ installation.
 	exit 1
 fi
 
-pandoc \
-  --standalone \
-  --metadata title="DENV" \
-  --metadata section=1 \
-  --metadata header="User Manual" \
-  --metadata footer="denv" \
-	--metadata date="$(date +"%b %Y")" \
-  --to man docs/src/manual.md \
-  -o man/man1/denv.1
+_translate() {
+  man_page="$1"  
+  pandoc \
+    --standalone \
+    --metadata title="DENV" \
+    --metadata section=1 \
+    --metadata header="User Manual" \
+    --metadata footer="denv" \
+  	--metadata date="$(date +"%b %Y")" \
+    --to man docs/src/manual/${man_page}.md \
+    -o man/man1/${man_page}.1
+}
+
+for page in denv denv-init denv-config
+do
+  _translate "${page}"
+done
+

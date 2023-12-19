@@ -8,8 +8,13 @@
 # User Guide
 
 - [Tuning the denv](./tune.md)
-- [denv Manual](./manual.md)
 - [Developing the Environment](./env_dev.md)
+
+# Manual
+
+- [denv](./manual/denv.md)
+- [denv-init](./manual/denv-init.md)
+- [denv-config](./manual/denv-config.md)
 
 # Contributing
 

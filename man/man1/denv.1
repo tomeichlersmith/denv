@@ -9,27 +9,9 @@ denv v0.4.1
 .PP
 \f[B]denv\f[R] version
 .PP
-\f[B]denv\f[R] init [help|-h|\[en]help] IMAGE [WORKSPACE]
-[\[en]no-gitignore] [\[en]clean-env|\[en]no-copy-all] [\[en]force]
-[\[en]name NAME]
+\f[B]denv\f[R] init [args]
 .PP
-\f[B]denv\f[R] config [help|-h|\[en]help]
-.PP
-\f[B]denv\f[R] config print [env]
-.PP
-\f[B]denv\f[R] config image <pull | IMAGE>
-.PP
-\f[B]denv\f[R] config mounts DIR0 [DIR1 DIR2 \&...]
-.PP
-\f[B]denv\f[R] config shell SHELL
-.PP
-\f[B]denv\f[R] config env [help|-h|\[en]help]
-.PP
-\f[B]denv\f[R] config env print
-.PP
-\f[B]denv\f[R] config env all [yes|no]
-.PP
-\f[B]denv\f[R] config env copy VAR0[=VAL0] [VAR1[=VAL1] \&...]
+\f[B]denv\f[R] config [args]
 .PP
 \f[B]denv\f[R] [COMMAND] [args\&...]
 .SH DESCRIPTION
@@ -38,6 +20,9 @@ denv v0.4.1
 few common container managers, allowing the user to efficiently interact
 with container-ized envorinments uniformly across systems with different
 installed managers.
+.SH SEE ALSO
+.PP
+denv-init(1), denv-config(1)
 .SS OPTIONS
 .PP
 \f[B]\f[CB]denv\f[B]\f[R] is light on options since most configuration
