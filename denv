@@ -739,16 +739,39 @@ _denv_init() {
   # image - first positional and only required argument
   image="$1"
   shift
-  # workspace - second positional argument or PWD
-  if [ "$#" -eq 0 ]; then
-    denv_workspace="${PWD}"
-  else
+  # workspace - second positional argument if given, otherwise PWD
+  if [ ! "$#" -eq 0 ]; then
     denv_workspace="$1"
     # check if this directory exists, if not create it
     if [ ! -d "${denv_workspace}" ]; then
+      if [ "${force}" = "0" ]; then
+        _denv_info "creating ${denv_workspace} for the denv workspace"
+      elif [ -n "${DENV_NOPROMPT+x}" ]; then
+        _denv_error "denv prompt disabled but unwilling to create a directory without user input."
+        return 1
+      else
+        printf "\033[1mThis directory does not exist. Would you like to create it for the denv?\033[0m [Y/n] "
+        read -r ans
+        case "${ans}" in
+          Y|y)
+            # pretend like there isn't a .denv there
+            # we will overwrite .denv/config and .denv/.gitignore
+            # in this function
+            ;;
+          *)
+            _denv_info "Exiting without modifying..."
+            return 0
+            ;;
+        esac
+      fi
+      _denv_info "Creating ${denv_workspace} for the denv..."
       mkdir "${denv_workspace}"
+      _denv_info "Entering ${denv_workspace}..."
+      cd "${denv_workspace}"
     fi
   fi
+  # if the workspace was given, we have created and entered it, so the workspace is PWD
+  denv_workspace="${PWD}"
 
   # check if we already been init'ed
   if [ -d "${denv_workspace}/.denv" ];then
