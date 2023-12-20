@@ -1,20 +1,15 @@
 # Summary
 
-[Introduction](./README.md)
-
-- [Vocabulary](./vocab.md)
+- [Introduction](./README.md)
+  - [Motivation](./background/motivation.md)
+  - [Vocabulary](./background/vocab.md)
 - [Getting Started](./getting_started.md)
-
-# User Guide
-
 - [Tuning the denv](./tune.md)
+- [Command Reference Manual](./manual.md)
+  - [denv](./manual/denv.md)
+  - [denv-init](./manual/denv-init.md)
+  - [denv-config](./manual/denv-config.md)
 - [Developing the Environment](./env_dev.md)
-
-# Manual
-
-- [denv](./manual/denv.md)
-- [denv-init](./manual/denv-init.md)
-- [denv-config](./manual/denv-config.md)
 
 # Contributing
 

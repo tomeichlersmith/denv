@@ -2,7 +2,13 @@
 
 I am going to assume that you already have a container image in mind for running as the denv for
 this page; however, you can look at [Developing the Environment](./env_dev.md) for general notes
-on how to create an image that is useful as a denv.
+on how to create an image that is useful as a denv. A good image to use if you wish to test run
+`denv` is one of the [python images](https://hub.docker.com/_/python).
+This can give you access to the latest release of python
+without having to spend time compiling it or even installing it on your system. In addition, python
+has good support for "user" installation of packages within the home directory, so you can install
+your favorite packages pretty quickly within the denv without having to go through the rigamarole
+of actually building an image yourself.
 
 ## Requirements
 `denv` is a simple wrapper around a container runner. You must have a container runner installed
