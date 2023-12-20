@@ -62,6 +62,23 @@ can share between users and so it is excluded from the default `.gitignore` gene
 `.denv`. All other files within `.denv` are internal to denv and can only be modified at
 your own risk.
 
+## "Remote" Running
+
+While most of users will interact with denv from within denv's workspace, sometimes users
+wish to run a command from outside of the workspace. In this case, the default deduction
+of the workspace can fail; nevertheless, users can still achieve this goal by providing
+the path themselves. Below, we enter an interactive shell within the denv located at
+*`/full/path/to/workspace`* without having to enter that directory.
+
+    denv_workspace=/full/path/to/workspace denv
+
+Astute shell users may notice that we are simply defining an environment variable for denv,
+which is correct; however, users should avoid persisting this definition anywhere since it
+would effectively prevent you from having more than one denv on the same host machine.
+The other configuration variables do not have this problem since we find and source the
+config file on each run of denv, therefore overwriting any environment variables that may
+already be defined.
+
 # SEE ALSO
 
 **denv-init(1)**, **denv-config(1)**
