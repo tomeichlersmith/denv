@@ -683,7 +683,8 @@ _denv_init_help() {
  OPTIONS
   -h, --help      : print this help and exit
   --no-gitignore  : don't generate a gitignore for the .denv directory
-  --force         : overwrite an existing denv if it exists
+  --force         : overwrite an existing denv if it exists and create
+                    the WORKSPACE without prompting if it doesn't exist
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
                     --no-copy-all is another alias which more closely
@@ -754,19 +755,17 @@ _denv_init() {
         read -r ans
         case "${ans}" in
           Y|y)
-            # pretend like there isn't a .denv there
-            # we will overwrite .denv/config and .denv/.gitignore
-            # in this function
+            # do nothing right now, fall through to the code below
             ;;
           *)
-            _denv_info "Exiting without modifying..."
+            _denv_info "Exiting without creating '${denv_workspace}'..."
             return 0
             ;;
         esac
       fi
-      _denv_info "Creating ${denv_workspace} for the denv..."
+      _denv_info "Creating '${denv_workspace}' for the denv..."
       mkdir "${denv_workspace}"
-      _denv_info "Entering ${denv_workspace}..."
+      _denv_info "Entering '${denv_workspace}'..."
       cd "${denv_workspace}"
     fi
   fi
@@ -790,7 +789,7 @@ _denv_init() {
           # in this function
           ;;
         *)
-          _denv_info "Exiting without modifying..."
+          _denv_info "Exiting without overwriting denv within '${denv_workspace}'..."
           return 0
           ;;
       esac
