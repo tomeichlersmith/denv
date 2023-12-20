@@ -744,6 +744,10 @@ _denv_init() {
     denv_workspace="${PWD}"
   else
     denv_workspace="$1"
+    # check if this directory exists, if not create it
+    if [ ! -d "${denv_workspace}" ]; then
+      mkdir "${denv_workspace}"
+    fi
   fi
 
   # check if we already been init'ed
