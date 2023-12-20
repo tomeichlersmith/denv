@@ -26,7 +26,9 @@ denv init
 
 **`WORKSPACE`** the directory where the environment should be stored and configured, used by default
               as the home directory within the developer environment so that the environment can also
-              have its own shell configuration files and **~/.local** paths.
+              have its own shell configuration files and `~/.local` paths. If not provided, we just use
+              the current working directory. If provided, we make sure it exists, enter it and then
+              continue.
 
 # EXAMPLES
 

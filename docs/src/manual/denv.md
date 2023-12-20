@@ -82,7 +82,8 @@ to modify its behavior in an advanced way without having to provide many command
   **DENV_NOPROMPT** disable all user prompting. This makes the following decisions in the places
   where there would be prompts.
 
-  - **denv init** errors out if there is already a denv in the deduced workspace
+  - **denv init** errors out if there is already a denv in the deduced workspace or if a passed workspace
+    does not exist
   - **denv init** and **denv config image** will not pull an image if it already exists
 
 # FILES
