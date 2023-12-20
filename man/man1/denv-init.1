@@ -40,7 +40,9 @@ starting a container to host the developer environment
 \f[B]\f[CB]WORKSPACE\f[B]\f[R] the directory where the environment
 should be stored and configured, used by default as the home directory
 within the developer environment so that the environment can also have
-its own shell configuration files and \f[B]\[ti]/.local\f[R] paths.
+its own shell configuration files and \f[C]\[ti]/.local\f[R] paths.
+If not provided, we just use the current working directory.
+If provided, we make sure it exists, enter it and then continue.
 .SH EXAMPLES
 .PP
 Print the command line help for \f[B]\f[CB]denv init\f[B]\f[R] without
