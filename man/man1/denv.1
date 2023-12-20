@@ -81,6 +81,31 @@ which you can share between users and so it is excluded from the default
 \f[C].gitignore\f[R] generated within \f[C].denv\f[R].
 All other files within \f[C].denv\f[R] are internal to denv and can only
 be modified at your own risk.
+.SS \[lq]Remote\[rq] Running
+.PP
+While most of users will interact with denv from within denv\[cq]s
+workspace, sometimes users wish to run a command from outside of the
+workspace.
+In this case, the default deduction of the workspace can fail;
+nevertheless, users can still achieve this goal by providing the path
+themselves.
+Below, we enter an interactive shell within the denv located at
+\f[I]\f[CI]/full/path/to/workspace\f[I]\f[R] without having to enter
+that directory.
+.IP
+.nf
+\f[C]
+denv_workspace=/full/path/to/workspace denv
+\f[R]
+.fi
+.PP
+Astute shell users may notice that we are simply defining an environment
+variable for denv, which is correct; however, users should avoid
+persisting this definition anywhere since it would effectively prevent
+you from having more than one denv on the same host machine.
+The other configuration variables do not have this problem since we find
+and source the config file on each run of denv, therefore overwriting
+any environment variables that may already be defined.
 .SH SEE ALSO
 .PP
 \f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R]
@@ -107,7 +132,7 @@ This makes the following decisions in the places where there would be
 prompts.
 .IP \[bu] 2
 \f[B]denv init\f[R] errors out if there is already a denv in the deduced
-workspace
+workspace or if a passed workspace does not exist
 .IP \[bu] 2
 \f[B]denv init\f[R] and \f[B]denv config image\f[R] will not pull an
 image if it already exists
