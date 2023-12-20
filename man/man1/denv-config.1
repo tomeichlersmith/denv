@@ -154,6 +154,128 @@ Moreover, providing a values takes precedence: if a value is provided,
 the denv will receive that value, ignoring any value that may exist in
 the environment (even if \f[B]all\f[R] is toggled to on and all
 environment variables are being copied).
+.SH EXAMPLES
+.PP
+Print out the current configuration of the denv.
+.IP
+.nf
+\f[C]
+denv config print
+\f[R]
+.fi
+.PP
+Change the image that the denv should use when running.
+\f[I]Be careful.\f[R] No cleaning or checking of compatibility is done.
+A drastic enough change in the image may require recompilations or even
+re-writes of code being written and developed within the denv.
+.IP
+.nf
+\f[C]
+denv config image my-repo/my-image:new-tag
+\f[R]
+.fi
+.PP
+Pull down the image that is currenlty configured again.
+This is helpful if the denv is using an image tag like \[lq]latest\[rq]
+and should be updated to the latest release again.
+Updating to the latest release is \f[I]not\f[R] done automatically
+because of the warnings above.
+.IP
+.nf
+\f[C]
+denv config image pull
+\f[R]
+.fi
+.SS Sharing Environment Variables
+.PP
+The syntax for sharing environment variables with the denv is a bit
+terse, so it is helpful to display some examples.
+.PP
+By default (without \f[B]\f[CB]--no-copy-all\f[B]\f[R] or
+\f[B]\f[CB]--clean-env\f[B]\f[R] when running
+\f[B]\f[CB]denv init\f[B]\f[R]), \f[B]\f[CB]denv\f[B]\f[R] will copy all
+possible environment variables from the host into the denv.
+This means one can
+.IP
+.nf
+\f[C]
+export foo=bar
+printenv foo      # prints out \[dq]bar\[dq]
+denv printenv foo # also prints \[dq]bar\[dq]
+\f[R]
+.fi
+.PP
+In some situations, this is over-sharing and you can disable this so
+that host environment variables are not copied into the denv anymore.
+.IP
+.nf
+\f[C]
+denv config env all no
+export foo=bar
+printenv foo      # prints out \[dq]bar\[dq]
+denv printenv foo # does not print anything and returns the error code 1
+\f[R]
+.fi
+.PP
+Even with copying all environment variables disabled, one can still copy
+specific values from the host or set specific variables to have specific
+values for the denv.
+.IP
+.nf
+\f[C]
+denv config env copy baz myfoo=mybaz
+denv printenv myfoo # prints \[dq]mybaz\[dq]
+printenv myfoo      # does not print anything and returns error code 1
+denv printenv baz   # not set in host yet so does not print anything
+export baz=\[dq]hooray\[dq]
+denv printenv baz   # prints \[dq]hooray\[dq]
+\f[R]
+.fi
+.SH FILES
+.PP
+The \f[B]\f[CB]denv config\f[B]\f[R] command is used to safely edit the
+\f[C].denv/config\f[R] file so that the user does not accidentally break
+their configuration.
+Nevertheless, this file is a regular text file and so can be edited
+directly if the user wishes to do something more advanced that the basic
+commands described above can handle.
+.PP
+The config file is a basic key=value shell file that will be sourced by
+\f[B]\f[CB]denv\f[B]\f[R] whenever the configuration is needed.
+\f[B]\f[CB]denv\f[B]\f[R] assumes that this config file defines the
+following shell variables for it to use.
+.PP
+\f[B]denv_name\f[R] the name for this denv
+.PP
+\f[B]denv_image\f[R] the image to use when running the denv
+.PP
+\f[B]denv_shell\f[R] the program to run as a interactive shell if
+running denv without any arguments
+.PP
+\f[B]denv_mounts\f[R] a space separated list of extra mounts to mount
+into denv when running
+.PP
+\f[B]denv_env_var_copy_all\f[R] a boolean flag signalling if
+\f[B]\f[CB]denv\f[B]\f[R] should copy all possible host environment
+variables into the denv (\f[C]\[dq]true\[dq]\f[R]) or not
+(\f[C]\[dq]false\[dq]\f[R]).
+.PP
+\f[B]denv_env_var_copy\f[R] a space-separated list of host environment
+variables to copy into the denv.
+This is ignored if \f[B]denv_env_var_copy_all\f[R] is
+\f[C]\[dq]true\[dq]\f[R].
+There are some restrictions on the names of variables that can be used
+and so editing this value directly is not recomended.
+Use \f[B]\f[CB]denv config env copy\f[B]\f[R] which does this
+validation.
+.PP
+\f[B]denv_env_var_set\f[R] a space-separate list of key=value pairs that
+will be set as environment variables within the denv.
+These values override any values that could be copied from the host.
+There are restrictions on the names and values that can be kept here so
+editing this value directly is not recommended.
+Use \f[B]\f[CB]denv config env copy\f[B]\f[R] to edit this value while
+validating that the rules are followed.
 .SH SEE ALSO
 .PP
 \f[B]denv(1)\f[R], \f[B]denv-init(1)\f[R]
