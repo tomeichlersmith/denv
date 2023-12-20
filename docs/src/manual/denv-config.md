@@ -120,6 +120,86 @@ variables should be copied into the containerized environment.
         is provided, the denv will receive that value, ignoring any value that may exist in the environment
         (even if **all** is toggled to on and all environment variables are being copied).
 
+# EXAMPLES
+
+Print out the current configuration of the denv.
+
+    denv config print
+
+Change the image that the denv should use when running. *Be careful.* No cleaning or checking of compatibility
+is done. A drastic enough change in the image may require recompilations or even re-writes of code being written
+and developed within the denv.
+
+    denv config image my-repo/my-image:new-tag
+
+Pull down the image that is currenlty configured again. This is helpful if the denv is using an image tag like
+"latest" and should be updated to the latest release again. Updating to the latest release is *not* done
+automatically because of the warnings above.
+
+    denv config image pull
+
+## Sharing Environment Variables
+
+The syntax for sharing environment variables with the denv is a bit terse, so it is helpful
+to display some examples.
+
+By default (without **`--no-copy-all`** or **`--clean-env`** when running **`denv init`**), **`denv`** will copy all
+possible environment variables from the host into the denv. This means one can
+
+    export foo=bar
+    printenv foo      # prints out "bar"
+    denv printenv foo # also prints "bar"
+
+In some situations, this is over-sharing and you can disable this so that host environment
+variables are not copied into the denv anymore.
+
+    denv config env all no
+    export foo=bar
+    printenv foo      # prints out "bar"
+    denv printenv foo # does not print anything and returns the error code 1
+
+Even with copying all environment variables disabled, one can still copy specific values
+from the host or set specific variables to have specific values for the denv.
+
+    denv config env copy baz myfoo=mybaz
+    denv printenv myfoo # prints "mybaz"
+    printenv myfoo      # does not print anything and returns error code 1
+    denv printenv baz   # not set in host yet so does not print anything
+    export baz="hooray"
+    denv printenv baz   # prints "hooray"
+
+# FILES
+
+The **`denv config`** command is used to safely edit the `.denv/config` file so that the user does
+not accidentally break their configuration. Nevertheless, this file is a regular text file and so
+can be edited directly if the user wishes to do something more advanced that the basic commands
+described above can handle.
+
+The config file is a basic key=value shell file that will be sourced by **`denv`** whenever the configuration
+is needed. **`denv`** assumes that this config file defines the following shell variables for it to use.
+
+  **denv_name** the name for this denv
+
+  **denv_image** the image to use when running the denv
+
+  **denv_shell** the program to run as a interactive shell if running denv without any arguments
+
+  **denv_mounts** a space separated list of extra mounts to mount into denv when running
+
+  **denv_env_var_copy_all** a boolean flag signalling if **`denv`** should copy all possible host environment
+    variables into the denv (`"true"`) or not (`"false"`).
+
+  **denv_env_var_copy** a space-separated list of host environment variables to copy into the denv.
+    This is ignored if **denv_env_var_copy_all** is `"true"`. There are some restrictions on the names
+    of variables that can be used and so editing this value directly is not recomended. Use **`denv config env copy`**
+    which does this validation.
+
+  **denv_env_var_set** a space-separate list of key=value pairs that will be set as environment variables
+    within the denv. These values override any values that could be copied from the host. There are restrictions
+    on the names and values that can be kept here so editing this value directly is not recommended.
+    Use **`denv config env copy`** to edit this value while validating that the rules are followed.
+
+
 # SEE ALSO
 
 **denv(1)**, **denv-init(1)**

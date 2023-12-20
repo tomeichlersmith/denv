@@ -18,7 +18,7 @@ denv init
 
 **`--force`** forces re-initialization of a denv even if the current workspace has one
 
-**`--name`** sets the name for the denv workspace that is being initialized
+**`--name`** sets the name for the denv workspace that is being initialized to NAME
 
 # ARGUMENTS
 
@@ -27,6 +27,33 @@ denv init
 **`WORKSPACE`** the directory where the environment should be stored and configured, used by default
               as the home directory within the developer environment so that the environment can also
               have its own shell configuration files and **~/.local** paths.
+
+# EXAMPLES
+
+Print the command line help for **`denv init`** without making any edits to the filesystem or beginning
+the process of configuring a new denv.
+
+    denv init help
+
+Create a new denv based off the python:3.11 container image within the current directory,
+allowing all host environment variables to be copied into the denv when running.
+
+    denv init python:3.11
+
+Same as above, but do _not_ allow the host environment variables to be copied into the denv.
+
+    denv init --clean-env python:3.11
+
+Create a new denv based off the python:3.11 container image and set its name to "py311" rather
+than the workspace directory's name.
+
+    denv init python:3.11 --name py311
+
+Create a new denv in some other location besides the current directory. Since the directory has
+the same name as above, the denvs will appear similar even though their workspace directory
+(on the host) may be different names.
+
+    denv init python:3.11 py311
 
 # SEE ALSO
 
