@@ -7,7 +7,7 @@
 denv v0.4.1
 .SH SYNOPSIS
 .PP
-\f[B]denv\f[R] [help|-h|\[en]help]
+\f[B]denv\f[R] {help|-h|\[en]help}
 .PP
 \f[B]denv\f[R] version
 .PP
@@ -46,9 +46,6 @@ options above is provided to the configured denv to run within the
 containerized environment.
 The rest of the command line is passed along with COMMAND so its args
 are seen as if they were run manually within the shell of the container.
-.SH SEE ALSO
-.PP
-\f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R]
 .SH EXAMPLES
 .PP
 \f[B]\f[CB]denv\f[B]\f[R] is meant to be used after building a
@@ -84,89 +81,9 @@ which you can share between users and so it is excluded from the default
 \f[C].gitignore\f[R] generated within \f[C].denv\f[R].
 All other files within \f[C].denv\f[R] are internal to denv and can only
 be modified at your own risk.
-.SS Sharing Environment Variables
+.SH SEE ALSO
 .PP
-The syntax for sharing environment variables with the denv is a bit
-terse, so it is helpful to display some examples.
-.PP
-By default (without \f[B]\f[CB]--no-copy-all\f[B]\f[R] or
-\f[B]\f[CB]--clean-env\f[B]\f[R] when running
-\f[B]\f[CB]denv init\f[B]\f[R]), \f[B]\f[CB]denv\f[B]\f[R] will copy all
-possible environment variables from the host into the denv.
-This means one can
-.IP
-.nf
-\f[C]
-export foo=bar
-printenv foo      # prints out \[dq]bar\[dq]
-denv printenv foo # also prints \[dq]bar\[dq]
-\f[R]
-.fi
-.PP
-In some situations, this is over-sharing and you can disable this so
-that host environment variables are not copied into the denv anymore.
-.IP
-.nf
-\f[C]
-denv config env all no
-export foo=bar
-printenv foo      # prints out \[dq]bar\[dq]
-denv printenv foo # does not print anything and returns the error code 1
-\f[R]
-.fi
-.PP
-Even with copying all environment variables disabled, one can still copy
-specific values from the host or set specific variables to have specific
-values for the denv.
-.IP
-.nf
-\f[C]
-denv config env copy baz myfoo=mybaz
-denv printenv myfoo # prints \[dq]mybaz\[dq]
-printenv myfoo      # does not print anything and returns error code 1
-denv printenv baz   # not set in host yet so does not print anything
-export baz=\[dq]hooray\[dq]
-denv printenv baz   # prints \[dq]hooray\[dq]
-\f[R]
-.fi
-.SH INSTALLATION
-.SS curl
-.PP
-If you trust me (or have proofread the install script), you can install
-denv with a one-liner.
-.IP
-.nf
-\f[C]
-curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
-\f[R]
-.fi
-.PP
-By default, this installs denv to \[ti]/.local if you are a non-root
-user.
-You can define the install prefix (\[en]prefix dir), choose to use the
-HEAD of the main branch rather than the last release (\[en]next), and
-disable the singe-character alias for denv (\[en]simple), all of which
-are optional.
-.IP
-.nf
-\f[C]
-curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \[rs]
-  sh -s -- --prefix dir --next --simple
-\f[R]
-.fi
-.SS git
-.PP
-You can install or update denv by obtaining the source code from the
-repository https://github.com/tomeichlersmith/denv either by cloning it
-or by downloading one of the releases and then running the installation
-command.
-.IP
-.nf
-\f[C]
-cd denv
-\&./install
-\f[R]
-.fi
+\f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R]
 .SH ENVIRONMENT
 .PP
 denv tests the definition and reads the value of a few different
@@ -207,40 +124,7 @@ Editing it with the denv config set of commands is helpful for doing
 basic typo- and existence- checking.
 The config file is a basic key=value shell file that will be sourced by
 denv.
-This is a security risk and could be updated to a different type of
-config file if desired.
-.PP
-\f[B]denv_name\f[R] the name for this denv
-.PP
-\f[B]denv_image\f[R] the image to use when running the denv
-.PP
-\f[B]denv_shell\f[R] the program to run as a interactive shell if
-running denv without any arguments
-.PP
-\f[B]denv_mounts\f[R] a space separated list of extra mounts to mount
-into denv when running
-.PP
-\f[B]denv_env_var_copy_all\f[R] a boolean flag signalling if
-\f[B]\f[CB]denv\f[B]\f[R] should copy all possible host environment
-variables into the denv (\f[C]\[dq]true\[dq]\f[R]) or not
-(\f[C]\[dq]false\[dq]\f[R]).
-.PP
-\f[B]denv_env_var_copy\f[R] a space-separated list of host environment
-variables to copy into the denv.
-This is ignored if \f[B]denv_env_var_copy_all\f[R] is
-\f[C]\[dq]true\[dq]\f[R].
-There are some restrictions on the names of variables that can be used
-and so editing this value directly is not recomended.
-Use \f[B]\f[CB]denv config env copy\f[B]\f[R] which does this
-validation.
-.PP
-\f[B]denv_env_var_set\f[R] a space-separate list of key=value pairs that
-will be set as environment variables within the denv.
-These values override any values that could be copied from the host.
-There are restrictions on the names and values that can be kept here so
-editing this value directly is not recommended.
-Use \f[B]\f[CB]denv config env copy\f[B]\f[R] to edit this value while
-validating that the rules are followed.
+See the FILES section of \f[B]denv-config(1)\f[R] for more detail.
 .SS skel-init
 .PP
 This is an empty file that, if it exists, signals to the entrypoint
@@ -258,26 +142,3 @@ This directory holds those images.
 It can be deleted if the user wishes to reclaim some disk space;
 however, that means any image that are configured to be used by denv
 will then be re-downloaded and re-built.
-.SH CONTRIBUTING
-.PP
-Feel free to create a fork of https://github.com/tomeichlersmith/denv
-and open a Pull Request with any bug patches or feature improvements.
-We aim to keep denv as a single file with optional completion and manual
-files in parallel.
-.PP
-Install shellcheck from https://github.com/koalaman/shellcheck and use
-it to make sure denv avoids common shell scripting errors.
-.IP
-.nf
-\f[C]
-\&./ci/check
-\f[R]
-.fi
-.PP
-Make sure that denv still passes the non-interactive tests.
-.IP
-.nf
-\f[C]
-DENV_RUNNER=<your-runner> ./ci/test
-\f[R]
-.fi

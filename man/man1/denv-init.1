@@ -31,7 +31,7 @@ variables can be done with \f[B]\f[CB]denv config env all\f[B]\f[R] See
 the current workspace has one
 .PP
 \f[B]\f[CB]--name\f[B]\f[R] sets the name for the denv workspace that is
-being initialized
+being initialized to NAME
 .SH ARGUMENTS
 .PP
 \f[B]\f[CB]IMAGE\f[B]\f[R] the name of a container image to use when
@@ -41,6 +41,56 @@ starting a container to host the developer environment
 should be stored and configured, used by default as the home directory
 within the developer environment so that the environment can also have
 its own shell configuration files and \f[B]\[ti]/.local\f[R] paths.
+.SH EXAMPLES
+.PP
+Print the command line help for \f[B]\f[CB]denv init\f[B]\f[R] without
+making any edits to the filesystem or beginning the process of
+configuring a new denv.
+.IP
+.nf
+\f[C]
+denv init help
+\f[R]
+.fi
+.PP
+Create a new denv based off the python:3.11 container image within the
+current directory, allowing all host environment variables to be copied
+into the denv when running.
+.IP
+.nf
+\f[C]
+denv init python:3.11
+\f[R]
+.fi
+.PP
+Same as above, but do \f[I]not\f[R] allow the host environment variables
+to be copied into the denv.
+.IP
+.nf
+\f[C]
+denv init --clean-env python:3.11
+\f[R]
+.fi
+.PP
+Create a new denv based off the python:3.11 container image and set its
+name to \[lq]py311\[rq] rather than the workspace directory\[cq]s name.
+.IP
+.nf
+\f[C]
+denv init python:3.11 --name py311
+\f[R]
+.fi
+.PP
+Create a new denv in some other location besides the current directory.
+Since the directory has the same name as above, the denvs will appear
+similar even though their workspace directory (on the host) may be
+different names.
+.IP
+.nf
+\f[C]
+denv init python:3.11 py311
+\f[R]
+.fi
 .SH SEE ALSO
 .PP
 \f[B]denv(1)\f[R], \f[B]denv-config(1)\f[R]
