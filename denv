@@ -288,6 +288,31 @@ _denv_run() {
 #  and calling the runner functions defined above in the correct sequence
 ###################################################################################################
 
+# print the question passed to us and process user input
+# continues in infinite loop if user is not explicitly answering yes or no
+# Arguments
+#  1 - question to ask the user (yes or no)
+# Output
+#  returns 0 if user answers yes and 1 if user answers no
+_denv_user_confirm() {
+  question="$*"
+  while true; do
+    printf "\033[1m%s\033[0m [Y/n] " "${question}"
+    read -r ans
+    case "${ans}" in
+      Y|y|yes)
+        return 0
+        ;;
+      N|n|no)
+        return 1
+        ;;
+      *)
+        _denv_error "${ans} is not one of Y, y, yes, N, n, or no."
+        ;;
+    esac
+  done
+}
+
 _denv_deduce_workspace() {
   # start from present working directory and go up directories until find .denv
   # or reach root directory
@@ -418,16 +443,11 @@ _denv_config_checked_pull() {
   if ! _denv_image_exists; then
     _denv_pull
   elif [ -z "${1+x}" ]; then
-    printf "\033[1m%s already exists on this computer - re-pull it?\033[0m [Y/n] " "${denv_image}"
-    read -r ans
-    case "${ans}" in
-      Y|y)
-        _denv_pull
-        ;;
-      *)
-        echo "Not pulling ${denv_image}..."
-        ;;
-    esac
+    if _denv_user_confirm "${denv_image} already exists on this computer - re-pull it?"; then
+      _denv_pull
+    else
+      _denv_info "Not pulling ${denv_image}..."
+    fi
   fi
 }
 
@@ -677,7 +697,8 @@ _denv_init_help() {
  OPTIONS
   -h, --help      : print this help and exit
   --no-gitignore  : don't generate a gitignore for the .denv directory
-  --force         : overwrite an existing denv if it exists
+  --force         : overwrite an existing denv if it exists and create
+                    the WORKSPACE without prompting if it doesn't exist
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
                     --no-copy-all is another alias which more closely
@@ -733,12 +754,28 @@ _denv_init() {
   # image - first positional and only required argument
   image="$1"
   shift
-  # workspace - second positional argument or PWD
-  if [ "$#" -eq 0 ]; then
-    denv_workspace="${PWD}"
-  else
+  # workspace - second positional argument if given, otherwise PWD
+  if [ ! "$#" -eq 0 ]; then
     denv_workspace="$1"
+    # check if this directory exists, if not create it
+    if [ ! -d "${denv_workspace}" ]; then
+      if [ "${force}" = "0" ]; then
+        _denv_info "creating ${denv_workspace} for the denv workspace"
+      elif [ -n "${DENV_NOPROMPT+x}" ]; then
+        _denv_error "denv prompt disabled but unwilling to create a directory without user input."
+        return 1
+      elif ! _denv_user_confirm "This directory does not exist. Would you like to create it for the denv?"; then
+        _denv_info "Exiting without creating '${denv_workspace}'..."
+        return 0
+      fi
+      _denv_info "Creating '${denv_workspace}' for the denv..."
+      mkdir "${denv_workspace}"
+      _denv_info "Entering '${denv_workspace}'..."
+      cd "${denv_workspace}"
+    fi
   fi
+  # if the workspace was given, we have created and entered it, so the workspace is PWD
+  denv_workspace="${PWD}"
 
   # check if we already been init'ed
   if [ -d "${denv_workspace}/.denv" ];then
@@ -747,20 +784,9 @@ _denv_init() {
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
       _denv_error "denv prompt disabled but unwilling to overwrite a denv without user input."
       return 1
-    else
-      printf "\033[1mThis workspace already has a denv. Would you like to overwrite it?\033[0m [Y/n] "
-      read -r ans
-      case "${ans}" in
-        Y|y)
-          # pretend like there isn't a .denv there
-          # we will overwrite .denv/config and .denv/.gitignore
-          # in this function
-          ;;
-        *)
-          _denv_info "Exiting without modifying..."
-          return 0
-          ;;
-      esac
+    elif ! _denv_user_confirm "This workspace already has a denv. Would you like to overwrite it?"; then
+      _denv_info "Exiting without overwriting denv within '${denv_workspace}'..."
+      return 0
     fi
   else
     mkdir "${denv_workspace}/.denv"

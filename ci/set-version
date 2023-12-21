@@ -8,7 +8,7 @@ set -o errexit
 #  1 - new version X.Y.Z
 update() {
   # manual source markdown
-  sed -i "s|denv v.*$|denv v${1}|" docs/src/manual.md
+  sed -i "s|denv v.*$|denv v${1}|" docs/src/manual/denv.md
   # install script
   sed -i "s|^version=v.*$|version=v${1}|" install
   # denv itself
