@@ -118,6 +118,11 @@ if  [ -z "${prefix}" ]; then
   fi
 fi
 
+if [ ! -d "${prefix}" ] && ! mkdir "${prefix}"; then
+  _denv_error "Cannot create ${prefix}, permission denied."
+  exit 1
+fi
+
 if [ ! -w "${prefix}" ]; then
   _denv_error "Cannot write into ${prefix}, permission denied"
   exit 1
