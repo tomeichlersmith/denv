@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: install singularity
-        if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer'}}
+        if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer' || matrix.runner == 'sylabs'}}
         run: ./ci/install-singularity-flavor ${{matrix.runner}} ${{matrix.version}}
       - uses: douglascamata/setup-docker-macos-action@v1-alpha
         if: ${{matrix.os == 'macos-latest'}}
@@ -54,7 +54,13 @@ jobs:
         run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
       - name: Install
         run: sudo ./install
+      - name: deduce runner name
+        run: |
+          installed_runner=${{ matrix.runner }}
+          if [ "${installed_runner}" = "sylabs" ]; then
+            echo "DENV_RUNNER=singularity" >> "$GITHUB_ENV"
+          else
+            echo "DENV_RUNNER=${installed_runner}" >> "$GITHUB_ENV"
+          fi
       - name: Test
-        env:
-          DENV_RUNNER: ${{matrix.runner}}
         run: ./ci/test
