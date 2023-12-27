@@ -28,22 +28,25 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        runner: [docker, podman, singularity, apptainer]
-#        include:
+        runner: [docker, podman]
+        include:
+          - os: ubuntu-latest
+            runner: singularity
+            version: 3.8.7
+          - os: ubuntu-latest
+            runner: apptainer
+            version: 1.1.9
+          - os: ubuntu-latest
+            runner: sylabs
+            version: 3.9.9
 #          - os: macos-latest
 #           runner: docker
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
       - name: install singularity
-        if: ${{matrix.runner == 'singularity'}}
-        run: |
-          wget --no-verbose https://github.com/apptainer/singularity/releases/download/v3.8.7/singularity-container_3.8.7_amd64.deb
-          sudo apt-get install ./singularity-container_3.8.7_amd64.deb
-      - uses: eWaterCycle/setup-apptainer@v2
-        if: ${{matrix.runner == 'apptainer'}}
-        with:
-          apptainer-version: 1.1.9
+        if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer'}}
+        run: ./ci/install-singularity-flavor ${{matrix.runner}} ${{matrix.version}}
       - uses: douglascamata/setup-docker-macos-action@v1-alpha
         if: ${{matrix.os == 'macos-latest'}}
       - name: enable debug mode if requested
