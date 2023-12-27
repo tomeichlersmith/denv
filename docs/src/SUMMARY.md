@@ -20,3 +20,4 @@
 
 - [How to Contribute](./contributing.md)
 - [Adding a new Runner](./new_runner.md)
+- [Developing in a VM](./vm_notes.md)
