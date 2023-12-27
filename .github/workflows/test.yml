@@ -35,10 +35,11 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
-      - uses: eWaterCycle/setup-singularity@v7
+      - name: install singularity
         if: ${{matrix.runner == 'singularity'}}
-        with:
-          singularity-version: 3.8.3
+        run: |
+          wget https://github.com/apptainer/singularity/releases/download/v3.8.7/singularity-container_3.8.7_amd64.deb
+          sudo apt install ./singularity-container_3.8.7_amd64.deb
       - uses: eWaterCycle/setup-apptainer@v2
         if: ${{matrix.runner == 'apptainer'}}
         with:
