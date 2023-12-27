@@ -3,4 +3,4 @@ shellcheck \
   --color=always \
   denv _denv_entrypoint \
   install uninstall \
-  ci/test ci/check ci/set-version
+  ci/test ci/check ci/set-version ci/install-singularity-flavor

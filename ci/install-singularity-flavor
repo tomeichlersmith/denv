@@ -32,7 +32,7 @@ singularity() {
   wget \
     --no-verbose \
     -O singularity.deb \
-    https://github.com/apptainer/singularity/releases/download/v${1}/singularity-container_${1}_amd64.deb
+    "https://github.com/apptainer/singularity/releases/download/v${1}/singularity-container_${1}_amd64.deb"
   inf "Downloaded deb build"
   sudo apt-get install ./singularity.deb
   inf "Installed with apt-get install"
@@ -51,7 +51,7 @@ apptainer() {
   wget \
     --no-verbose \
     -O apptainer.deb \
-    https://github.com/apptainer/apptainer/releases/download/v${1}/apptainer_${1}_amd64.deb
+    "https://github.com/apptainer/apptainer/releases/download/v${1}/apptainer_${1}_amd64.deb"
   inf "Downloaded deb build"
   sudo apt-get install ./apptainer.deb
   inf "Installed with apt-get install"
@@ -70,7 +70,7 @@ sylabs() {
   wget \
     --no-verbose \
     -O sylabs.deb \
-    https://github.com/sylabs/singularity/releases/download/v${1}/singularity-ce_${1}-jammy_amd64.deb \
+    "https://github.com/sylabs/singularity/releases/download/v${1}/singularity-ce_${1}-jammy_amd64.deb"
   inf "Downloaded deb build"
   sudo apt-get install ./sylabs.deb
   inf "Installed with apt-get install"
@@ -150,4 +150,4 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-${flavor} ${version}
+${flavor} "${version}"
