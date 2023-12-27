@@ -38,7 +38,7 @@ jobs:
       - name: install singularity
         if: ${{matrix.runner == 'singularity'}}
         run: |
-          wget https://github.com/apptainer/singularity/releases/download/v3.8.7/singularity-container_3.8.7_amd64.deb
+          wget --no-verbose https://github.com/apptainer/singularity/releases/download/v3.8.7/singularity-container_3.8.7_amd64.deb
           sudo apt install ./singularity-container_3.8.7_amd64.deb
       - uses: eWaterCycle/setup-apptainer@v2
         if: ${{matrix.runner == 'apptainer'}}
