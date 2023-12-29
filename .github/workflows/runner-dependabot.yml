@@ -9,7 +9,7 @@ jobs:
   check-on-runner-releases:
     permissions:
       pull-requests: write
-      contents: write
+      workflows: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
