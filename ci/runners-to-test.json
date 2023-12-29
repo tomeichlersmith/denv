@@ -1,5 +1,8 @@
 {
-  "runner": ["docker", "podman"],
+  "runner": [
+    "docker",
+    "podman"
+  ],
   "include": [
     {
       "runner": "singularity",
