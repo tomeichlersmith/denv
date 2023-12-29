@@ -34,11 +34,11 @@ jobs:
           - runner: apptainer
             version: 1.0.0
           - runner: apptainer
-            version: 1.2.5 # track apptainer/apptainer
+            version: 1.1.9 # track apptainer/apptainer
           - runner: sylabs
             version: 3.9.9
           - runner: sylabs
-            version: 4.0.2 # track sylabs/singularity
+            version: 4.0.0 # track sylabs/singularity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
