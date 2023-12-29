@@ -1,0 +1,28 @@
+---
+
+name: Test Runners Dependabot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-on-runner-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: fetch latest releases
+        run: |
+          ./ci/runner-dependabot --apply 
+          git config --global user.name denv-runner-bot
+          git config --global user.email denv-runner-bot@users.noreply.github.com
+          git switch -c auto-runner-update
+          git add .github/workflows/test.yml
+          git commit -m "Auto Runner Version Update" || exit 0
+          git push -fu origin auto-runner-update
+          gh pr create \
+            --base main \
+            --head auto-runner-update \
+            --title "Auto Runner Version Update" \
+            --body "Written by custom dependabot script that checks for new updates. PR now free to be modified/closed."
+        env:
+          GH_TOKEN: ${{ github.token }}
