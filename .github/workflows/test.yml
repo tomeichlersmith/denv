@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: read_json
-        run: echo "runners=$(jq -c . .github/workflows/runners-to-test.json)" >> $GITHUB_OUTPUT
+        run: echo "runners=$(jq -c . ci/runners-to-test.json)" >> $GITHUB_OUTPUT
 
   test:
     name: Test
