@@ -9,6 +9,7 @@ jobs:
   check-on-runner-releases:
     permissions:
       pull-requests: write
+      contents: write
       actions: write
     runs-on: ubuntu-latest
     steps:
