@@ -22,7 +22,7 @@ jobs:
           git config --global user.name denv-runner-bot
           git config --global user.email denv-runner-bot@users.noreply.github.com
           git switch -c auto-runner-update
-          git add .github/workflows/test.yml
+          git add ci/runners-to-test.json
           git commit -m "Auto Runner Version Update" || exit 0
           git push -fu origin auto-runner-update
           gh pr create \
