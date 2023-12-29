@@ -27,34 +27,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         runner: [docker, podman]
         include:
-          - os: ubuntu-latest
-            runner: singularity
+          - runner: singularity
             version: 3.8.7
-          - os: ubuntu-latest
-            runner: apptainer
+          - runner: apptainer
             version: 1.0.0
-          - os: ubuntu-latest
-            runner: apptainer
+          - runner: apptainer
             version: 1.2.5
-          - os: ubuntu-latest
-            runner: sylabs
+          - runner: sylabs
             version: 3.9.9
-          - os: ubuntu-latest
-            runner: sylabs
+          - runner: sylabs
             version: 4.0.2
-#          - os: macos-latest
-#           runner: docker
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: install singularity
         if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer' || matrix.runner == 'sylabs'}}
         run: ./ci/install-singularity-flavor ${{matrix.runner}} ${{matrix.version}}
-      - uses: douglascamata/setup-docker-macos-action@v1-alpha
-        if: ${{matrix.os == 'macos-latest'}}
       - name: enable debug mode if requested
         if: ${{runner.debug == '1'}}
         run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
@@ -70,3 +60,19 @@ jobs:
           fi
       - name: Test
         run: ./ci/test
+
+#  test-macos:
+#    name: Test on MacOS
+#    runs-on: macos-latest
+#    steps:
+#      - uses: douglascamata/setup-docker-macos-action@v1-alpha
+#      - uses: actions/checkout@v4
+#      - name: enable debug mode if requested
+#        if: ${{runner.debug == '1'}}
+#        run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
+#      - name: Install
+#        run: sudo ./install
+#      - name: deduce runner name
+#        run: echo "DENV_RUNNER=docker" >> "$GITHUB_ENV"
+#      - name: Test
+#        run: ./ci/test
