@@ -27,6 +27,18 @@ fetch() {
     | sed 's|^v||'
 }
 
+# list repositories we are tracking
+# Args
+#  none
+# Output
+#  prints space-separate list of repos we are tracking
+list() {
+  jq \
+    -cr \
+    '.include | map(select(has("track")) | .track) | unique | join(" ")' \
+    ci/runners-to-test.json
+}
+
 # update the test workflow with the passed runner and version
 # Args:
 #  1 : repo name we are tracking
@@ -36,11 +48,17 @@ fetch() {
 #  Edits the .github/workflows/test.yml in place if 3 args provided,
 #  otherwise just prints lines that would be edited to stdout
 update() {
-  sed_cmd="s|version: [0-9.]* # track ${1}|version: ${2} # track ${1}|"
+  jq \
+    --arg repo "${1}" \
+    --arg vers "${2}" \
+    '{"runner": .runner, "include": .include | map(if (has("track") and .track == $repo) then { "runner": .runner, "version": $vers, "track": .track } else . end) }' \
+    ci/runners-to-test.json \
+    > ci/runners-to-test.json.upd
   if [ -z "${3}" ]; then
-    sed -n "${sed_cmd}p" .github/workflows/test.yml
+    diff ci/runners-to-test.json ci/runners-to-test.json.upd || true
+    rm ci/runners-to-test.json.upd
   else
-    sed -i "${sed_cmd}" .github/workflows/test.yml
+    mv ci/runners-to-test.json.upd ci/runners-to-test.json
   fi
 }
 
@@ -80,7 +98,7 @@ while [ "$#" -gt "0" ]; do
   shift
 done
 
-for repo in apptainer/apptainer sylabs/singularity
+for repo in $(list)
 do
   latest_release="$(set -o errexit; fetch "${repo}")"
   inf "Found '${repo}' release '${latest_release}'"
