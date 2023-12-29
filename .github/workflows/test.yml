@@ -22,23 +22,22 @@ jobs:
       - name: Run ShellCheck
         run: ./ci/check
 
+  list-runners-to-test:
+    name: List Runners to Test
+    runs-on: ubuntu-latest
+    outputs:
+      runners: ${{steps.read_json.outputs.runners}}
+    steps:
+      - uses: actions/checkout@v4
+      - id: read_json
+        run: echo "runners=$(jq -c .github/workflows/runners-to-test.json)" >> $GITHUB_OUTPUT
+
   test:
     name: Test
+    needs: list-runners-to-test
     strategy:
       fail-fast: false
-      matrix:
-        runner: [docker, podman]
-        include:
-          - runner: singularity
-            version: 3.8.7
-          - runner: apptainer
-            version: 1.0.0
-          - runner: apptainer
-            version: 1.1.9 # track apptainer/apptainer
-          - runner: sylabs
-            version: 3.9.9
-          - runner: sylabs
-            version: 4.0.0 # track sylabs/singularity
+      matrix: ${{fromJSON(needs.list-runners-to-test.outputs.runners)}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
