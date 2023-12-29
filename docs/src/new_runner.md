@@ -58,8 +58,22 @@ DENV_RUNNER=<your-runner> ./ci/test
 ```
 These can be enabled in your fork of denv so that they run automatically on GitHub
 when you push to a branch on your fork. In order for GitHub to be able to test
-your runner, you will need to install it into the runner during the testing workflow
-(`.github/workflows/test.yml`).
+your runner, you will need to install it into the GitHub runner during the testing 
+workflow (`.github/workflows/test.yml`).
+
+### Tracking New Releases in Test
+I've written up a "dependabot" that will check the latest release of certain GitHub
+repositories and update the testing workflow with those releases if a new one is
+found. In order to follow new releases of the runner being added, you must make
+changes in two places of the CI infrastructure.
+
+1. Add the runner repository (OWNER/REPO) to the `for` loop in `ci/runner-dependabot`.
+2. Place the special comment `# track OWNER/REPO` after the `version:` you wish to be
+   bumped in the testing workflow and make sure your installation procedure will depend
+   (and can handle) the version changing.
+
+Right now, this is done for sylabs/singularity and apptainer/apptainer so look to those
+runners within the testing infrastructure as examples.
 
 Besides the non-interactive tests, there are some additional, manual tests that
 I haven't figured out how to automate since they check interactions between
