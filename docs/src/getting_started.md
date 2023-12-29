@@ -14,15 +14,16 @@ on the system you wish to use `denv` on. Generally, the runners can be separated
 - Computing Clusters: [apptainer](https://apptainer.org/) or [singularityCE](https://sylabs.io/singularity/)
   - These are commonly chosen by computing clusters due to their ability to be very strictly configured
     so users can run them without elevated priveleges thus avoiding some security vulnerabilities.
-  - `denv` requires the use of the `--env` flag for singularityCE or apptainer which basically means
-    version 3.6 or newer for singularity or any version of apptainer. apptainer currently installs a singularity
-    alias alongside it so - if `singularity --version` returns a value below 3.6, make sure `apptainer` isn't
-    a valid command before concluding that `denv` cannot operate properly.
+  - `denv` requires the use of the `--env` flag for singularity "flavors".
+    This was implemented in version 3.6 for singularity and so any new install of either apptainer or singularityCE
+    should work. Legacy installations of singularity (i.e. versions older than 3.8.7) _should_ function with `denv`
+    (down to version 3.6); however, `denv` only tests version 3.8.7.
 
 [^1]: These groups actually go beyond mere user base. podman grew out of a desire for a under-the-hood redesign
 of docker that is focused on being a drop-in replacement for docker. Even more special, apptainer and singularityCE
-used to be the same project singularity before apptainer joined the Linux Foundation. So these two groupings
-also share tight similarities in their command line interface making them natural groupings for denv.
+used to be the same project singularity before apptainer joined the Linux Foundation and Sylabs continued work on its
+fork of singularity now labeled singularityCE. So these two groupings also share tight similarities in 
+their command line interface making them natural groupings for denv.
 
 ## Installation
 The most recent installation can be obtained by running the install script in the GitHub repository.
