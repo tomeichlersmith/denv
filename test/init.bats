@@ -16,6 +16,30 @@ teardown() {
   assert_output --partial "Unable to deduce a denv workspace"
 }
 
+@test "can print denv help without a denv" {
+  run denv help
+  assert_success
+  assert_output
+}
+
+@test "can print denv init help without a denv" {
+  run denv init help
+  assert_success
+  assert_output
+}
+
+@test "can print denv config help without a denv" {
+  run denv config help
+  assert_success
+  assert_output
+}
+
+@test "can print denv config env help without a denv" {
+  run denv config env help
+  assert_success
+  assert_output
+}
+
 @test "denv can init" {
   run denv init ubuntu:22.04
   assert_success
