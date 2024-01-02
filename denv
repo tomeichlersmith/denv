@@ -268,11 +268,12 @@ _denv_run() {
         "$@"
       ;;
     norunner)
-      echo "running ${denv_image} with "
-      echo "  HOME=\"${denv_workspace}\""
-      echo "  SHELL=\"${denv_shell}\""
-      echo "  PWD=\"$(pwd -P)\""
-      [ -z "${denv_mounts}" ] || echo "  $(_denv_mounts_to_args "--bind")"
+      _denv_info "running ${denv_image} with " \
+        "  HOME=\"${denv_workspace}\"" \
+        "  SHELL=\"${denv_shell}\"" \
+        "  PWD=\"$(pwd -P)\"" \
+        "${denv_environment}" \
+        "${denv_mounts}"
       ;;
     *)
       _denv_error "This should never happen."
@@ -346,7 +347,7 @@ _denv_load_config() {
   denv_image_cache="${denv_workspace}/.denv/images"
   if [ -n "${DENV_RUNNER+x}" ]; then
     denv_runner="${DENV_RUNNER}"
-    if ! command -v "${denv_runner}" >/dev/null 2>&1; then
+    if [ ! "${denv_runner}" = "norunner" ] && ! command -v "${denv_runner}" >/dev/null 2>&1; then
       _denv_error "The container runner set via DENV_RUNNER=${DENV_RUNNER} is not a valid command." \
         "You should only be setting DENV_RUNNER if you have more than one runner installed and wish to use denv with a specific one."
       return 1
