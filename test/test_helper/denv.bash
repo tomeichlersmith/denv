@@ -10,7 +10,7 @@ common_setup() {
 }
 
 go_to_tmp_work() {
-  working="$(mktemp -d)"
+  working="$(temp_make)"
   cd "${working}"
 }
 
@@ -20,8 +20,9 @@ go_to_tmp_denv() {
 }
 
 clean_tmp_work() {
-  cd
-  rm -r "${working}"
+  # use BATSLIB_TEMP_PRESERVE=1 or BATSLIB_TEMP_PRESERVE_ON_FAILURE=1
+  # to avoid deleting directories during testing
+  temp_del "${working}"
 }
 
 # we need to wrap assert_output because the output
