@@ -674,6 +674,9 @@ _denv_config() {
             _denv_config_env_help
             exit 0
             ;;
+          *)
+            # fall through to command handling below
+            ;;
         esac
       fi
       _denv_load_config
