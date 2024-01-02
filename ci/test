@@ -33,9 +33,14 @@ _denv_error() {
 help() {
   cat <<\HELP
 
- Test denv with the specified runner.
-
   ./ci/test [-h,--help] [--preserve {all,none,error}] RUNNER [RUNNER1 ...]
+
+ DESCRIPTION
+
+  Test denv with the specified runner(s).
+
+  This is just a wrapper script around running bats which defines some
+  helpful environment variables using the correct names.
 
  ARGUMENTS
   RUNNER : the name for a container runner that denv should test with
