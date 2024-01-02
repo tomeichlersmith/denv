@@ -1,11 +1,76 @@
 #!/bin/sh
 # testing script for denv, should not be installed with it
-#   set DENV_RUNNER environment variable to the runner to use with denv
-#   for the testing otherwise the test suite will exit before any testing
 
 # POSIX
 set -o errexit
 set -o nounset
-#set -o xtrace
+if [ -n "${DENV_DEBUG+x}" ]; then
+  set -o xtrace
+fi
 
-./test/bats/bin/bats test/
+_denv_info() {
+  printf "\033[32;1m INFO: \033[0m\033[32m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf '       %s\n' "$1"
+    shift
+  done
+  printf "\033[0m"
+}
+
+# print each argument on its own line with the first line
+# prefixed with "ERROR: ".
+_denv_error() {
+  printf >&2 "\033[1;31mERROR: \033[0m\033[31m%s\n" "$1"
+  shift
+  while [ "$#" -gt "0" ]; do
+    printf >&2 "       %s\n" "$1"
+    shift
+  done
+  printf >&2 "\033[0m"
+}
+
+help() {
+  cat <<\HELP
+
+ Test denv with the specified runner.
+
+  ./ci/test [help,-h,--help] RUNNER [RUNNER1 ...]
+
+ ARGUMENTS
+  RUNNER : the name for a container runner that denv should test with
+           if more than one is provided, test them all in sequence.
+
+ OPTIONS
+  help,-h,--help : print this help and exit
+
+HELP
+}
+
+runners=""
+while [ "$#" -gt "0" ]; do
+  case "$1" in
+    help|-h|--help)
+      help
+      exit 0
+      ;;
+    -*)
+      _denv_error "Unrecognized option '$1'."
+      exit 1
+      ;;
+    *)
+      runners="$1 ${runners}"
+      ;;
+  esac
+  shift
+done
+
+if [ -z "${runners}" ]; then
+  _denv_error "Need to specify at least one runner to test"
+  exit 1
+fi
+
+for runner in ${runners}; do
+  _denv_info "Testing denv with '${runner}'"
+  DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
+done
