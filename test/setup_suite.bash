@@ -7,4 +7,7 @@ setup_suite() {
     echo "DENV_RUNNER is required to be defined for testing."
     exit 1
   fi
+
+  repo_dir="$(cd "$(dirname "${BATS_TEST_FILENAME}")/../" > /dev/null 2>&1 && pwd)"
+  export PATH="${repo_dir}:${PATH}"
 }

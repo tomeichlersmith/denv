@@ -7,8 +7,6 @@ common_setup() {
 
   # disable prompt for these non-interactive tests
   export DENV_NOPROMPT=1
-
-  # TODO use denv that is in code source directory
 }
 
 go_to_tmp_work() {
