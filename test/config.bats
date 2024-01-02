@@ -12,6 +12,8 @@ teardown() {
   clean_tmp_work
 }
 
+# bats file_tags=norunner
+
 @test "print version of denv" {
   run denv version
   assert_output
