@@ -728,7 +728,7 @@ _denv_init() {
   positionals=""
   while [ "$#" -gt "0" ]; do
     case "$1" in
-      help|-h|-help)
+      help|-h|--help)
         _denv_init_help
         return 0
         ;;
