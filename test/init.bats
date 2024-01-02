@@ -10,6 +10,8 @@ teardown() {
   clean_tmp_work
 }
 
+# bats file_tags=norunner
+
 @test "no init denv should fail" {
   run denv
   assert_failure

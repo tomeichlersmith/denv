@@ -45,6 +45,8 @@ help() {
  ARGUMENTS
   RUNNER : the name for a container runner that denv should test with
            if more than one is provided, test them all in sequence.
+           The special runner 'norunner' will test as much of denv as
+           possible without a runner installed.
 
  OPTIONS
   -h,--help  : print this help and exit
@@ -108,5 +110,9 @@ fi
 
 for runner in ${runners}; do
   _denv_info "Testing denv with '${runner}'"
-  DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
+  if [ "${runner}" = "norunner" ]; then
+    DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter "norunner" test/
+  else
+    DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
+  fi
 done
