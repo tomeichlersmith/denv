@@ -666,6 +666,16 @@ _denv_config() {
       ${cmd} "${2:-}"
       ;;
     image|shell|mounts|env)
+      if [ "$1" = "env" ]; then
+        # need to check for help printout before loading config
+        # so users can access help information without a denv
+        case "$2" in
+          help|-h|--help)
+            _denv_config_env_help
+            exit 0
+            ;;
+        esac
+      fi
       _denv_load_config
       cmd="_denv_config_${1}"
       if [ "$#" -eq "1" ]; then
