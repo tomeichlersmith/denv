@@ -10,6 +10,8 @@ on:
       - 'uninstall'
       - 'ci/test'
       - 'ci/check'
+      - 'ci/runners-to-test.json'
+      - 'test/**'
   workflow_dispatch:
   pull_request:
 
@@ -41,14 +43,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
       - name: install singularity
         if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer' || matrix.runner == 'sylabs'}}
         run: ./ci/install-singularity-flavor ${{matrix.runner}} ${{matrix.version}}
-      - name: enable debug mode if requested
-        if: ${{runner.debug == '1'}}
-        run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
-      - name: Install
-        run: sudo ./install
       - name: deduce runner name
         run: |
           installed_runner=${{ matrix.runner }}
@@ -66,11 +65,8 @@ jobs:
 #    steps:
 #      - uses: douglascamata/setup-docker-macos-action@v1-alpha
 #      - uses: actions/checkout@v4
-#      - name: enable debug mode if requested
-#        if: ${{runner.debug == '1'}}
-#        run: echo "DENV_DEBUG=1" >> "$GITHUB_ENV"
-#      - name: Install
-#        run: sudo ./install
+#        with:
+#          submodules: 'recursive'
 #      - name: deduce runner name
 #        run: echo "DENV_RUNNER=docker" >> "$GITHUB_ENV"
 #      - name: Test
