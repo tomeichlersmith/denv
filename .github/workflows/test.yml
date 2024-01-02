@@ -48,16 +48,14 @@ jobs:
       - name: install singularity
         if: ${{matrix.runner == 'singularity' || matrix.runner == 'apptainer' || matrix.runner == 'sylabs'}}
         run: ./ci/install-singularity-flavor ${{matrix.runner}} ${{matrix.version}}
-      - name: deduce runner name
+      - name: run tests
         run: |
           installed_runner=${{ matrix.runner }}
           if [ "${installed_runner}" = "sylabs" ]; then
-            echo "DENV_RUNNER=singularity" >> "$GITHUB_ENV"
+            ./ci/test singularity
           else
-            echo "DENV_RUNNER=${installed_runner}" >> "$GITHUB_ENV"
+            ./ci/test "${installed_runner}"
           fi
-      - name: Test
-        run: ./ci/test
 
 #  test-macos:
 #    name: Test on MacOS
@@ -67,7 +65,5 @@ jobs:
 #      - uses: actions/checkout@v4
 #        with:
 #          submodules: 'recursive'
-#      - name: deduce runner name
-#        run: echo "DENV_RUNNER=docker" >> "$GITHUB_ENV"
 #      - name: Test
-#        run: ./ci/test
+#        run: ./ci/test docker
