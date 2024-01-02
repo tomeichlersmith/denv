@@ -35,17 +35,28 @@ help() {
 
  Test denv with the specified runner.
 
-  ./ci/test [help,-h,--help] RUNNER [RUNNER1 ...]
+  ./ci/test [-h,--help] [--preserve {all,none,error}] RUNNER [RUNNER1 ...]
 
  ARGUMENTS
   RUNNER : the name for a container runner that denv should test with
            if more than one is provided, test them all in sequence.
 
  OPTIONS
-  help,-h,--help : print this help and exit
+  -h,--help  : print this help and exit
+  --preserve : choose if we should remove the temporary directories made
+               during testing ("none"), save all of the ("all"), or only
+               save the ones that are from errors ("error"). The temp
+               directories created by bats correspond to the file name
+               and test index and are inside the system temp directory
+               (TMPDIR or /tmp if undefined).
 
 HELP
 }
+
+if [ "$#" -eq "0" ]; then
+  help
+  exit 0
+fi
 
 runners=""
 while [ "$#" -gt "0" ]; do
@@ -54,12 +65,32 @@ while [ "$#" -gt "0" ]; do
       help
       exit 0
       ;;
+    --preserve)
+      shift
+      if [ -z "${1:-}" ]; then
+        _denv_error "--preserve requires an argument {all,none,error} after it"
+      fi
+      case "${1}" in
+        all)
+          export BATSLIB_TEMP_PRESERVE=1
+          ;;
+        error)
+          export BATSLIB_TEMP_PRESERVE_ON_FAILURE=1
+          ;;
+        none)
+          ;;
+        *)
+          _denv_error "Unrecognized --preserve argument '$1'." \
+            "Not one of {all,none,error}."
+          exit 1
+      esac
+      ;;
     -*)
       _denv_error "Unrecognized option '$1'."
       exit 1
       ;;
     *)
-      runners="$1 ${runners}"
+      runners="${runners} $1"
       ;;
   esac
   shift
