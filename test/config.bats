@@ -12,6 +12,11 @@ teardown() {
   clean_tmp_work
 }
 
+@test "print version of denv" {
+  run denv version
+  assert_output
+}
+
 @test "print config" {
   run denv config print
   assert_line --index 0 "denv_workspace=\"${PWD}\""
