@@ -58,3 +58,12 @@ script to do this for you.
 ```
 ./ci/set-version X.Y.Z
 ```
+
+## Writing tests
+`denv` uses [bats](ttps://bats-core.readthedocs.io/en/stable/) to run tests
+and pins its version (as well as the necessary plugins) using submodules.
+Look to these resources for the `assert_*` family of functions and how
+tests are structured and run.
+- [bats-core](https://bats-core.readthedocs.io/en/stable/)
+- [bats-assert](https://github.com/bats-core/bats-assert#usage)
+- [bats-file](https://github.com/bats-core/bats-file#index-of-all-functions)
