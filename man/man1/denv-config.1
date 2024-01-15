@@ -134,8 +134,8 @@ be copied from the environment.
 \f[B]copy\f[R] configure which environment variables to copy into the
 denv at runtime.
 Each of the space-separated arguments to this command are treated
-separated and are interpreted as a \f[B]VAR* with an optional \f[R]VAL**
-distinguished by a `=' character.
+separated and are interpreted as a \f[B]VAR\f[R] with an optional
+\f[B]VAL\f[R] distinguished by a `=' character.
 .IP \[bu] 2
 \f[B]\f[CB]VAR\f[B]\f[R] environment variable name either in the host
 environment that should be copied into the denv (if no value is
@@ -150,7 +150,7 @@ These values cannot have the special characters: space \[aq] \[aq], tick
 \[aq]\[ga]\[aq], quote \[aq]\[dq]\[aq], or dollar-sign \[aq]$\[aq].
 Providing a value for a specific environment variable means that
 variable does not need to exist in the host environment.
-Moreover, providing a values takes precedence: if a value is provided,
+Moreover, providing a value takes precedence: if a value is provided,
 the denv will receive that value, ignoring any value that may exist in
 the environment (even if \f[B]all\f[R] is toggled to on and all
 environment variables are being copied).
