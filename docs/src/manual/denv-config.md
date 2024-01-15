@@ -116,7 +116,7 @@ variables should be copied into the containerized environment.
         These values cannot have the special characters:
         space \' \', tick \'`\', quote \'"\', or dollar-sign \'$\'.
         Providing a value for a specific environment variable means that variable does not need
-        to exist in the host environment. Moreover, providing a values takes precedence: if a value
+        to exist in the host environment. Moreover, providing a value takes precedence: if a value
         is provided, the denv will receive that value, ignoring any value that may exist in the environment
         (even if **all** is toggled to on and all environment variables are being copied).
 
