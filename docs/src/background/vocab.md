@@ -14,9 +14,6 @@ They may have different definitions outside of this manual.
   created by running denv.". The first use refers to the spawned environment and 
   the second refers to the command. In this manual, I try to represent "denv" as
   code when it refers to the command.
-  - The default installation of `denv` comes with an alias for the command which is
-    the special backslash character, so one can run `denv` also by running `\\` at
-    the command line. This means I often read `\\` as `denv` in my head.
 - **container**: while not technically correct, I usually think of containers as
   light-weight virtual machines (VMs). This gets the point across that they have
   a different environment and can contain software that couldn't run on the host.
