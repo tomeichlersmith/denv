@@ -104,7 +104,7 @@ variables should be copied into the containerized environment.
         any values that would be copied from the environment.
 
 **copy** configure which environment variables to copy into the denv at runtime. Each of the space-separated
-        arguments to this command are treated separated and are interpreted as a **VAR* with an optional **VAL**
+        arguments to this command are treated separated and are interpreted as a **VAR** with an optional **VAL**
         distinguished by a '=' character.
 
 - **`VAR`** environment variable name either in the host environment that should be copied into the denv
