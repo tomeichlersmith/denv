@@ -345,6 +345,7 @@ _denv_load_config() {
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
   denv_image_cache="${denv_workspace}/.denv/images"
+  # make sure to update _denv_check if the order of this elif tree is changed
   if [ -n "${DENV_RUNNER+x}" ]; then
     denv_runner="${DENV_RUNNER}"
     if [ ! "${denv_runner}" = "norunner" ] && ! command -v "${denv_runner}" >/dev/null 2>&1; then
@@ -855,6 +856,58 @@ _denv_version() {
   echo "denv v${denv_version}"
 }
 
+# check that denv was installed alongside its entrypoint and there
+# is a runner available to use
+_denv_check() {
+  # check for entrypoint
+  if [ -x "${denv_entrypoint}" ] && [ -f "${denv_entrypoint}" ]; then
+    printf "\033[32mEntrypoint found alongside denv\033[0m\n"
+  else
+    _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
+    return 1
+  fi
+
+  first="true"
+  # the order in this for loop should be the same as the order of
+  # the elif-tree in _denv_load_config so that we correctly inform
+  # the user which runner would be deduced when running
+  for possible in docker podman apptainer singularity;
+  do
+    printf "Looking for ${possible}... "
+    if command -v "${possible}" >/dev/null 2>&1; then
+      printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+      if [ "${first}" = "true" ]; then
+        printf "\033[32;1m <- would use without DENV_RUNNER defined\033[0m"
+        first="false"
+      fi
+      # extra version compatibility checking
+      case "${possible}" in
+        singularity)
+          version="$(singularity version | cut -f 1 -d '-')"
+          major="$(echo "${version}" | cut -f 1 -d '.')"
+          minor="$(echo "${version}" | cut -f 2 -d '.')"
+          patch="$(echo "${version}" | cut -f 3 -d '.')"
+          if [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
+            printf "\n"
+            printf "\033[31m    denv requires the --env flag for singularity which was introduced in v3.6\033[0m"
+          fi
+          ;;
+        *)
+          # fall through, don't do extra checking
+          ;;
+      esac
+    else
+      printf "not found"
+    fi
+    printf "\n"
+  done
+  if [ "${first}" = "true" ]; then
+    _denv_error "No container runner found!"
+    return 1
+  fi
+  return 0
+}
+
 # root program denv
 _denv_help() {
   cat <<\HELP
@@ -889,7 +942,7 @@ _denv() {
       _denv_help
       return 
       ;;
-    version|help|config|init)
+    version|help|config|init|check)
       cmd="_denv_${1}"
       shift
       # I think I know what I'm doing here
