@@ -670,6 +670,10 @@ _denv_config() {
       if [ "$1" = "env" ]; then
         # need to check for help printout before loading config
         # so users can access help information without a denv
+        if [ $# -eq 1 ]; then
+          _denv_config_env_help
+          exit 0
+        fi
         case "$2" in
           help|-h|--help)
             _denv_config_env_help
