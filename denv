@@ -874,10 +874,12 @@ _denv_check() {
   for possible in docker podman apptainer singularity;
   do
     printf "Looking for %s... " "${possible}"
-    if command -v "${possible}" >/dev/null 2>&1; then
+    # apptainer includes a symlink to singularity, so we have to 
+    # check for the command's existence and make sure its not just a symlink
+    if command -v "${possible}" >/dev/null 2>&1 && [ ! -L "$(which "${possible}")" ]; then
       printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
       if [ "${first}" = "true" ]; then
-        printf "\033[32;1m <- would use without DENV_RUNNER defined\033[0m"
+        printf "\033[32;1m default\033[0m (override with DENV_RUNNER)"
         first="false"
       fi
       # extra version compatibility checking
