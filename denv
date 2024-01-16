@@ -873,7 +873,7 @@ _denv_check() {
   # the user which runner would be deduced when running
   for possible in docker podman apptainer singularity;
   do
-    printf "Looking for ${possible}... "
+    printf "Looking for %s... " "${possible}"
     if command -v "${possible}" >/dev/null 2>&1; then
       printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
       if [ "${first}" = "true" ]; then
@@ -886,7 +886,7 @@ _denv_check() {
           version="$(singularity version | cut -f 1 -d '-')"
           major="$(echo "${version}" | cut -f 1 -d '.')"
           minor="$(echo "${version}" | cut -f 2 -d '.')"
-          patch="$(echo "${version}" | cut -f 3 -d '.')"
+          #patch="$(echo "${version}" | cut -f 3 -d '.')" # not used
           if [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
             printf "\n"
             printf "\033[31m    denv requires the --env flag for singularity which was introduced in v3.6\033[0m"
