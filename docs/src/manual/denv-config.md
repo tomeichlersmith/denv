@@ -202,4 +202,4 @@ is needed. **`denv`** assumes that this config file defines the following shell 
 
 # SEE ALSO
 
-**denv(1)**, **denv-init(1)**
+**denv(1)**, **denv-init(1)**, **denv-check(1)**

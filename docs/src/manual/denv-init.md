@@ -59,4 +59,4 @@ the same name as above, the denvs will appear similar even though their workspac
 
 # SEE ALSO
 
-**denv(1)**, **denv-config(1)**
+**denv(1)**, **denv-config(1)**, **denv-check(1)**
