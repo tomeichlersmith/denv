@@ -22,7 +22,7 @@ _translate() {
     -o man/man1/${man_page}.1
 }
 
-for page in denv denv-init denv-config
+for page in denv denv-init denv-config denv-check
 do
   _translate "${page}"
 done

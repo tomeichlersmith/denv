@@ -12,6 +12,8 @@ denv v0.5.0
 
 **denv** config [args]
 
+**denv** check [-h, --help] [-q, --quiet]
+
 **denv** [COMMAND] [args...]
 
 # DESCRIPTION
@@ -32,6 +34,8 @@ within the specialized and isolated environment.
 **`init`** initialize a new denv. See **denv-init(1)** for details.
 
 **`config`** manipulate the configuration of the current denv. See **denv-config(1)** for details.
+
+**`check`** check the installation of denv and look for supported container runners. See **denv-check(1)** for details.
 
 **`COMMAND`** any other command not matching one of the options above is provided to the
               configured denv to run within the containerized environment. The rest of the
@@ -81,7 +85,7 @@ already be defined.
 
 # SEE ALSO
 
-**denv-init(1)**, **denv-config(1)**
+**denv-init(1)**, **denv-config(1)**, **denv-check(1)**
 
 # ENVIRONMENT
 
