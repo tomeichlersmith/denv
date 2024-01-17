@@ -103,6 +103,9 @@ to modify its behavior in an advanced way without having to provide many command
     does not exist
   - **denv init** and **denv config image** will not pull an image if it already exists
 
+  **DENV_TAB_COMMANDS** a space-separated list of commands to include in tab-completions of denv.
+  This is helpful if there are a set of common commands you use within the denv.
+
 # FILES
 
 This part of the manual is an attempt to list and explain the files within a `.denv` directory.
