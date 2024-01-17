@@ -39,6 +39,10 @@ Install the latest release on GitHub.
 ```
 curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
 ```
+Make sure the installation was successful (and you have a supported runner installed)
+```
+denv check
+```
 Initialize the current directory as a denv.
 ```
 denv init <dev-image-to-use>
