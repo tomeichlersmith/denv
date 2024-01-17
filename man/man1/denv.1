@@ -15,6 +15,8 @@ denv v0.5.0
 .PP
 \f[B]denv\f[R] config [args]
 .PP
+\f[B]denv\f[R] check [-h, \[en]help] [-q, \[en]quiet]
+.PP
 \f[B]denv\f[R] [COMMAND] [args\&...]
 .SH DESCRIPTION
 .PP
@@ -40,6 +42,10 @@ See \f[B]denv-init(1)\f[R] for details.
 \f[B]\f[CB]config\f[B]\f[R] manipulate the configuration of the current
 denv.
 See \f[B]denv-config(1)\f[R] for details.
+.PP
+\f[B]\f[CB]check\f[B]\f[R] check the installation of denv and look for
+supported container runners.
+See \f[B]denv-check(1)\f[R] for details.
 .PP
 \f[B]\f[CB]COMMAND\f[B]\f[R] any other command not matching one of the
 options above is provided to the configured denv to run within the
@@ -108,7 +114,8 @@ and source the config file on each run of denv, therefore overwriting
 any environment variables that may already be defined.
 .SH SEE ALSO
 .PP
-\f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R]
+\f[B]denv-init(1)\f[R], \f[B]denv-config(1)\f[R],
+\f[B]denv-check(1)\f[R]
 .SH ENVIRONMENT
 .PP
 denv tests the definition and reads the value of a few different
@@ -136,6 +143,11 @@ workspace or if a passed workspace does not exist
 .IP \[bu] 2
 \f[B]denv init\f[R] and \f[B]denv config image\f[R] will not pull an
 image if it already exists
+.PP
+\f[B]DENV_TAB_COMMANDS\f[R] a space-separated list of commands to
+include in tab-completions of denv.
+This is helpful if there are a set of common commands you use within the
+denv.
 .SH FILES
 .PP
 This part of the manual is an attempt to list and explain the files
