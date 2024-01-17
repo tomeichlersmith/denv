@@ -9,6 +9,7 @@
   - [denv](./manual/denv.md)
   - [denv-init](./manual/denv-init.md)
   - [denv-config](./manual/denv-config.md)
+  - [denv-check](./manual/denv-check.md)
 - [Developing the Environment](./env_dev.md)
 
 # Contributing
