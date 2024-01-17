@@ -19,6 +19,21 @@ teardown() {
   assert_output
 }
 
+@test "print check help" {
+  run denv check --help
+  assert_output
+}
+
+@test "basic check run" {
+  run denv check
+  assert_output
+}
+
+@test "quiet check run" {
+  run denv check --quiet
+  refute_output
+}
+
 @test "print config" {
   run denv config print
   assert_line --index 0 "denv_workspace=\"${PWD}\""
