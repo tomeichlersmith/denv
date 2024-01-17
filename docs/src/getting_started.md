@@ -54,6 +54,22 @@ tag, or commit you wish) and put them _side-by-side_ in some location you wish t
 do not exist in a directory pointed to by your `PATH` variable then you will need to specify their
 full path to run.
 
+Use `denv check` to verify that an installation was successful and to list the runners supported
+by the installed `denv` and which ones are accessible in the current environment. An example output
+would be
+```shell
+$ denv check
+Entrypoint found alongside denv
+Looking for docker... found 'Docker version 24.0.7, build afdd53b' <- would use without DENV_RUNNER defined
+Looking for podman... not found
+Looking for apptainer... not found
+Looking for singularity... not found
+```
+Here, I can see which programs `denv` looked for and I am informed that it only found `docker` which
+is the one it will use by default. The extra comment about `DENV_RUNNER` is helpful if there are multiple
+runners installed - you can override `denv`'s choice by setting `DENV_RUNNER` to the command you wish
+to use.
+
 ## Usage
 `denv` is a relatively simple program with very few commands and even fewer options,
 but to help you get started, lets start a denv with a dependency you would want to
