@@ -10,7 +10,7 @@ __denv() {
 
   if [[ "${COMP_CWORD}" = "1" ]]; then
     # tab completing main argument
-    COMPREPLY=($(compgen -W "init config help version ${DENV_TAB_COMMANDS}" "$curr_word"))
+    COMPREPLY=($(compgen -W "init config help version check ${DENV_TAB_COMMANDS}" "$curr_word"))
   elif [[ "${COMP_CWORD}" = "2" ]]; then
     # tab complete a sub-argument which depends on main argument
     case "${COMP_WORDS[1]}" in
@@ -20,6 +20,9 @@ __denv() {
         ;;
       config)
         COMPREPLY=($(compgen -W "help print image mounts shell env" "$curr_word"))
+        ;;
+      check)
+        COMPREPLY=($(compgen -W "-h --help -q --quiet" "$curr_word"))
         ;;
       *)
         # re-enable normal tab completion for everything else
