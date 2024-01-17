@@ -858,10 +858,54 @@ _denv_version() {
 
 # check that denv was installed alongside its entrypoint and there
 # is a runner available to use
+_denv_check_help() {
+  cat <<\HELP
+
+  denv check [-h, --help] [-q, --quiet]
+
+ DESCRIPTION
+  Check denv installation to make sure the entrypoint exists as
+  an executable file in the expected location and there is at least
+  one container runner available for denv to use.
+
+  This command (without the -q, --quiet flag) lists the runners it
+  is looking for, the ones that it has found, and which runner will
+  be used by default if DENV_RUNNER is not set in the environment.
+
+  EXIT CODES
+    0   : success, denv installation is complete and there is a supported runner to use
+    1   : failure, denv cannot find the entrypoint script it needs
+    2   : failure, denv cannot find a supported runner to use
+    127 : denv check was supplied an argument it didn't recognize
+
+ OPTIONS
+  -h, --help  : print this help and exit
+  -q, --quiet : suppress non-error output, i.e. will silently return 0 if
+                denv can function properly
+
+HELP
+}
 _denv_check() {
+  quiet=false
+  while [ "$#" -gt "0" ]; do
+    case "$1" in
+      -h|--help)
+        _denv_check_help
+        return 0
+        ;;
+      -q|--quiet)
+        quiet=true
+        ;;
+      *)
+        _denv_error "Unrecognized 'denv check' option '$1'"
+        return 127
+        ;;
+    esac
+    shift
+  done
   # check for entrypoint
   if [ -x "${denv_entrypoint}" ] && [ -f "${denv_entrypoint}" ]; then
-    printf "\033[32mEntrypoint found alongside denv\033[0m\n"
+    ${quiet} || printf "\033[32mEntrypoint found alongside denv\033[0m\n"
   else
     _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
     return 1
@@ -873,13 +917,11 @@ _denv_check() {
   # the user which runner would be deduced when running
   for possible in docker podman apptainer singularity;
   do
-    printf "Looking for %s... " "${possible}"
-    # apptainer includes a symlink to singularity, so we have to 
-    # check for the command's existence and make sure its not just a symlink
+    ${quiet} || printf "Looking for %s... " "${possible}"
     if command -v "${possible}" >/dev/null 2>&1 && [ ! -L "$(which "${possible}")" ]; then
-      printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+      ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
       if [ "${first}" = "true" ]; then
-        printf "\033[32;1m default\033[0m (override with DENV_RUNNER)"
+        ${quiet} || printf "\033[32;1m <- would use without DENV_RUNNER defined\033[0m"
         first="false"
       fi
       # extra version compatibility checking
@@ -890,8 +932,8 @@ _denv_check() {
           minor="$(echo "${version}" | cut -f 2 -d '.')"
           #patch="$(echo "${version}" | cut -f 3 -d '.')" # not used
           if [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
-            printf "\n"
-            printf "\033[31m    denv requires the --env flag for singularity which was introduced in v3.6\033[0m"
+            ${quiet} || printf "\n"
+            _denv_error "denv requires the --env flag for singularity which was introduced in v3.6"
           fi
           ;;
         *)
@@ -899,13 +941,13 @@ _denv_check() {
           ;;
       esac
     else
-      printf "not found"
+      ${quiet} || printf "not found"
     fi
-    printf "\n"
+    ${quiet} || printf "\n"
   done
   if [ "${first}" = "true" ]; then
     _denv_error "No container runner found!"
-    return 1
+    return 2
   fi
   return 0
 }
