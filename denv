@@ -236,10 +236,12 @@ _denv_run() {
       if [ "${denv_runner}" = "podman" ]; then
         userspec="--userns=keep-id"
       fi
+      network="host"
+      [ "${denv_network}" = "false" ] && network="none"
       # shellcheck disable=SC2086,SC2248
       ${denv_runner} run \
         --rm \
-        --network host \
+        --network "${network}" \
         ${interactive} \
         ${mounts} \
         --hostname "${_hostname}" \
@@ -256,8 +258,11 @@ _denv_run() {
       mounts="$(_denv_mounts_to_args "--bind")"
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       environment="$(_denv_environment_to_args "--env")"
+      network=""
+      [ "${denv_network}" = "false" ] && network="--net --network none"
       # shellcheck disable=SC2086
       PWD=$(pwd -P) ${denv_runner} exec \
+        ${network} \
         --hostname "${_hostname}" \
         --home "${denv_workspace}" \
         --cleanenv \
@@ -268,10 +273,13 @@ _denv_run() {
         "$@"
       ;;
     norunner)
+      network="enabled"
+      [ "${denv_network}" = "false" ] && network="disabled"
       _denv_info "running ${denv_image} with " \
         "  HOME=\"${denv_workspace}\"" \
         "  SHELL=\"${denv_shell}\"" \
         "  PWD=\"$(pwd -P)\"" \
+        "  network ${network}" \
         "${denv_environment}" \
         "${denv_mounts}"
       ;;
@@ -422,6 +430,7 @@ _denv_write_config() {
     echo "denv_env_var_copy_all=\"${denv_env_var_copy_all}\"";
     echo "denv_env_var_copy=\"${denv_env_var_copy}\"";
     echo "denv_env_var_set=\"${denv_env_var_set}\"";
+    echo "denv_network=\"${denv_network}\"";
   } > "${config}"
 }
 
@@ -437,6 +446,7 @@ _denv_config_print() {
   printf "%s=\"%s\"\n" denv_image "${denv_image}"
   printf "%s=\"%s\"\n" denv_mounts "${denv_mounts}"
   printf "%s=\"%s\"\n" denv_shell "${denv_shell}"
+  printf "%s=\"%s\"\n" denv_network "${denv_network}"
   _denv_runner
   if [ ! "${denv_env_var_copy_all}" = "true" ] || [ -n "${1:-}" ]; then
     _denv_config_env print
@@ -515,6 +525,21 @@ _denv_config_mounts() {
   done
 }
 
+# enable/disable the network connection within the denv
+_denv_config_network() {
+  case "$1" in
+    yes|true|on)
+      denv_network="true"
+      ;;
+    no|false|off)
+      denv_network="false"
+      ;;
+    *)
+      _denv_error "'$1' is not 'yes', 'on', or 'true' nor 'no', 'off', or 'false'"
+      ;;
+  esac
+}
+
 # configure environment variables for within the denv
 # Arguments
 #  1 - {all,copy,set}
@@ -576,7 +601,7 @@ _denv_config_env() {
           denv_env_var_copy_all="true"
           ;;
         *)
-          _denv_error "'$1' is not 'yes' or no'"
+          _denv_error "'$1' is not 'yes', 'on', or 'true' nor 'no', 'off', or 'false'"
           return 1;
           ;;
       esac
@@ -637,6 +662,7 @@ _denv_config_help() {
   denv config image [pull|IMAGE]
   denv config mounts DIR0 [DIR1 DIR2 ...]
   denv config shell SHELL
+  denv config network {[yes|true|on]|[no|false|off]}
   denv config env [args...]
 
  COMMANDS
@@ -650,6 +676,8 @@ _denv_config_help() {
   mounts  add one or more directories to be mounted to the denv
   shell   change which program is executed when opening
           the denv without any arguments
+  network enable connecting the network to the denv (passing yes, true, or on),
+          or disable connecting the network (passing no, false, or off).
   env     configure which environment variables are put
           into the container environment
           `denv config env help` for more detail
@@ -667,7 +695,7 @@ _denv_config() {
       cmd="_denv_config_${1}"
       ${cmd} "${2:-}"
       ;;
-    image|shell|mounts|env)
+    image|shell|mounts|network|env)
       if [ "$1" = "env" ]; then
         # need to check for help printout before loading config
         # so users can access help information without a denv
@@ -827,6 +855,7 @@ _denv_init() {
   denv_image="${image}"
   denv_shell="/bin/bash -i"
   denv_mounts=""
+  denv_network="true"
   if [ "${copyall}" = "1" ]; then
     denv_env_var_copy_all="true"
   else
