@@ -19,7 +19,7 @@ __denv() {
         COMPREPLY=()
         ;;
       config)
-        COMPREPLY=($(compgen -W "help print image mounts shell env" "$curr_word"))
+        COMPREPLY=($(compgen -W "help print image mounts shell network env" "$curr_word"))
         ;;
       check)
         COMPREPLY=($(compgen -W "-h --help -q --quiet" "$curr_word"))
@@ -39,6 +39,9 @@ __denv() {
       mounts)
         # directory tab completion
         COMPREPLY=($(compgen -d -- "$curr_word"))
+        ;;
+      network)
+        COMPREPLY=($(compgen -W "yes on true no off false" "$curr_word"))
         ;;
       env)
         if [[ "${COMP_CWORD}" = "3" ]]; then
