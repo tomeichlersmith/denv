@@ -14,6 +14,8 @@ denv config
 
 **denv config** shell SHELL
 
+**denv config** network {[yes|on|true]|[no|off|false]}
+
 **denv config** env [help|-h|--help]
 
 **denv config** env print
@@ -47,6 +49,9 @@ after 'config'.
 **mounts** provide additional directories to mount into the denv during running.
 
 **shell** set the shell that should be executed by denv if no other command is given by the user.
+
+**network** enable network connection for the denv (passing yes, on, or true) or disable this
+            network connection (passing no, off, or false).
 
 **env** manipulate and view the environment variables that will be provided to the denv at run time.
 
@@ -199,6 +204,8 @@ is needed. **`denv`** assumes that this config file defines the following shell 
     on the names and values that can be kept here so editing this value directly is not recommended.
     Use **`denv config env copy`** to edit this value while validating that the rules are followed.
 
+  **denv_network** a boolean flag signalling if **`denv`** should connect the container to the host
+    network (`"true"`) or disable all network connection (`"false"`).
 
 # SEE ALSO
 

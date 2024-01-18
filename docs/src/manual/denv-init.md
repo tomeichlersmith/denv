@@ -57,6 +57,15 @@ the same name as above, the denvs will appear similar even though their workspac
 
     denv init python:3.11 py311
 
+# DEFAULT CONFIGURATION
+**denv init** makes the following choices on configuration that can later be edited by **denv config**
+if the user desires.
+
+  - The interative shell is `/bin/bash -i`, change with **`denv config shell PROGRAM`**
+  - No specific environment variables are copied from the host or set to specific values, change with **`denv config env copy VAR[=VAL]`**. The denv either copies all host environment variables (the default) or none (with `--clean-env`).
+  - No extra diretories are mounted into the denv (besides those automatically mounted by the underlying container runner, e.g. apptainer auto-mounts `/tmp`), update with **`denv config mounts DIR`**.
+  - The denv is connected to the host's network, disable with **`denv config network off`**.
+
 # SEE ALSO
 
 **denv(1)**, **denv-config(1)**, **denv-check(1)**
