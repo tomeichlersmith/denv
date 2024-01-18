@@ -58,3 +58,9 @@ teardown() {
   denv config shell /bin/zsh
   assert_file_contains .denv/config '^denv_shell="/bin/zsh"$'
 }
+
+@test "disable network connection" {
+  assert_file_contains .denv/config '^denv_network="true"$'
+  denv config network off
+  assert_file_contains .denv/config '^denv_network="false"$'
+}
