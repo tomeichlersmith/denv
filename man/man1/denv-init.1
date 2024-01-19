@@ -93,6 +93,27 @@ different names.
 denv init python:3.11 py311
 \f[R]
 .fi
+.SH DEFAULT CONFIGURATION
+.PP
+\f[B]denv init\f[R] makes the following choices on configuration that
+can later be edited by \f[B]denv config\f[R] if the user desires.
+.IP \[bu] 2
+The interative shell is \f[C]/bin/bash -i\f[R], change with
+\f[B]\f[CB]denv config shell PROGRAM\f[B]\f[R]
+.IP \[bu] 2
+No specific environment variables are copied from the host or set to
+specific values, change with
+\f[B]\f[CB]denv config env copy VAR[=VAL]\f[B]\f[R].
+The denv either copies all host environment variables (the default) or
+none (with \f[C]--clean-env\f[R]).
+.IP \[bu] 2
+No extra diretories are mounted into the denv (besides those
+automatically mounted by the underlying container runner,
+e.g.\ apptainer auto-mounts \f[C]/tmp\f[R]), update with
+\f[B]\f[CB]denv config mounts DIR\f[B]\f[R].
+.IP \[bu] 2
+The denv is connected to the host\[cq]s network, disable with
+\f[B]\f[CB]denv config network off\f[B]\f[R].
 .SH SEE ALSO
 .PP
 \f[B]denv(1)\f[R], \f[B]denv-config(1)\f[R], \f[B]denv-check(1)\f[R]
