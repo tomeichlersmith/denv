@@ -1,31 +1,31 @@
 #!/usr/bin/env bats
 
-setup() {
+setup_file() {
   load "test_helper/denv"
   common_setup
   
   go_to_tmp_work
-  denv init ubuntu:22.04
+  denv init python
+  cp -t . ${OLDPWD}/test/internet-access.py
 }
 
-teardown() {
+setup() {
+  load "test_helper/denv"
+  common_setup
+}
+
+teardown_file() {
   clean_tmp_work
 }
 
-@test "we can see other network devices besides loopback" {
-  run denv ls /sys/class/net
+@test "we can connect a socket to a Google public DNS server" {
+  run denv python3 internet-access.py
   assert_success
-  # --partial, the loopback device is there
-  assert_container_output --partial "lo"
-  # the number of devices is more than one
-  num_devices="$(echo "${output}" | wc -w)"
-  assert [ "$num_devices" -gt 1 ]
+  refute_output
 }
 
-@test "we can disable network devices besides loopback" {
+@test "we can disable network devices" {
   denv config network off
-  run denv ls /sys/class/net
-  assert_success
-  # no --partial => the only output is the 'lo' loopback
-  assert_container_output "lo"
+  run -1 denv python3 internet-access.py
+  assert_output
 }
