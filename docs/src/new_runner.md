@@ -110,8 +110,9 @@ jupyter. **Note**: Developers should know that these images have
 a very special user and entrypoint configuration specialized for
 jupyter lab which may cause extra complications.
 
-The non-interactive tests _do_ check for network devices within
-the container by inspecting the output of `ls /sys/class/net`
-in order to confirm that we can enable/disable network connection.
-I do not expect this to be enough to guarantee network functionality
-especially for new runners that I am not familiar with.
+The non-interactive tests _do_ check for network connection within
+the container by attempting to connect a socket to a public Google
+DNS server. I do not expect this to be enough to guarantee network
+functionality especially for new runners that I am not familiar with.
+Any aid in more precisely testing external network connection as well
+as "localhost"-style connection would be an appreciated contribution.
