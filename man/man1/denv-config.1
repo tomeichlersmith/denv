@@ -17,6 +17,8 @@ denv config
 .PP
 \f[B]denv config\f[R] shell SHELL
 .PP
+\f[B]denv config\f[R] network {[yes|on|true]|[no|off|false]}
+.PP
 \f[B]denv config\f[R] env [help|-h|\[en]help]
 .PP
 \f[B]denv config\f[R] env print
@@ -54,6 +56,10 @@ during running.
 .PP
 \f[B]shell\f[R] set the shell that should be executed by denv if no
 other command is given by the user.
+.PP
+\f[B]network\f[R] enable network connection for the denv (passing yes,
+on, or true) or disable this network connection (passing no, off, or
+false).
 .PP
 \f[B]env\f[R] manipulate and view the environment variables that will be
 provided to the denv at run time.
@@ -276,6 +282,11 @@ There are restrictions on the names and values that can be kept here so
 editing this value directly is not recommended.
 Use \f[B]\f[CB]denv config env copy\f[B]\f[R] to edit this value while
 validating that the rules are followed.
+.PP
+\f[B]denv_network\f[R] a boolean flag signalling if
+\f[B]\f[CB]denv\f[B]\f[R] should connect the container to the host
+network (\f[C]\[dq]true\[dq]\f[R]) or disable all network connection
+(\f[C]\[dq]false\[dq]\f[R]).
 .SH SEE ALSO
 .PP
 \f[B]denv(1)\f[R], \f[B]denv-init(1)\f[R], \f[B]denv-check(1)\f[R]
