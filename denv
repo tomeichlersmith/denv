@@ -825,9 +825,9 @@ _denv_init() {
       fi
       _denv_info "Creating '${denv_workspace}' for the denv..."
       mkdir "${denv_workspace}"
-      _denv_info "Entering '${denv_workspace}'..."
-      cd "${denv_workspace}"
     fi
+    _denv_info "Entering '${denv_workspace}'..."
+    cd "${denv_workspace}"
   fi
   # if the workspace was given, we have created and entered it, so the workspace is PWD
   denv_workspace="${PWD}"
