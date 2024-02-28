@@ -892,7 +892,7 @@ _denv_version() {
 _denv_check_help() {
   cat <<\HELP
 
-  denv check [-h, --help] [-q, --quiet]
+  denv check [-h, --help] [-q, --quiet] [--workspace]
 
  DESCRIPTION
   Check denv installation to make sure the entrypoint exists as
@@ -909,17 +909,20 @@ _denv_check_help() {
     1   : failure, denv cannot find the entrypoint script it needs
     2   : failure, denv cannot find a supported runner to use
     3   : failure, denv cannot deduce a workspace (i.e. no 'denv init' has happened yet)
+          only tested if the --workspace option is provided
     127 : denv check was supplied an argument it didn't recognize
 
  OPTIONS
   -h, --help  : print this help and exit
   -q, --quiet : suppress non-error output, i.e. will silently return 0 if
                 denv can function properly
+  --workspace : check if denv can deduce a workspace from the current directory
 
 HELP
 }
 _denv_check() {
   quiet=false
+  workspace=false
   while [ "$#" -gt "0" ]; do
     case "$1" in
       -h|--help)
@@ -928,6 +931,9 @@ _denv_check() {
         ;;
       -q|--quiet)
         quiet=true
+        ;;
+      --workspace)
+        workspace=true
         ;;
       *)
         _denv_error "Unrecognized 'denv check' option '$1'"
@@ -983,12 +989,14 @@ _denv_check() {
     return 2
   fi
 
-  if [ -z "${denv_workspace+x}" ] && ! _denv_deduce_workspace; then
-    _denv_error "Unable to deduce a denv workspace" \
-      "may need to just 'denv init' in your workspace."
-    return 3
-  else
-    ${quiet} || printf "Found denv_workspace=\"%s\"\n" "${denv_workspace}"
+  if ${workspace}; then
+    if [ -z "${denv_workspace+x}" ] && ! _denv_deduce_workspace; then
+      _denv_error "Unable to deduce a denv workspace" \
+        "You may need to just 'denv init' in the directory of your choice."
+      return 3
+    else
+      ${quiet} || printf "Found denv_workspace=\"%s\"\n" "${denv_workspace}"
+    fi
   fi
 
   return 0
@@ -1010,6 +1018,7 @@ _denv_help() {
   version : print the version of denv
   init    : initialize a new denv with an image
   config  : modify current denv configuration
+  check   : checks for denv (installed, runner available, init done)
   help    : print this help and exit
   <cmd>   : run <cmd> inside denv container
 
