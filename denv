@@ -1038,6 +1038,48 @@ _denv_check() {
   return 0
 }
 
+_denv_shebang() {
+  lines=0
+  # scan first 10 lines of the file
+  # (10 = 8 config variables, 1 workspace variable, 1 original shebang)
+  while read -r line && [ "${lines}" -ne 10 ]; do
+    unset shebang_line
+    if [ "${line#\#!}" != "$line" ]; then
+      shebang_line="${line#\#!}"
+    elif [ "${line#//!}" != "$line" ]; then      # // comments
+      shebang_line="${line#//!}"
+    elif [ "${line#--!}" != "$line" ]; then      # -- lua comments
+      shebang_line="${line#--!}"
+    elif [ "${line#<?php\ }" != "$line" ]; then  # php comments
+      shebang_line="${line#<?php\ \#!}"
+      shebang_line="${shebang_line%\ ?>}"
+    fi
+
+    # skip lines that didn't have the shebang
+    if [ -z "${shebang_line:+x}" ]; then
+      continue
+    fi
+
+    # skip the shebang the says we are using denv shebang
+    if [ "${shebang_line#*denv shebang}" != "${shebang_line}" ]; then
+      continue
+    fi
+
+    # if a shebang line starts with 'denv_' then we assume it is one
+    # of the config variables and `eval` it to bring it into this context
+    if [ "${shebang_line#"denv_"}" != "${shebang_line}" ]; then
+      eval "${shebang_line}"
+    fi
+
+    # the shebang line is now our shebang or a denv_* config variable,
+    # so we expect it to be the program to run inside the denv
+    program_line="${shebang_line}"
+  done < "$1"
+
+  _denv_load_config
+  _denv_run ${program_line} ${1}
+}
+
 # root program denv
 _denv_help() {
   cat <<\HELP
@@ -1078,7 +1120,7 @@ _denv() {
       _denv_help
       return 
       ;;
-    version|help|config|init|check)
+    version|help|config|init|check|shebang)
       cmd="_denv_${1}"
       shift
       # I think I know what I'm doing here
