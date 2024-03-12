@@ -1,0 +1,11 @@
+#!/usr/bin/env -S denv shebang
+#!denv_name="shebang-workspace"
+#!denv_image="python:3"
+#!denv_shell="/bin/bash"
+#!denv_mounts=""
+#!denv_env_var_copy_all="false"
+#!denv_env_var_copy=""
+#!denv_env_var_set=""
+#!denv_network="false"
+#!/bin/bash
+cat /etc/os-release
