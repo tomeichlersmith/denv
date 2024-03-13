@@ -361,10 +361,10 @@ _denv_load_config() {
         "You should only be setting DENV_RUNNER if you have more than one runner installed and wish to use denv with a specific one."
       return 1
     fi
-  elif command -v docker >/dev/null 2>&1; then
-    denv_runner="docker"
   elif command -v podman >/dev/null 2>&1; then
     denv_runner="podman"
+  elif command -v docker >/dev/null 2>&1; then
+    denv_runner="docker"
   elif command -v apptainer >/dev/null 2>&1; then
     denv_runner="apptainer"
   elif command -v singularity >/dev/null 2>&1; then
@@ -949,50 +949,50 @@ _denv_check() {
   # the order in this for loop should be the same as the order of
   # the elif-tree in _denv_load_config so that we correctly inform
   # the user which runner would be deduced when running
-  for possible in docker podman apptainer singularity;
+  for possible in podman docker apptainer singularity;
   do
     ${quiet} || printf "Looking for %s... " "${possible}"
-    if ${denv_runner_defined}; then
-      if [ "${possible}" = "${DENV_RUNNER}" ]; then
-        denv_runner_matched=true
-        ${quiet} || printf "DENV_RUNNER"
-      fi
-    fi
     if command -v "${possible}" >/dev/null 2>&1; then
       # extra version compatibility checking
       case "${possible}" in
         singularity)
-          if singularity --version 2>&1 | grep -q apptainer; then
-            ${quiet} || printf "found 'apptainer emulating singularity'\n"
-            continue
-          fi
           version="$(singularity version | cut -f 1 -d '-')"
           major="$(echo "${version}" | cut -f 1 -d '.')"
           minor="$(echo "${version}" | cut -f 2 -d '.')"
           #patch="$(echo "${version}" | cut -f 3 -d '.')" # not used
-          if [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
+          if singularity --version 2>&1 | grep -q apptainer; then
+            ${quiet} || printf "found apptainer emulating singularity"
+          elif [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
             ${quiet} || printf "found '%s', but " "$(singularity --version)"
             ${quiet} || printf "\033[31m%s\033[0m" \
-              "denv requires the --env flag for singularity which was introduced in v3.6\n"
-            continue
+              "denv requires the --env flag for singularity which was introduced in v3.6"
+          else
+            ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           fi
           ;;
         docker)
           # check for podman emulation of docker
           # if podman is emulating docker, docker --version will return podman --version
           # which includes 'podman'
-          if docker --version 2>&1 | grep -q podman; then
-            ${quiet} || printf "found 'podman emulating docker'\n"
-            continue
+          if docker version 2>&1 | grep -iq podman; then
+            ${quiet} || printf "found podman emulating docker"
+          else
+            ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           fi
           ;;
         *)
-          # fall through, don't do extra checking
+          # no extra checking, just print the version found
+          ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           ;;
       esac
-      ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+      if ${denv_runner_defined}; then
+        if [ "${possible}" = "${DENV_RUNNER}" ]; then
+          denv_runner_matched=true
+          ${quiet} || printf "\033[32;1m <- DENV_RUNNER\033[0m"
+        fi
+      fi
       if [ "${first}" = "true" ]; then
-        ${quiet} || printf "\033[32;1m <- would use without DENV_RUNNER defined\033[0m"
+        ${quiet} || printf "\033[32;1m <- use without DENV_RUNNER defined\033[0m"
         first="false"
       fi
     else
