@@ -54,7 +54,7 @@ First and foremost, make sure your additions to `denv` still pass the
 non-interactive tests.
 ```
 ./ci/check
-DENV_RUNNER=<your-runner> ./ci/test
+./ci/test <your-runner>
 ```
 These can be enabled in your fork of denv so that they run automatically on GitHub
 when you push to a branch on your fork. In order for GitHub to be able to test

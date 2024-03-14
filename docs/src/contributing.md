@@ -36,7 +36,7 @@ When you work on developing `denv` make sure to install
 add run the check and test scripts.
 ```
 ./ci/check # uses shellcheck to avoid common issues writing shell scripts
-DENV_RUNNER=<your-runner> ./ci/test # basic functionality checking
+./ci/test <your-runner> # basic functionality checking
 ```
 The GitHub workflows test all of the currently supported runners,
 so make sure to enable them in your fork of the repository so that
