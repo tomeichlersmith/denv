@@ -34,6 +34,12 @@ teardown() {
   refute_output
 }
 
+@test "check fails when using unsupported runner" {
+  export DENV_RUNNER=dne
+  run -3 denv check
+  assert_output --partial "runner is not supported by denv"
+}
+
 @test "print config" {
   run denv config print
   assert_line --index 0 "denv_workspace=\"${PWD}\""

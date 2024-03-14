@@ -20,6 +20,7 @@ failure condition is encountered.
   - `0`    success, denv installation is complete and there is a supported runner to use (or the user printed the help message)
   - `1`    failure, denv cannot find the entrypoint script as an executable in the directory it is installed in
   - `2`    failure, denv cannot find a supported runner to use
+  - `3`    failure, `DENV_RUNNER` defined to a runner that **`denv`** does not support
   - `127`  denv check was supplied an argument it didn't recognize
 
 # SEE ALSO
