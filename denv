@@ -363,14 +363,14 @@ _denv_load_config() {
         "You should only be setting DENV_RUNNER if you have more than one runner installed and wish to use denv with a specific one."
       return 1
     fi
-  elif command -v podman >/dev/null 2>&1; then
-    denv_runner="podman"
-  elif command -v docker >/dev/null 2>&1; then
-    denv_runner="docker"
   elif command -v apptainer >/dev/null 2>&1; then
     denv_runner="apptainer"
   elif command -v singularity >/dev/null 2>&1; then
     denv_runner="singularity"
+  elif command -v podman >/dev/null 2>&1; then
+    denv_runner="podman"
+  elif command -v docker >/dev/null 2>&1; then
+    denv_runner="docker"
   else
     _denv_error "No container runner available." \
       "Setting 'norunner' which simply allows exploration of CLI."
@@ -963,7 +963,7 @@ _denv_check() {
   # the order in this for loop should be the same as the order of
   # the elif-tree in _denv_load_config so that we correctly inform
   # the user which runner would be deduced when running
-  for possible in podman docker apptainer singularity;
+  for possible in apptainer singularity podman docker;
   do
     ${quiet} || printf "Looking for %s... " "${possible}"
     if command -v "${possible}" >/dev/null 2>&1; then
