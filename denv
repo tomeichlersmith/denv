@@ -909,6 +909,7 @@ _denv_check_help() {
     1   : failure, denv cannot find the entrypoint script it needs
     2   : failure, denv cannot find a supported runner to use
     3   : failure, DENV_RUNNER is defined to a runner that denv does not support
+          or is not an available program on the current machine
     4   : failure, denv cannot deduce a workspace (i.e. no 'denv init' has happened yet)
           only tested if the --workspace option is provided
     127 : denv check was supplied an argument it didn't recognize
@@ -1016,7 +1017,8 @@ _denv_check() {
     return 2
   fi
   if ${denv_runner_defined} && ! ${denv_runner_matched}; then
-    _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv"
+    _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
+      "(or is not available on this machine)"
     return 3
   fi
   if ${workspace}; then
