@@ -51,3 +51,18 @@ Open an interactive shell in the newly-created denv
 ```
 denv
 ```
+
+### Usage Cheatsheet
+After initialization (above), the rest of the `denv`-specific subcommands are housed under `denv config`,
+which allow you to
+- Change the image the denv uses `denv config image <image-tag>`
+- Pull down the image again `denv config image pull`
+- Disable copying of all host environment variables `denv config env all off`
+- Set environment variables to specific values `denv config env copy foo=bar`
+- Copy environment variables from the host (if not copying all of them) `denv config env copy host_foo`
+- Disable network connection `denv config network off`
+- Have other directories mounted `denv config mounts /full/path/to/my/other/dir`
+- Print the config for inspection/debugging `denv config print`
+- Set the program denv should run if no arguments are provided `denv config shell /path/to/program`
+
+See `denv help` or `man denv` for more details about `denv` and its subcommands.
