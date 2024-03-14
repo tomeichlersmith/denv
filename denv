@@ -1062,7 +1062,12 @@ HELP
 }
 _denv() {
   if [ $# -eq 0 ]; then
-    _denv_load_config
+    if ! _denv_load_config; then
+      # we failed to load the config and the user did not provide any arguments,
+      # lets at least print the help just in case this is a new user
+      _denv_help
+      return 1
+    fi
     # shellcheck disable=SC2086
     _denv_run ${denv_shell}
     return $?
