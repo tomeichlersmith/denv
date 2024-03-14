@@ -355,7 +355,7 @@ _denv_load_config() {
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
   denv_image_cache="${denv_workspace}/.denv/images"
-  # make sure to update _denv_check if the order of this elif tree is changed
+  # make sure to update _denv_check and docs/src/manual/denv.md if the order of this elif tree is changed
   if [ -n "${DENV_RUNNER+x}" ]; then
     denv_runner="${DENV_RUNNER}"
     if [ ! "${denv_runner}" = "norunner" ] && ! command -v "${denv_runner}" >/dev/null 2>&1; then

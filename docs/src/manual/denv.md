@@ -143,6 +143,13 @@ chooses to prefer runners that act as emulators over the runners they are emulat
 (for example, podman is checked before docker and apptainer is checked before singularity).
 In addition, since the configuration of podman on some computing clusters is not supportive
 of denv and apptainer is installed on these clusters, apptainer is checked before podman.
+This leads to the following order of priority currently within denv when `DENV_RUNNER`
+is not defined.
+
+1. apptainer
+2. singularity
+3. podman
+4. docker
 
 # FILES
 
