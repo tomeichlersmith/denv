@@ -40,6 +40,17 @@ teardown() {
   assert_output --partial "runner is not supported by denv"
 }
 
+@test "check that we are in a workspace" {
+  run denv check --workspace
+  assert_output --partial "Found denv_workspace"
+}
+
+@test "check that we are not in a workspace" {
+  rm -r .denv
+  run -4 denv check --workspace
+  assert_output --partial "Unable to deduce a denv workspace"
+}
+
 @test "print config" {
   run denv config print
   assert_line --index 0 "denv_workspace=\"${PWD}\""
