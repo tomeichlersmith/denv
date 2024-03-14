@@ -26,7 +26,7 @@ teardown() {
 
 @test "basic check run" {
   run denv check
-  assert_output
+  assert_output --partial "denv would run with '${DENV_RUNNER}'"
 }
 
 @test "quiet check run" {

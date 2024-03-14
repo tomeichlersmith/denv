@@ -953,10 +953,12 @@ _denv_check() {
   fi
 
   first="true"
+  would_run_with="norunner"
   denv_runner_defined=false
   denv_runner_matched=false
   if [ -n "${DENV_RUNNER:+x}" ]; then
     denv_runner_defined=true
+    would_run_with="${DENV_RUNNER}"
   fi
   # the order in this for loop should be the same as the order of
   # the elif-tree in _denv_load_config so that we correctly inform
@@ -1006,6 +1008,7 @@ _denv_check() {
       if [ "${first}" = "true" ]; then
         ${quiet} || printf "\033[32;1m <- use without DENV_RUNNER defined\033[0m"
         first="false"
+        ${denv_runner_defined} || would_run_with="${possible}"
       fi
     else
       ${quiet} || printf "not found"
@@ -1015,6 +1018,8 @@ _denv_check() {
   if [ "${first}" = "true" ]; then
     _denv_error "No container runner found!"
     return 2
+  else
+    ${quiet} || printf "denv would run with '%s'\n" "${would_run_with}"
   fi
   if ${denv_runner_defined} && ! ${denv_runner_matched}; then
     _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
