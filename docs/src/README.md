@@ -33,6 +33,7 @@ they work for your use case.
   - This is the newest project and probably most closely aligned to my goals; however, it would require understanding how to write NixPkgs for all my dependencies (which is not an easy task given how specialized so many of the packages are) and I am not currently able to functionally install it on the HPCs which use apptainer/singularity.
 - [toolbox](https://github.com/containers/toolbox): built on top of `podman`, similar in spirit to distrobox and devbox
 - [repro-env](https://github.com/kpcyrd/repro-env): rust-wrapper for `podman`, focused on specifying a manifest file which is then evolved into a lock file specifying SHAs for container images and packages, allows env to only evolve when developer desires.
+- [devenv](https://devenv.sh/): "develop in your shell. deploy containers." Again, goals aligned with this project, but relies on the NixPkgs registry or building dependencies locally with nix definitions. Requires installation of `nix` package manager (I think).
 
 ## Quick Start
 Install the latest release on GitHub.
