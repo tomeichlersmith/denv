@@ -42,6 +42,13 @@ Instead of expecting users to correctly write configurations into
 the `.bashrc` in their workspace, one can make heavy use of environment
 variables in the image definition.
 
+In addition, all of the files in `/etc/skel` from the image are copied
+into the workspace when `denv` is run for the first time. This enables
+the image creators to update those files with any environment tuning
+that needs to happen at run time. For example, one could deduce where
+a project is installed and then add that directory to `PATH` if it isn't
+one of the standard locations.
+
 ## apptainer support
 Apptainer and singularity take a slightly different approach to
 running containers than docker or podman and so there are some
