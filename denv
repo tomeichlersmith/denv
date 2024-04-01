@@ -1072,7 +1072,7 @@ _denv_shebang() {
       eval "${shebang_line}"
     fi
 
-    # the shebang line is now our shebang or a denv_* config variable,
+    # the shebang line is not our shebang or a denv_* config variable,
     # so we expect it to be the program to run inside the denv
     program_line="${shebang_line}"
   done < "$1"
