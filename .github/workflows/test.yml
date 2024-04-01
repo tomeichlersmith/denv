@@ -57,13 +57,13 @@ jobs:
             ./ci/test "${installed_runner}"
           fi
 
-#  test-macos:
-#    name: Test on MacOS
-#    runs-on: macos-latest
-#    steps:
-#      - uses: douglascamata/setup-docker-macos-action@v1-alpha
-#      - uses: actions/checkout@v4
-#        with:
-#          submodules: 'recursive'
-#      - name: Test
-#        run: ./ci/test docker
+  test-macos:
+    name: Test on MacOS
+    runs-on: macos-latest
+    steps:
+      - uses: douglascamata/setup-docker-macos-action@v1-alpha
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Test
+        run: ./ci/test docker
