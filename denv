@@ -232,7 +232,7 @@ _denv_run() {
       # need to mount workspace manually for docker/podman
       mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       environment="$(_denv_environment_to_args --env)"
-      userspec="--userns=host"
+      userspec="--user $(id -u "${USER}"):$(id -g "${USER}") --userns=host"
       if [ "${denv_runner}" = "podman" ]; then
         userspec="--userns=keep-id"
       fi
