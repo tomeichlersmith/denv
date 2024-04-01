@@ -234,12 +234,12 @@ _denv_run() {
       # there for user/group definitions
       # need to mount PWD just in case we are running outside of a mounted directory
       denv_mounts="${denv_mounts} /etc/passwd /etc/group $(pwd -P)"
-      mounts="$(_denv_mounts_to_args "--volume")"
+      mounts="$(set +o xtrace; _denv_mounts_to_args "--volume")"
       if [ "${denv_workspace}" != "$(pwd -P)" ]; then
         # need to mount workspace manually for docker/podman
         mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
       fi
-      environment="$(_denv_environment_to_args --env)"
+      environment="$(set +o xtrace; _denv_environment_to_args --env)"
       userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
       if [ "${denv_runner}" = "podman" ]; then
         userspec="--userns=keep-id"
@@ -263,7 +263,7 @@ _denv_run() {
     apptainer|singularity)
       # apptainer/singularity do not pull automatically when attempting to run
       _denv_config_checked_pull DO_NOT_PROMPT_USER
-      mounts="$(_denv_mounts_to_args "--bind")"
+      mounts="$(set +o xtrace; _denv_mounts_to_args "--bind")"
       if [ -z "${denv_image_cache+x}" ]; then
         # in a workspace-less shebang running mode, denv_image_cache is unset
         # we assume the user has defined denv_image to be the full path to the image
@@ -275,7 +275,7 @@ _denv_run() {
         # reside in our local cache of image files
         sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       fi
-      environment="$(_denv_environment_to_args "--env")"
+      environment="$(set +o xtrace; _denv_environment_to_args "--env")"
       network=""
       [ "${denv_network}" = "false" ] && network="--net --network none"
       # shellcheck disable=SC2086
@@ -391,6 +391,9 @@ _denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL
 # Outputs
 #   denv_environment environment variable
 _denv_deduce_environment() {
+  # deduce environment variables from configuration
+  # disable xtrace here to avoid polluting debug printout
+  set +o xtrace
   # copy-able environment variables, code copied from distrobox
   copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
@@ -428,6 +431,11 @@ _denv_deduce_environment() {
   # disabling double-quote warning so that we can re-split the space-separated list
   # shellcheck disable=SC2086
   denv_environment="$(env -i ${denv_environment})"
+
+  # re-instate xtrace if DENV_DEBUG was done
+  if [ -n "${DENV_DEBUG+x}" ]; then
+    set -o xtrace
+  fi
 }
 
 # load the denv config from the input workspace
@@ -546,6 +554,7 @@ _denv_config_mounts() {
       /*)
         # this is a full path
         if [ -d "$1" ]; then
+          _denv_info "Adding ${1} to mounts"
           denv_mounts="$1 ${denv_mounts}"
         else
           _denv_error "'$1' does not exist."
@@ -565,9 +574,11 @@ _denv_config_mounts() {
 _denv_config_network() {
   case "$1" in
     yes|true|on)
+      _denv_info "Enabling network connection"
       denv_network="true"
       ;;
     no|false|off)
+      _denv_info "Disabling network connection"
       denv_network="false"
       ;;
     *)
@@ -626,14 +637,17 @@ _denv_config_env() {
       shift
       if [ "$#" -eq "0" ]; then
         # default with no arguments is yes
+        _denv_info "Copying all copyable host environment variables."
         denv_env_var_copy_all="true"
         return 0;
       fi
       case "$1" in
         no|false|off)
+          _denv_info "Only copying envrionment variables specified by user."
           denv_env_var_copy_all="false"
           ;;
         yes|true|on)
+          _denv_info "Copying all copyable host environment variables."
           denv_env_var_copy_all="true"
           ;;
         *)
@@ -654,6 +668,7 @@ _denv_config_env() {
           return 1
         fi
         if echo "${1}" | grep -q "="; then
+          _denv_info "Setting environment variable in denv '${1}'."
           if [ -z "${denv_env_var_set}" ]; then
             denv_env_var_set="${1}"
           else
@@ -665,6 +680,7 @@ _denv_config_env() {
               "If you wish to only copy specific variables, disable copy-all first with 'denv config env all off'."
             return 1
           fi
+          _denv_info "Copying host environment variable in denv '${1}'."
           if [ -z "${denv_env_var_copy}" ]; then
             denv_env_var_copy="${1}"
           else
@@ -675,6 +691,7 @@ _denv_config_env() {
       done
       ;;
     reset)
+      _denv_info "Copying all copyable host environment variables and clearing previous variable lists."
       denv_env_var_copy_all="true"
       denv_env_var_copy=""
       denv_env_var_set=""
