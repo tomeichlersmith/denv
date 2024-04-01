@@ -4,6 +4,7 @@ setup() {
   load "test_helper/denv"
   common_setup
 
+  go_to_tmp_work
 }
 
 teardown() {
@@ -11,7 +12,6 @@ teardown() {
 }
 
 @test "run minimal denv shebang requiring readable workspace" {
-  go_to_tmp_work
   mkdir workspace runspace
   denv init ubuntu:22.04 workspace/
   
