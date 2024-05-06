@@ -257,8 +257,8 @@ _denv_run() {
       # apptainer/singularity do not pull automatically when attempting to run
       _denv_config_checked_pull DO_NOT_PROMPT_USER
       mounts="$(_denv_mounts_to_args "--bind")"
-      if [ -z "${denv_workspace+x}" ]; then
-        # in a workspace-less shebang running mode,
+      if [ -z "${denv_image_cache+x}" ]; then
+        # in a workspace-less shebang running mode, denv_image_cache is unset
         # we assume the user has defined denv_image to be the full path to the image
         # and rely on the runner to have a helpful error message about how the image
         # is not found
