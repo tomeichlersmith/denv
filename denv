@@ -1138,11 +1138,14 @@ _denv_shebang() {
   script_dir="$(dirname "${1}")"
   script_dir="$(cd "${script_dir}" && pwd -P)"
   script_fullpath="${script_dir}/$(basename "${1}")"
+
+  # script is now stored, go to rest of arguments
+  shift
  
   # make sure file we are running is accessible in the denv
   denv_mounts="${script_fullpath} ${denv_mounts}"
   # run the file in the denv
-  _denv_run "${program_line}" "${script_fullpath}"
+  _denv_run "${program_line}" "${script_fullpath}" "$@"
 }
 
 # root program denv

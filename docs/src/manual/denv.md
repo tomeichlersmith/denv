@@ -66,23 +66,6 @@ can share between users and so it is excluded from the default `.gitignore` gene
 `.denv`. All other files within `.denv` are internal to denv and can only be modified at
 your own risk.
 
-## "Remote" Running
-
-While most of users will interact with denv from within denv's workspace, sometimes users
-wish to run a command from outside of the workspace. In this case, the default deduction
-of the workspace can fail; nevertheless, users can still achieve this goal by providing
-the path themselves. Below, we enter an interactive shell within the denv located at
-*`/full/path/to/workspace`* without having to enter that directory.
-
-    denv_workspace=/full/path/to/workspace denv
-
-Astute shell users may notice that we are simply defining an environment variable for denv,
-which is correct; however, users should avoid persisting this definition anywhere since it
-would effectively prevent you from having more than one denv on the same host machine.
-The other configuration variables do not have this problem since we find and source the
-config file on each run of denv, therefore overwriting any environment variables that may
-already be defined.
-
 # SEE ALSO
 
 **denv-init(1)**, **denv-config(1)**, **denv-check(1)**
@@ -114,9 +97,10 @@ to modify its behavior in an advanced way without having to provide many command
 # SCRIPTING
 
 denv has a shebang subcommand that can be used to construct a script to be run by a certain
-program within a constructed denv. It begins with a normal Unix shebang. env is used to avoid
-having to type the full path to denv and -S is used so the whitespace between denv and shebang
-is respected (i.e. split).
+program within a constructed denv. denv's shebang consists of several lines all beginning
+with the shebang signal characters `#!`. It begins with a normal Unix shebang. `/usr/bin/env` 
+is used to avoid having to type the full path to denv and `-S` is used so the whitespace between 
+`denv` and `shebang` is respected (i.e. split).
 
     #!/usr/bin/env -S denv shebang
 
@@ -140,12 +124,14 @@ Other denv configuration options can be specified in this running mode as well.
 The easiest way to see the options is to inspect the output of `denv config print`
 which will contain the options not related to environment variables. A full listing
 of available options is given by any `config` file written by denv into a `.denv` directory
-for a workspace.
+for a workspace. When running from a workspace (i.e. when providing `denv_workspace` within
+the shebang lines), the other options are *ignored* in favor of reading them from the
+workspace configuration.
 
-The last line of the shebang lines (lines starting with `#!`) is then the program that
-will be run with the input file as its only argument. This program is run within the
-denv so it does not need to reside on the host system. The path does not need to even
-be a full path like with the normal unix shebang. The following examples hope to give
+The last line of the shebang lines is then the program that will be run with the file 
+and the rest of the command line. This program is run within the denv so it does not 
+need to reside on the host system. The path does not need to even be a full path like 
+with the normal unix shebang. The following examples hope to give
 some more context for how to get started with denv's shebang.
 
 ### Workspace Example
