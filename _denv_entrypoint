@@ -68,7 +68,7 @@ if [ -z "${DENV_RUNNER+x}" ] || [ -z "${DENV_IMAGE+x}" ] || [ -z "${DENV_NAME+x}
   exit 1
 fi
 
-if [ ! -f "${HOME}/.denv/skel-init" ]; then
+if [ -d "${HOME}/.denv" ] && [ ! -f "${HOME}/.denv/skel-init" ]; then
   # If we do not have profile files in the home, we should copy the
   # skeleton files, if present.
   # Ensure we copy only if the dotfile is not already present.
