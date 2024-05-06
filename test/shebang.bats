@@ -26,6 +26,23 @@ teardown() {
   chmod +x runspace/minimal
   run ./runspace/minimal
   assert_success
+  assert_output --partial '22.04'
+}
+
+@test "pass arguments to the script" {
+  mkdir workspace runspace
+  denv init ubuntu:22.04 workspace/
+  {
+    echo "#!/usr/bin/env -S denv shebang";
+    echo "#!denv_workspace=${PWD}/workspace";
+    echo "#!/bin/bash";
+    echo "echo \$\@"
+  } > runspace/minimal
+
+  chmod +x runspace/minimal
+  run ./runspace/minimal hello world
+  echo 'hello world' | assert_container_output
+  assert_success
 }
 
 @test "shebang with neither requirements met errors out" {
