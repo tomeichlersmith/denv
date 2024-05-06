@@ -230,8 +230,10 @@ _denv_run() {
       # need to mount PWD just in case we are running outside of a mounted directory
       denv_mounts="${denv_mounts} /etc/passwd /etc/group $(pwd -P)"
       mounts="$(_denv_mounts_to_args "--volume")"
-      # need to mount workspace manually for docker/podman
-      mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
+      if [ "${denv_workspace}" != "$(pwd -P)" ]; then
+        # need to mount workspace manually for docker/podman
+        mounts="${mounts} --volume ${denv_workspace}:${denv_workspace}"
+      fi
       environment="$(_denv_environment_to_args --env)"
       userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
       if [ "${denv_runner}" = "podman" ]; then
