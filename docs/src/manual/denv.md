@@ -110,6 +110,66 @@ to modify its behavior in an advanced way without having to provide many command
   **DENV_TAB_COMMANDS** a space-separated list of commands to include in tab-completions of denv.
   This is helpful if there are a set of common commands you use within the denv.
 
+
+# SCRIPTING
+
+denv has a shebang subcommand that can be used to construct a script to be run by a certain
+program within a constructed denv. It begins with a normal Unix shebang. env is used to avoid
+having to type the full path to denv and -S is used so the whitespace between denv and shebang
+is respected (i.e. split).
+
+    #!/usr/bin/env -S denv shebang
+
+The following lines of the script file can then contain the configuration of the denv.
+This can be done in two ways. If you already have a denv workspace that you want to run
+inside of, you can just specify that
+
+    #!denv_workspace=/full/path/to/workspace
+
+If you don't have a workspace, then you will need to define the configuration of the denv.
+At minimum, you must inform denv which image it should be running.
+
+    #!denv_image=python:3
+
+For singularity or apptainer runners, you need to pre-build this image since,
+without a workspace, denv doesn't know where it should put the intermediary image file.
+
+    #!denv_image=/full/path/to/image.sif
+
+Other denv configuration options can be specified in this running mode as well.
+The easiest way to see the options is to inspect the output of `denv config print`
+which will contain the options not related to environment variables. A full listing
+of available options is given by any `config` file written by denv into a `.denv` directory
+for a workspace.
+
+The last line of the shebang lines (lines starting with `#!`) is then the program that
+will be run with the input file as its only argument. This program is run within the
+denv so it does not need to reside on the host system. The path does not need to even
+be a full path like with the normal unix shebang. The following examples hope to give
+some more context for how to get started with denv's shebang.
+
+### Workspace Example
+
+    #!/usr/bin/env -S denv shebang
+    #!denv_workspace=/full/path/to/workspace
+    #!program
+    script for program
+
+### Workspace-Less Example (singularity or apptainer)
+
+    #!/usr/bin/env -S denv shebang
+    #!denv_image=/full/path/to/image.sif
+    #!program
+    script for program
+
+### Workspace-Less Example (other runners)
+
+    #!/usr/bin/env -S denv shebang
+    #!denv_image=owner/repo:tag
+    #!program
+    script for program
+
+
 # RUNNER DEDUCTION
 
 denv does not persist what runner is being used inside of its configuration for a specific workspace.
