@@ -257,7 +257,17 @@ _denv_run() {
       # apptainer/singularity do not pull automatically when attempting to run
       _denv_config_checked_pull DO_NOT_PROMPT_USER
       mounts="$(_denv_mounts_to_args "--bind")"
-      sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      if [ -z "${denv_workspace+x}" ]; then
+        # in a workspace-less shebang running mode,
+        # we assume the user has defined denv_image to be the full path to the image
+        # and rely on the runner to have a helpful error message about how the image
+        # is not found
+        sif_file="${denv_image}"
+      else
+        # in a workspace, we convert an image name to a filename that can
+        # reside in our local cache of image files
+        sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
+      fi
       environment="$(_denv_environment_to_args "--env")"
       network=""
       [ "${denv_network}" = "false" ] && network="--net --network none"
@@ -336,26 +346,10 @@ _denv_deduce_workspace() {
   return 1
 }
 
-_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
-
-# load the denv config from the input workspace
+# deduce the runner we are going to run with
 # Arguments
-#  ${denv_workspace} env var
-# Outputs
-#  loaded config into runtime shell environment
-_denv_load_config() {
-  # deduce workspace if it isn't already defined
-  if [ -z "${denv_workspace+x}" ]; then
-    if ! _denv_deduce_workspace; then
-      _denv_error "Unable to deduce a denv workspace!" \
-      "Are you in a denv workspace? Do you still need to 'denv init'?"
-      return 1
-    fi
-  fi
-  # I am choosing to allow sourcing unknown code
-  # shellcheck disable=SC1091
-  . "${denv_workspace}/.denv/config"
-  denv_image_cache="${denv_workspace}/.denv/images"
+#   DENV_RUNNER environment variable
+_denv_deduce_runner() {
   # make sure to update _denv_check and docs/src/manual/denv.md if the order of this elif tree is changed
   if [ -n "${DENV_RUNNER+x}" ]; then
     denv_runner="${DENV_RUNNER}"
@@ -378,8 +372,18 @@ _denv_load_config() {
     denv_runner="norunner"
   fi
   _denv_info "using ${denv_runner} as runner"
+}
 
-  # deduce environment variables from configuration
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
+
+# deduce the environment we should put into the denv
+# Arguments
+#   parameters related to environment variables in a workspace config
+#   denv_env_var_copy_all denv_env_var_copy, denv_env_var_set
+#   denv_runner for HOME deduction
+# Outputs
+#   denv_environment environment variable
+_denv_deduce_environment() {
   # copy-able environment variables, code copied from distrobox
   copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
@@ -417,6 +421,28 @@ _denv_load_config() {
   # disabling double-quote warning so that we can re-split the space-separated list
   # shellcheck disable=SC2086
   denv_environment="$(env -i ${denv_environment})"
+}
+
+# load the denv config from the input workspace
+# Arguments
+#  ${denv_workspace} env var
+# Outputs
+#  loaded config into runtime shell environment
+_denv_load_config() {
+  # deduce workspace if it isn't already defined
+  if [ -z "${denv_workspace+x}" ]; then
+    if ! _denv_deduce_workspace; then
+      _denv_error "Unable to deduce a denv workspace!" \
+      "Are you in a denv workspace? Do you still need to 'denv init'?"
+      return 1
+    fi
+  fi
+  # I am choosing to allow sourcing unknown code
+  # shellcheck disable=SC1091
+  . "${denv_workspace}/.denv/config"
+  denv_image_cache="${denv_workspace}/.denv/images"
+  _denv_deduce_runner
+  _denv_deduce_environment
 }
 
 # write the current config to the file
@@ -1044,14 +1070,15 @@ _denv_shebang() {
   # scan first 10 lines of the file
   # (10 = 8 config variables, 1 workspace variable, 1 original shebang)
   while read -r line && [ "${lines}" -ne 10 ]; do
+    lines=$((lines + 1))
     unset shebang_line
-    if [ "${line#\#!}" != "$line" ]; then
+    if [ "${line#\#!}" != "${line}" ]; then
       shebang_line="${line#\#!}"
-    elif [ "${line#//!}" != "$line" ]; then      # // comments
+    elif [ "${line#//!}" != "${line}" ]; then      # // comments
       shebang_line="${line#//!}"
-    elif [ "${line#--!}" != "$line" ]; then      # -- lua comments
+    elif [ "${line#--!}" != "${line}" ]; then      # -- lua comments
       shebang_line="${line#--!}"
-    elif [ "${line#<?php\ }" != "$line" ]; then  # php comments
+    elif [ "${line#<?php\ }" != "${line}" ]; then  # php comments
       shebang_line="${line#<?php\ \#!}"
       shebang_line="${shebang_line%\ ?>}"
     fi
@@ -1077,8 +1104,38 @@ _denv_shebang() {
     program_line="${shebang_line}"
   done < "$1"
 
-  _denv_load_config
-  _denv_run ${program_line} ${1}
+  if [ -n "${denv_workspace+x}" ]; then
+    # prefer denv_workspace, if its defined load the config from that area
+    # NOTE: This will overwrite any variables given in the shebang with the ones in
+    # the workspace config
+    _denv_load_config
+  elif [ -n "${denv_image+x}" ]; then
+    # no denv_workspace but an image is defined
+    # in order to support a workspace-less running mode,
+    # we prepare default values for all unset config parameters
+    denv_workspace="$(pwd -P)"
+    [ -n "${denv_name+x}" ] || denv_name="workspaceless"
+    [ -n "${denv_shell+x}" ] || denv_shell="/bin/bash -i"
+    [ -n "${denv_mounts+x}" ] || denv_mounts=""
+    [ -n "${denv_network+x}" ] || denv_network="true"
+    [ -n "${denv_env_var_copy_all+x}" ] || denv_env_var_copy_all="true"
+    [ -n "${denv_env_var_copy+x}" ] || denv_env_var_copy=""
+    [ -n "${denv_env_var_set+x}" ] || denv_env_var_set=""
+    _denv_deduce_runner
+    _denv_deduce_environment
+  else
+    _denv_error "Either denv_workspace or denv_image are required within a denv shebang."
+    exit 1
+  fi
+
+  script_dir="$(dirname "${1}")"
+  script_dir="$(cd "${script_dir}" && pwd -P)"
+  script_fullpath="${script_dir}/$(basename "${1}")"
+ 
+  # make sure file we are running is accessible in the denv
+  denv_mounts="${script_fullpath} ${denv_mounts}"
+  # run the file in the denv
+  _denv_run "${program_line}" "${script_fullpath}"
 }
 
 # root program denv
