@@ -143,9 +143,14 @@ _denv_image_exists() {
       return $?
       ;;
     apptainer|singularity)
-      [ -d "${denv_image_cache}" ] || return 1;
-      test -e "${denv_image_cache}/$(_denv_image_to_filename).sif"
-      return $?
+      if [ -z "${denv_image_cache+x}" ]; then
+        test -e "${denv_image}"
+        return $?
+      else
+        [ -d "${denv_image_cache}" ] || return 1;
+        test -e "${denv_image_cache}/$(_denv_image_to_filename).sif"
+        return $?
+      fi
       ;;
     norunner)
       [ -d "${denv_image_cache}" ] || return 1;
