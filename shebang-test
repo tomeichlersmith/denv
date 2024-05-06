@@ -1,5 +1,0 @@
-#!/home/tom/code/denv/denv shebang
-#!denv_workspace=/home/tom/code/denv/test/shebang
-#!python
-
-print('hello world')
