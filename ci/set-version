@@ -9,6 +9,8 @@ set -o errexit
 update() {
   # manual source markdown
   sed -i "s|denv v.*$|denv v${1}|" docs/src/manual/denv.md
+  # manual result toff
+  sed -i "s|denv v.*$|denv v${1}|" man/man1/denv.1
   # install script
   sed -i "s|^version=v.*$|version=v${1}|" install
   # denv itself
