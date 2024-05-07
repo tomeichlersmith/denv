@@ -111,7 +111,7 @@ fi
 for runner in ${runners}; do
   _denv_info "Testing denv with '${runner}'"
   if [ "${runner}" = "norunner" ]; then
-    DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter "norunner" test/
+    DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter-tags "norunner" test/
   else
     DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
   fi
