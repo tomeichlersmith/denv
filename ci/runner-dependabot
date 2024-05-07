@@ -45,7 +45,7 @@ list() {
 #  2 : version of that runner
 #  3 : provide to actually apply edit, otherwise just print lines that would change
 # Output:
-#  Edits the .github/workflows/test.yml in place if 3 args provided,
+#  Edits the ci/runners-to-test.json in place if 3 args provided,
 #  otherwise just prints lines that would be edited to stdout
 update() {
   jq \
@@ -73,7 +73,7 @@ help() {
 
  OPTIONS
   -h, --help : print this help and exit
-  --apply    : actually edit the test workflow yaml instead of
+  --apply    : actually edit the ci/runners-to-test.json instead of
                just printing the lines that have been changed
 
 HELP
