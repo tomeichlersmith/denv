@@ -20,6 +20,14 @@ teardown() {
 
 @test "file created inside denv has id match" {
   run denv touch file-from-denv
-  assert_equal "$(stat -c %u file-from-denv)" "$(id -u ${USER})"
-  assert_equal "$(stat -c %g file-from-denv)" "$(id -g ${USER})"
+  # `-c` is the short for --format for GNU coreutils
+  # `-f` is the equivalent for BSD
+  # we can detect which stat we are using by testing
+  # for the GNU flag
+  format_flag="-c"
+  if ! stat ${format_flag} > /dev/null 2>&1; then
+    format_flag="-f"
+  fi
+  assert_equal "$(stat ${format_flag} %u file-from-denv)" "$(id -u ${USER})"
+  assert_equal "$(stat ${format_flag} %g file-from-denv)" "$(id -g ${USER})"
 }
