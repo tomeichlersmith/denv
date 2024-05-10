@@ -6,7 +6,7 @@ setup_file() {
   
   go_to_tmp_work
   denv init python
-  cp -t . ${OLDPWD}/test/internet-access.py
+  cp ${OLDPWD}/test/internet-access.py .
 }
 
 setup() {
