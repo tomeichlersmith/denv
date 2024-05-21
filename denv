@@ -381,7 +381,12 @@ _denv_deduce_runner() {
   _denv_info "using ${denv_runner} as runner"
 }
 
-_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|PATH|SHELL|XDG_.*_DIRS|^_)"
+# ^ means at beginning of the line being tested
+# () groups all of those tests together
+# | means OR so (one|two) means match one or two
+# combining this means we are matching against env var prefixes listed
+# in the parentheses separated by |
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|.*PATH|SHELL|XDG_.*_DIRS|_)"
 
 # deduce the environment we should put into the denv
 # Arguments
@@ -395,7 +400,7 @@ _denv_deduce_environment() {
   # disable xtrace here to avoid polluting debug printout
   set +o xtrace
   # copy-able environment variables, code copied from distrobox
-  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}")"
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}=")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
