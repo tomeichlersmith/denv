@@ -72,6 +72,11 @@ __denv() {
         COMPREPLY=()
         ;;
     esac
+  else
+    # re-enable default tab-completion for everything else
+    # many workflows require passing file paths and so the default is helpful
+    compopt -o default
+    COMPREPLY=()
   fi
 }
 
