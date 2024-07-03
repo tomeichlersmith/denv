@@ -85,7 +85,5 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Test
-        run: lima ./ci/test docker
-        env:
-          TMPDIR: /tmp/lima
+        run: lima TMPDIR=/tmp/lima ./ci/test docker
 
