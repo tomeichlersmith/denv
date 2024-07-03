@@ -66,4 +66,7 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Test
-        run: ./ci/test docker
+        run: |
+          limactl list
+          limactl info
+          ./ci/test docker
