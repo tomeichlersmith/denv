@@ -77,9 +77,13 @@ jobs:
           LIMA_VERSION: v0.22.0
       - name: Start Lima
         run: |
+          CPU_COUNT=$(sysctl -n hw.ncpu)
+          MEMORY=$(sysctl hw.memsize | awk '{print $2/1024/1024/1024}')
           limactl start \
             --name=default \
             --mount-writable \
+            --cpus ${CPU_COUNT} \
+            --memory ${MEMORY} \
             template://docker
       - uses: actions/checkout@v4
         with:
