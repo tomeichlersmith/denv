@@ -18,6 +18,7 @@ teardown() {
   assert_container_output "$(whoami)"
 }
 
+# bats test_tags=macos
 @test "file created inside denv has id match" {
   run denv touch file-from-denv
   # `-c` is the short for --format for GNU coreutils

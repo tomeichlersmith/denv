@@ -110,9 +110,15 @@ fi
 
 for runner in ${runners}; do
   _denv_info "Testing denv with '${runner}'"
+  filter=""
   if [ "${runner}" = "norunner" ]; then
-    DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter-tags "norunner" test/
-  else
-    DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
+    filter="--filter-tags norunner"
   fi
+
+  if [ "$(uname)" = "Darwin" ]; then
+    filter="--filter-tags macos"
+  fi
+
+  # shellcheck disable=SC2086
+  DENV_RUNNER="${runner}" ./test/bats/bin/bats test/ ${filter}
 done
