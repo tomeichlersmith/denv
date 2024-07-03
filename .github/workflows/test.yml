@@ -64,17 +64,11 @@ jobs:
     steps:
       - name: Install Lima
         run: |
-          if [ $INPUT_LIMA == "latest" ]; then
-            LIMA_VERSION=$(gh release -R lima-vm/lima view --json tagName -q ".tagName")
-          else
-            LIMA_VERSION=$INPUT_LIMA
-          fi
-
           echo "::group::Installing Lima version $LIMA_VERSION"
           curl -fsSL "https://github.com/lima-vm/lima/releases/download/${LIMA_VERSION}/lima-${LIMA_VERSION:1}-$(uname -s)-$(uname -m).tar.gz" | tar Cxzvm /usr/local
           echo "::endgroup::"
         env:
-          INPUT_LIMA: latest
+          LIMA_VERSION: v0.22.0
       - name: Start Lima
         run: |
           limactl start \
