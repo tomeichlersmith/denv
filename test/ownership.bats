@@ -25,7 +25,7 @@ teardown() {
   # `-f` is the equivalent for BSD
   # we can detect which stat we are using by testing
   # for the GNU flag
-  if ! stat -c "%u:%g" file-from-denv > file-from-denv-ownership; then
+  if ! stat -c "%u:%g" file-from-denv > file-from-denv-ownership 2>/dev/null; then
     stat -f "%u:%g" file-from-denv > file-from-denv-ownership
   fi
   correct="$(id -u ${USER}):$(id -g ${USER})"
