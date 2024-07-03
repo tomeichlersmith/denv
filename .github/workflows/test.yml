@@ -66,7 +66,7 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Test
-        run: |
-          limactl list
-          limactl info
-          ./ci/test docker
+        run: ./ci/test docker
+        env:
+          TMPDIR=/tmp/lima
+
