@@ -64,6 +64,12 @@ jobs:
     steps:
       - name: Install Lima
         run: |
+          echo "::group::Updating homebrew"
+          brew update --preinstall
+          echo "::endgroup::"
+          echo "::group::Installing qemu"
+          brew install qemu
+          echo "::endgroup::"
           echo "::group::Installing Lima version $LIMA_VERSION"
           curl -fsSL "https://github.com/lima-vm/lima/releases/download/${LIMA_VERSION}/lima-${LIMA_VERSION:1}-$(uname -s)-$(uname -m).tar.gz" | tar Cxzvm /usr/local
           echo "::endgroup::"
