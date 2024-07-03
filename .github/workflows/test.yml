@@ -62,12 +62,30 @@ jobs:
     name: Test on MacOS
     runs-on: macos-13
     steps:
-      - uses: douglascamata/setup-docker-macos-action@v1-alpha
+      - name: Install Lima
+        run: |
+          if [ $INPUT_LIMA == "latest" ]; then
+            LIMA_VERSION=$(gh release -R lima-vm/lima view --json tagName -q ".tagName")
+          else
+            LIMA_VERSION=$INPUT_LIMA
+          fi
+
+          echo "::group::Installing Lima version $LIMA_VERSION"
+          curl -fsSL "https://github.com/lima-vm/lima/releases/download/${LIMA_VERSION}/lima-${LIMA_VERSION:1}-$(uname -s)-$(uname -m).tar.gz" | tar Cxzvm /usr/local
+          echo "::endgroup::"
+        env:
+          INPUT_LIMA: latest
+      - name: Start Lima
+        run: |
+          limactl start \
+            --name=default \
+            --mount-writable \
+            template://docker
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
       - name: Test
-        run: ./ci/test docker
+        run: lima ./ci/test docker
         env:
           TMPDIR: /tmp/lima
 
