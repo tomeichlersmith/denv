@@ -59,7 +59,7 @@ jobs:
 
   test-macos:
     name: Test on MacOS
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: douglascamata/setup-docker-macos-action@v1-alpha
       - uses: actions/checkout@v4
