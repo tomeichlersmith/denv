@@ -4,6 +4,7 @@ name: ShellCheck and Test
 on:
   push:
     paths:
+      - '.github/workflows/test.yml'
       - 'denv'
       - '_denv_entrypoint'
       - 'install'
@@ -68,5 +69,5 @@ jobs:
       - name: Test
         run: ./ci/test docker
         env:
-          TMPDIR=/tmp/lima
+          TMPDIR: /tmp/lima
 
