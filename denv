@@ -386,7 +386,7 @@ _denv_deduce_runner() {
 # | means OR so (one|two) means match one or two
 # combining this means we are matching against env var prefixes listed
 # in the parentheses separated by |
-_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|.*PATH|SHELL|XDG_.*_DIRS|_)"
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|.*PATH|SHELL|XDG_.*_DIRS|_|DISPLAY)"
 
 # deduce the environment we should put into the denv
 # Arguments
@@ -412,6 +412,10 @@ _denv_deduce_environment() {
   denv_environment="${denv_environment} ${denv_env_var_set}"
 
   # always add necessary environment variables
+  # - DENV_XXX variables for passing information to entrypoint
+  # - DISPLAY for connecting X11 GUIs launched from within container to host
+  # - HOME for mapping home directory in denv to workspace
+  denv_environment="${denv_environment} DISPLAY=${DISPLAY:+:0}"
   denv_environment="${denv_environment} DENV_NAME=${denv_name}"
   denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
   denv_environment="${denv_environment} DENV_IMAGE=${denv_image}"
