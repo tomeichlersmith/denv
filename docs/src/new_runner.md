@@ -81,18 +81,13 @@ the host and denv environments.
 
 ### Make sure GUI Programs can be launched
 There is a small image that can be used to test whether GUI programs can be
-run from within a denv. Both launching from a in-denv shell and launching
-it directly from outside the denv should work properly.
-```
-mkdir gui-test
-denv init fr3nd/xeyes
-# from a in-denv shell
-denv
-xeyes
-exit
-# from a non-interactive shell
-denv xeyes
-```
+run from within a denv. Launching from a in-denv shell, launching
+it directly from outside the denv, and launching without sharing environment
+variables should work properly.
+
+I haven't found a quick and easy way to test this, but look at the
+[test/gui](https://github.com/tomeichlersmith/denv/tree/main/test/gui)
+directory for my notes on how I've tested this in the past.
 
 ### Make sure Network and Ports are Connected
 My main reason for supporting this is to allow me to interact with a
