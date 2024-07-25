@@ -8,15 +8,22 @@ context. Basically, it just installs the xeyes application which will allow
 testers to confirm that the window is shown on screen and the user can
 interact with it.
 
+## Set Up
+Make sure the proof-of-concept image is available, building it if necessary.
 ```
 cd image
 docker build . -t xeyes
 cd ..
 ```
+Test using the source code of denv, both with environment variable sharing
+enabled and disabled since X11 window sharing does utilize some sharing.
+```
+../../denv init xeyes:latest test
+cd test
+```
 
 ```
-denv init xeyes:latest test
-denv xeyes
-denv config env all off
-denv xeyes
+../../../denv xeyes
+../../../denv config env all off
+../../../denv xeyes
 ```
