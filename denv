@@ -386,7 +386,7 @@ _denv_deduce_runner() {
 # | means OR so (one|two) means match one or two
 # combining this means we are matching against env var prefixes listed
 # in the parentheses separated by |
-_denv_bad_env_var_name_regex="^(DENV|HOST|HOSTNAME|HOME|LANG|LC_CTYPE|.*PATH|SHELL|XDG_.*_DIRS|_|DISPLAY|X)"
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOME|LANG|LC_CTYPE|.*PATH|SHELL|_|DISPLAY|X)"
 
 # deduce the environment we should put into the denv
 # Arguments
