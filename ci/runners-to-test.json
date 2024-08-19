@@ -23,6 +23,10 @@
     },
     {
       "runner": "sylabs",
+      "version": "4.0.3"
+    },
+    {
+      "runner": "sylabs",
       "version": "4.1.5",
       "track": "sylabs/singularity"
     }
