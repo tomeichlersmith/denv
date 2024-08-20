@@ -414,8 +414,17 @@ _denv_deduce_environment() {
   # always add necessary environment variables
   # - DENV_XXX variables for passing information to entrypoint
   # - DISPLAY for connecting X11 GUIs launched from within container to host
+  #   - This needs special consideration for MacOS hosts, we need
+  #     to pass a special value to inform the intermediary VM to connect graphics
   # - HOME for mapping home directory in denv to workspace
-  denv_environment="${denv_environment} DISPLAY=${DISPLAY:+:0}"
+  _display="${DISPLAY:+:0}"
+  if [ "${OSTYPE}" = "darwin"* ] && [ "${denv_runner}" = "docker" ]; then
+    # use the special value for docker to signal that we are attempting
+    # to connect to a host service from within the container
+    # https://docs.docker.com/desktop/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host
+    _display="host.docker.internal:0"
+  fi
+  denv_environment="${denv_environment} DISPLAY=${_display}"
   denv_environment="${denv_environment} DENV_NAME=${denv_name}"
   denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
   denv_environment="${denv_environment} DENV_IMAGE=${denv_image}"
