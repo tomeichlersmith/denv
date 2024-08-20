@@ -418,10 +418,12 @@ _denv_deduce_environment() {
   #     to pass a special value to inform the intermediary VM to connect graphics
   # - HOME for mapping home directory in denv to workspace
   _display="${DISPLAY:+:0}"
-  if [ "${OSTYPE}" = "darwin"* ] && [ "${denv_runner}" = "docker" ]; then
+  if [ "$(uname)" = "Darwin" ] && [ "${denv_runner}" = "docker" ]; then
     # use the special value for docker to signal that we are attempting
     # to connect to a host service from within the container
     # https://docs.docker.com/desktop/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host
+    # MacOS users are required to install XQuartz and
+    # specify localhost as an allowed source
     _display="host.docker.internal:0"
   fi
   denv_environment="${denv_environment} DISPLAY=${_display}"
