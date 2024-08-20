@@ -1,0 +1,26 @@
+#!/usr/bin/sh
+#   check if we can open xeyes and view it from denv
+#   only run this with docker machines right now
+
+set -o nounset
+set -o errexit
+
+if ! command -v docker > /dev/null 2>&1; then
+  printf "docker not available. Not running test."
+  exit 1
+fi
+
+_run_gui_test_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+_denv_dir="$(cd -- "${_run_gui_test_dir}/../../" && pwd)"
+_denv="${_denv_dir}/denv"
+_test_image_name="denv-gui-test-image"
+
+cd "${_run_gui_test_dir}/image"
+docker build . -t "${_test_image_name}"
+
+test_d=$(mktemp --directory)
+cd "${test_d}"
+"${_denv}" init --clean-env "${_test_image_name}:latest"
+"${_denv}" xeyes
+cd
+rm -r "${test_d}"
