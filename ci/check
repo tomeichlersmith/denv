@@ -1,8 +1,7 @@
 #!/bin/sh
-shellcheck \
-  --color=always \
-  denv _denv_entrypoint \
-  install uninstall \
-  ci/test ci/check ci/set-version \
-  ci/install-singularity-flavor \
-  ci/runner-dependabot
+
+fl="$(mktemp)"
+git ls-tree -r HEAD | awk '{ if ($1 == 100755 || $4 ~ /\.sh$/) print $4 }' > "${fl}"
+# shellcheck disable=SC2046
+shellcheck --color=always $(cat "${fl}")
+rm "${fl}"
