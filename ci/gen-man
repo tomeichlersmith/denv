@@ -18,8 +18,8 @@ _translate() {
     --metadata header="User Manual" \
     --metadata footer="denv" \
   	--metadata date="$(date +"%b %Y")" \
-    --to man docs/src/manual/${man_page}.md \
-    -o man/man1/${man_page}.1
+    --to man "docs/src/manual/${man_page}.md" \
+    -o "man/man1/${man_page}.1"
 }
 
 for page in denv denv-init denv-config denv-check
