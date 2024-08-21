@@ -18,6 +18,23 @@ inf() {
   printf "\033[1mINFO: \033[0m%s\n" "$*"
 }
 
+install_from_deb() {
+  # go to temp dir
+  tmp_dir="$(mktemp -d)"
+  cd "${tmp_dir}"
+  wget \
+    --no-verbose \
+    -O package.deb \
+    "${1}"
+  inf "Downloaded deb build"
+  sudo apt-get install ./package.deb
+  inf "Installed with apt-get install"
+  cd
+  if [ -n "${tmp_dir}" ] && [ -e "${tmp_dir}" ]; then
+    rm -rf "${tmp_dir}"
+  fi
+}
+
 # install one of the two available original recipe singularity
 # ARGS
 #  1 - version, must be 3.8.6 or 3.8.7
@@ -26,58 +43,24 @@ singularity() {
     error "Unsupported version number '${1}' for original recipe singularity."
     exit 1
   fi
-  # go to temp dir
-  tmp_dir="$(mktemp -d)"
-  cd "${tmp_dir}"
-  wget \
-    --no-verbose \
-    -O singularity.deb \
+  install_from_deb \
     "https://github.com/apptainer/singularity/releases/download/v${1}/singularity-container_${1}_amd64.deb"
-  inf "Downloaded deb build"
-  sudo apt-get install ./singularity.deb
-  inf "Installed with apt-get install"
-  cd
-  if [ -n "${tmp_dir}" ] && [ -e "${tmp_dir}" ]; then
-    rm -rf "${tmp_dir}"
-  fi
 }
 
 # install one of the versions of apptainer
 # ARGS
 #  1 - version string without preceding v
 apptainer() {
-  tmp_dir="$(mktemp -d)"
-  cd "${tmp_dir}"
-  wget \
-    --no-verbose \
-    -O apptainer.deb \
+  install_from_deb \
     "https://github.com/apptainer/apptainer/releases/download/v${1}/apptainer_${1}_amd64.deb"
-  inf "Downloaded deb build"
-  sudo apt-get install ./apptainer.deb
-  inf "Installed with apt-get install"
-  cd
-  if [ -n "${tmp_dir}" ] && [ -e "${tmp_dir}" ]; then
-    rm -rf "${tmp_dir}"
-  fi
 }
 
 # install one of the versions of sylabs
 # ARGS
 #  1 - version string without preceding v
 sylabs() {
-  tmp_dir="$(mktemp -d)"
-  cd "${tmp_dir}"
-  wget \
-    --no-verbose \
-    -O sylabs.deb \
+  install_from_deb \
     "https://github.com/sylabs/singularity/releases/download/v${1}/singularity-ce_${1}-jammy_amd64.deb"
-  inf "Downloaded deb build"
-  sudo apt-get install ./sylabs.deb
-  inf "Installed with apt-get install"
-  cd
-  if [ -n "${tmp_dir}" ] && [ -e "${tmp_dir}" ]; then
-    rm -rf "${tmp_dir}"
-  fi
 }
 
 help() {
