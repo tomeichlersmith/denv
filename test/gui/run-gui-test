@@ -1,48 +1,22 @@
 #!/usr/bin/sh
 
-#   check if we can open xeyes and view it from denv
-#   only run this with docker machines right now
-
-docker_check() {
-  if ! command -v docker > /dev/null 2>&1; then
-    printf "docker not available. Not running test."
-    return 1
-  fi
-  return 0
-}
-
-build_test_image() {
-  cd "${1}" || return 1
-  docker build . -t "${2}"
-}
-
-run_gui_test() {
-  cd "${1}" || return 1
-  "${2}" init --clean-env "${3}:latest" || return 2
-  "${2}" xeyes || return 3
-  cd || return 4
-  rm -r "${1}"
-}
-
+# check if we can open xeyes and view it from denv
+#   using test gui image on GitHub Container Registry
+#   we built which definitely has xeyes in it
 main() {
   _run_gui_test_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
   _denv_dir="$(cd -- "${_run_gui_test_dir}/../../" && pwd)"
   _denv="${_denv_dir}/denv"
-  _test_image_name="denv-gui-test-image"
+  _test_image="ghcr.io/tomeichlersmith/denv-test-gui-image:latest"
 
-  docker_check || return $?
-  
-  build_test_image \
-    "${_run_gui_test_dir}/image" \
-    "${_test_image_name}" || return $?
-  
   # need to accomodate mktemp on either GNU (left) or BSD (right)
   test_d=$(mktemp -d 2> /dev/null || mktemp -d -t 'denv-test-gui-tmpdir')
   
-  run_gui_test \
-    "${test_d}" \
-    "${_test_image_name}" \
-    "${_denv}"
+  cd "${test_d}" || return 1
+  "${_denv}" init --clean-env "${_test_image}" || return 2
+  "${_denv}" xeyes || return 3
+  cd || return 4
+  rm -rf "${test_d}"
 }
 
 main
