@@ -91,6 +91,20 @@ graphical interface running outside of WSL (Docker Desktop).
 I have not had a computer to test and learn with it myself. If you have a technical correction to this
 section, please feel free to open an Issue or PR.
 
+#### Graphical Applications
+`denv` ensures that the X11 apps spawned from within the container can connect with the host
+by passing the `DISPLAY` environment variable and mounting the `/tmp/.X11-unix` directory.
+For Linux-hosts and WSL, this is enough[^6]; however, on MacOS additional setup is required.
+
+If you don't plan to use a graphical application from within the a denv (or if you are just
+using a network-based application like Jupyter Lab), then there is no need to do this
+additional setup on MacOS. [These instructions](https://gist.github.com/roaldnefs/fe9f36b0e8cf2890af14572c083b516c)
+I've found on GitHub are rather short but have worked for many folks.
+
+[^6]: I haven't tested this thoroughly on WSL, but [WSL's Containers page](https://github.com/microsoft/wslg/blob/main/samples/container/Containers.md)
+appears to support this conclusion as well. This page also implies that `denv` could support Wayland
+applications with a few more mounts and environment variables.
+
 ## Installation
 The most recent installation can be obtained by running the install script in the GitHub repository.
 ```shell
