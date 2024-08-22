@@ -932,8 +932,9 @@ _denv_init() {
 # ignore everything in this directory
 *
 # except the config which folks might want to share
-# across many computers
+# across many computers and this ignore file itself
 !config
+!.gitignore
 GITIGNORE
   fi
 
