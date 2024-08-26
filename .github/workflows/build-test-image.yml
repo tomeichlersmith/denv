@@ -45,7 +45,7 @@ jobs:
         tags: latest
     - 
       name: Get Build Context
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     -
       name: Build the Image
       uses: docker/build-push-action@v3
