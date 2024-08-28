@@ -222,6 +222,7 @@ _denv_run() {
   # we will be running now and not writing the config
   # so we can update the denv_mounts list
   [ -d /tmp/.X11-unix ] && denv_mounts="${denv_mounts} /tmp/.X11-unix"
+  [ -f "${XAUTHORITY}" ] && denv_mounts="${denv_mounts} ${XAUTHORITY}"
   denv_mounts="${denv_mounts} ${denv_entrypoint}"
   case "${denv_runner}" in
     docker|podman)
@@ -426,6 +427,7 @@ _denv_deduce_environment() {
     # specify localhost as an allowed source
     _display="host.docker.internal:0"
   fi
+  denv_environment="${denv_environment} XAUTHORITY=${XAUTHORITY}"
   denv_environment="${denv_environment} DISPLAY=${_display}"
   denv_environment="${denv_environment} DENV_NAME=${denv_name}"
   denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
