@@ -1098,6 +1098,20 @@ _denv_check() {
       "(or is not available on this machine)"
     return 3
   fi
+  if [ "$(uname)" = "Darwin" ]; then
+    # check for XQuartz and the xhost configuration
+    gui_incompatible_err=""
+    if ! command -v xhost > /dev/null 2>&1; then
+      gui_incompatible_err="xhost program not found, has XQuartz been installed?"
+    elif xhost | grep -q 'access control enabled'; then
+      gui_incompatible_err="xhost is controlling access, disable it with 'xhost +'."
+    fi
+    if [ "${gui_incompatible_err}" != "" ]; then
+      _denv_error "GUI Interaction on MacOS is not expected to work." \
+        "${gui_incompatible_err}" \
+        "Enabling the GUI Interaction is not necessary but may be desired."
+    fi
+  fi
   if ${workspace}; then
     if [ -z "${denv_workspace+x}" ] && ! _denv_deduce_workspace; then
       _denv_error "Unable to deduce a denv workspace" \
