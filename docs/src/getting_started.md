@@ -72,6 +72,9 @@ within `denv` works fine but making a commit with `git` within it does not.
 The discovery of this limitation and any ongoing work
 is tracked in [denv Issue #102](https://github.com/tomeichlersmith/denv/issues/102).
 
+**Note**: If you wish to use graphical applications from within the denv,
+you will need to install XQuartz[^6] and disable access controll with `xhost +`.
+
 [^2]: [The container is a lie](https://platform.sh/blog/the-container-is-a-lie/) is a nice article going into detail
 about the underpinnings of containers with a bit a click-baity title.Charliecloud's
 [containers are not special](https://hpc.github.io/charliecloud/tutorial.html#containers-are-not-special) 
@@ -90,6 +93,9 @@ graphical interface running outside of WSL (Docker Desktop).
 [^5]: I am not as familiar with the technical underpinnings of how docker or podman on Mac works since
 I have not had a computer to test and learn with it myself. If you have a technical correction to this
 section, please feel free to open an Issue or PR.
+
+[^6]: You can install XQuartz [using brew](https://formulae.brew.sh/cask/xquartz)
+or [using the `.dmg` file](https://www.xquartz.org/).
 
 #### Graphical Applications
 `denv` ensures that the X11 apps spawned from within the container can connect with the host
