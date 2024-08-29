@@ -72,9 +72,6 @@ within `denv` works fine but making a commit with `git` within it does not.
 The discovery of this limitation and any ongoing work
 is tracked in [denv Issue #102](https://github.com/tomeichlersmith/denv/issues/102).
 
-**Note**: If you wish to use graphical applications from within the denv,
-you will need to install XQuartz[^6] and disable access controll with `xhost +`.
-
 [^2]: [The container is a lie](https://platform.sh/blog/the-container-is-a-lie/) is a nice article going into detail
 about the underpinnings of containers with a bit a click-baity title.Charliecloud's
 [containers are not special](https://hpc.github.io/charliecloud/tutorial.html#containers-are-not-special) 
@@ -94,9 +91,6 @@ graphical interface running outside of WSL (Docker Desktop).
 I have not had a computer to test and learn with it myself. If you have a technical correction to this
 section, please feel free to open an Issue or PR.
 
-[^6]: You can install XQuartz [using brew](https://formulae.brew.sh/cask/xquartz)
-or [using the `.dmg` file](https://www.xquartz.org/).
-
 #### Graphical Applications
 `denv` ensures that the X11 apps spawned from within the container can connect with the host
 by passing the `DISPLAY` environment variable and mounting the `/tmp/.X11-unix` directory.
@@ -104,12 +98,19 @@ For Linux-hosts and WSL, this is enough[^6]; however, on MacOS additional setup 
 
 If you don't plan to use a graphical application from within the a denv (or if you are just
 using a network-based application like Jupyter Lab), then there is no need to do this
-additional setup on MacOS. [These instructions](https://gist.github.com/roaldnefs/fe9f36b0e8cf2890af14572c083b516c)
-I've found on GitHub are rather short but have worked for many folks.
+additional setup on MacOS. [These instructions](https://gist.github.com/roaldnefs/fe9f36b0e8cf2890af14572c083b516c)[^7]
+which basically amount to installing XQuartz[^8] and then disabling access control
+with `xhost +` (check links for specific, permanent configuration of XQuartz after installation).
 
 [^6]: I haven't tested this thoroughly on WSL, but [WSL's Containers page](https://github.com/microsoft/wslg/blob/main/samples/container/Containers.md)
 appears to support this conclusion as well. This page also implies that `denv` could support Wayland
 applications with a few more mounts and environment variables.
+
+[^7]: Or [these](https://gist.github.com/sorny/969fe55d85c9b0035b0109a31cbcb088). Honestly, there
+are many tutorials after searching for "docker macos graphics" or similar.
+
+[^8]: You can install XQuartz [using brew](https://formulae.brew.sh/cask/xquartz)
+or [using the `.dmg` file](https://www.xquartz.org/).
 
 ## Installation
 The most recent installation can be obtained by running the install script in the GitHub repository.
