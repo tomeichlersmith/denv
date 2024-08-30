@@ -5,7 +5,7 @@ setup() {
   common_setup
   
   go_to_tmp_work
-  denv init ubuntu:22.04
+  denv init alpine:latest
 }
 
 teardown() {

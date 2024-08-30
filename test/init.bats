@@ -43,10 +43,10 @@ teardown() {
 }
 
 @test "denv can init" {
-  run denv init ubuntu:22.04
+  run denv init alpine:latest
   assert_success
   assert_file_contains .denv/config "^denv_name=\"$(basename ${PWD})\"$"
-  assert_file_contains .denv/config '^denv_image="ubuntu:22\.04"$'
+  assert_file_contains .denv/config '^denv_image="alpine:latest"$'
   assert_file_contains .denv/config '^denv_shell="/bin/bash -i"$'
   assert_file_contains .denv/config '^denv_mounts=""$'
   assert_file_contains .denv/config '^denv_env_var_copy_all="true"$'
@@ -55,12 +55,12 @@ teardown() {
 }
 
 @test "denv should not init twice" {
-  run denv init ubuntu:22.04
+  run denv init alpine:latest
   assert_success
-  run ! denv init ubuntu:22.04
+  run ! denv init alpine:latest
   assert_failure
   # but can be forced
-  run -0 denv init --force ubuntu:20.04
+  run -0 denv init --force alpine:3.19
   assert_success
-  assert_file_contains .denv/config '^denv_image="ubuntu:20\.04"$'
+  assert_file_contains .denv/config '^denv_image="alpine:3.19"$'
 }
