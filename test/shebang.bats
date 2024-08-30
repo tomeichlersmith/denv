@@ -14,7 +14,7 @@ teardown() {
 
 @test "run minimal shebang requiring readable workspace" {
   mkdir workspace runspace
-  denv init ubuntu:22.04 workspace/
+  denv init alpine:latest workspace/
   
   {
     echo "#!/usr/bin/env -S denv shebang";
@@ -31,7 +31,7 @@ teardown() {
 
 @test "pass arguments to the script" {
   mkdir workspace runspace
-  denv init ubuntu:22.04 workspace/
+  denv init alpine:latest workspace/
   {
     echo "#!/usr/bin/env -S denv shebang";
     echo "#!denv_workspace=${PWD}/workspace";

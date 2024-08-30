@@ -5,7 +5,7 @@ setup() {
   common_setup
   
   go_to_tmp_work
-  denv init ubuntu:22.04
+  denv init alpine:latest
 }
 
 teardown() {
@@ -28,13 +28,13 @@ teardown() {
   run denv config print
   assert_line --index 0 "denv_workspace=\"${PWD}\""
   assert_line --index 1 "denv_name=\"$(basename ${PWD})\""
-  assert_line --index 2 'denv_image="ubuntu:22.04"'
+  assert_line --index 2 'denv_image="alpine:latest"'
 }
 
 @test "change image being used" {
-  assert_file_contains .denv/config '^denv_image="ubuntu:22\.04"$'
-  denv config image ubuntu:20.04
-  assert_file_contains .denv/config '^denv_image="ubuntu:20\.04"$'
+  assert_file_contains .denv/config '^denv_image="alpine:latest"$'
+  denv config image alpine:3.19
+  assert_file_contains .denv/config '^denv_image="alpine:3.19"$'
 }
 
 @test "add a new mount" {
