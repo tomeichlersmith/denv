@@ -207,6 +207,10 @@ is needed. **`denv`** assumes that this config file defines the following shell 
   **denv_network** a boolean flag signalling if **`denv`** should connect the container to the host
     network (`"true"`) or disable all network connection (`"false"`).
 
+Since denv v1, this configuration is considered stable.
+Any new configuration options that are desirable to introduce new features
+will be optional and thus are not required to reside within this file.
+
 # SEE ALSO
 
 **denv(1)**, **denv-init(1)**, **denv-check(1)**
