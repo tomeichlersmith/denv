@@ -418,7 +418,9 @@ _denv_deduce_environment() {
   # - DENV_XXX variables for passing information to entrypoint
   # - DISPLAY for connecting X11 GUIs launched from within container to host
   #   - This needs special consideration for MacOS hosts, we need
-  #     to pass a special value to inform the intermediary VM to connect graphics
+  #     to pass a special value to specify the intermediary VM's hostname
+  # - XAUTHORITY so the container X11 applications have the same authorization
+  #   as the X11 applications launched outside a container on the host
   # - HOME for mapping home directory in denv to workspace
   _display="${DISPLAY:+:0}"
   if [ "$(uname)" = "Darwin" ] && [ "${denv_runner}" = "docker" ]; then
