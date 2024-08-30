@@ -422,7 +422,7 @@ _denv_deduce_environment() {
   # - XAUTHORITY so the container X11 applications have the same authorization
   #   as the X11 applications launched outside a container on the host
   # - HOME for mapping home directory in denv to workspace
-  _display="${DISPLAY:+:0}"
+  _display="${DISPLAY:-:0}"
   if [ "$(uname)" = "Darwin" ] && [ "${denv_runner}" = "docker" ]; then
     # use the special value for docker to signal that we are attempting
     # to connect to a host service from within the container
