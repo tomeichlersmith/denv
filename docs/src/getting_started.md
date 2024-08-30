@@ -15,7 +15,7 @@ of actually building an image yourself.
 on the system you wish to use `denv` on. Generally, the runners can be separated into two groups.[^1]
 - Personal Laptops and Desktops: [docker](https://docs.docker.com/engine/install/) or [podman](https://podman.io/)
   - Both of these are more widely used in software industry and so they are generally easier to install and use;
-    however, they require certain elevated privileges that make them undesirable for academic clusters.
+    however, they have historically required certain elevated privileges that made them undesirable for academic clusters.
   - Version requirements on docker or podman have not been investigated.
 - Computing Clusters: [apptainer](https://apptainer.org/) or [singularityCE](https://sylabs.io/singularity/)
   - These are commonly chosen by computing clusters due to their ability to be very strictly configured
@@ -25,16 +25,11 @@ on the system you wish to use `denv` on. Generally, the runners can be separated
     should work. Legacy installations of singularity (i.e. versions older than 3.8.7) _should_ function with `denv`
     (down to version 3.6); however, `denv` only tests version 3.8.7.
 
-[^1]: These groups actually go beyond mere user base. podman grew out of a desire for a under-the-hood redesign
-of docker that is focused on being a drop-in replacement for docker. Even more special, apptainer and singularityCE
-used to be the same project singularity before apptainer joined the Linux Foundation and Sylabs continued work on its
-fork of singularity now labeled singularityCE. So these two groupings also share tight similarities in 
-their command line interface making them natural groupings for denv.
-
 `denv` supports non-Linux operating systems indirectly through Window's Subsystem for Linux (WSL)
-on Windows and through Linux Virtual Machines on MacOS. `denv` is limited to non-ID-necessary
-processes on MacOS. Read through the [Sidebar on Operating Systems](os-sidebar.md) if you want
-to learn more. If you wish to use graphical applications from within a denv on Windows or MacOS,
+on Windows and through Linux Virtual Machines on MacOS (spawned by Docker on Mac or Lima).
+`denv` is limited to non-ID-necessary processes on MacOS.
+Read through the [Sidebar on Operating Systems](os-sidebar.md) if you want to learn more.
+If you wish to use graphical applications from within a denv on Windows or MacOS,
 you will likely need to install an X server (VcXSrv on Windows and XQuartz on MacOS are common options).
 
 ## Installation
@@ -45,12 +40,11 @@ curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh
 One can pass parameters to the install script by providing extra options to `sh`
 ```shell
 curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \
-  sh -s -- --prefix dir --next --simple
+  sh -s -- --prefix dir --next
 ```
-Here, I hightly the three main options that are available.
+Here, I highlight the main options that are available.
 - `--prefix dir` allows you to decide on the location where denv should be installed
 - `--next` says to use the HEAD of the main branch instead of the most recent release (may or may not differ)
-- `--simple` prevents the install script from adding the backslash alias for denv
 
 The installation script is merely a helpful and simple script for getting the program, its helper
 program `_denv_entrypoint`, the manual, and tab completion files all in their correct locations.
@@ -66,10 +60,11 @@ would be
 ```shell
 $ denv check
 Entrypoint found alongside denv
-Looking for docker... found 'Docker version 24.0.7, build afdd53b' <- would use without DENV_RUNNER defined
-Looking for podman... not found
 Looking for apptainer... not found
 Looking for singularity... not found
+Looking for podman... not found
+Looking for docker... found 'Docker version 27.0.3, build 7d4bcd8' <- use without DENV_RUNNER defined
+denv would run with 'docker'
 ```
 Here, I can see which programs `denv` looked for and I am informed that it only found `docker` which
 is the one it will use by default. The extra comment about `DENV_RUNNER` is helpful if there are multiple
@@ -109,6 +104,7 @@ configure it to have a certain container image defining the environment in-which
 develop and then users enter this environment to do their work.
 We can clean up the denv by exiting our workspace and deleting the directory.
 ```
+exit # leave the denv shell
 cd ..
 rm -r denv-eg
 ```
@@ -118,3 +114,10 @@ at the documentation for your runner on how to do that. Generally, keeping extra
 in your cache is good because it saves time re-downloading image layers that have been
 downloaded before, so you really should only worry about deleting the image if you are
 running out of disk space.
+
+[^1]: These groups actually go beyond mere user base. podman grew out of a desire for a under-the-hood redesign
+of docker that is focused on being a drop-in replacement for docker. Even more special, apptainer and singularityCE
+used to be the same project singularity before apptainer joined the Linux Foundation and Sylabs continued work on its
+fork of singularity now labeled singularityCE. So these two groupings also share tight similarities in 
+their command line interface making them natural groupings for denv.
+
