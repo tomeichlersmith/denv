@@ -47,6 +47,31 @@ _denv_error() {
   printf >&2 "\033[0m"
 }
 
+# print the question passed to us and process user input
+# continues in infinite loop if user is not explicitly answering yes or no
+# Arguments
+#  1 - question to ask the user (yes or no)
+# Output
+#  returns 0 if user answers yes and 1 if user answers no
+_denv_user_confirm() {
+  question="$*"
+  while true; do
+    printf "\033[1m%s\033[0m [Y/n] " "${question}"
+    read -r ans
+    case "${ans}" in
+      Y|y|yes)
+        return 0
+        ;;
+      N|n|no)
+        return 1
+        ;;
+      *)
+        _denv_error "${ans} is not one of Y, y, yes, N, n, or no."
+        ;;
+    esac
+  done
+}
+
 # Print usage to stdout.
 # Arguments:
 #   None
@@ -262,7 +287,38 @@ case "${PATH}" in
     _denv_info "Found ${dest_path} in PATH, you're all set!"
     ;;
   *)
-    _denv_error "Unable to find ${dest_path} in PATH." \
-      "Be sure that directory in is your \$PATH environment variable for denv to work."
+    _denv_error "Unable to find ${dest_path} in PATH."
+    if _denv_user_confirm "Should we update your current shell's profile accordingly?"; then
+      case "${SHELL}" in
+        *bash)
+          # update ~/.bashrc since that's the only one I know is always sourced
+          {
+            echo ""
+            echo "# add the path to the installation of denv to PATH"
+            echo "export PATH=\"\${PATH}:${dest_path}\""
+          } >> ~/.bashrc
+          _denv_info "Open a new terminal to get the updated PATH (or '. ~/.bashrc' directly)." 
+          ;;
+        *zsh)
+          {
+            echo ""
+            echo "# add the path to the installation of denv to list of executable paths"
+            echo "path+=(\"${dest_path}\")"
+            echo "export PATH"
+          } >> ~/.zshrc
+          _denv_info "Open a new terminal to get the updated PATH (or '. ~/.zshrc' directly)." 
+          ;;
+        *)
+          _denv_error "Current shell ${SHELL} is not known." \
+            "You are responsible for adding the destination to your PATH." \
+            "Feel free to open an issue with the solution: https://github.com/tomeichlersmith/denv/issues/new/choose"
+          ;;
+      esac
+    else
+      _denv_info "Be sure that directory in is your \$PATH environment variable for denv to work." \
+        "A common way to do this is to update the definition of PATH in your shell profile." \
+        "For example, you could put the following line at the bottom of your ~/.bashrc file." \
+        "  export PATH=\"\${PATH}:${dest_path}\""
+    fi
     ;;
 esac
