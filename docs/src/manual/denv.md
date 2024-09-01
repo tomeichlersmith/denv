@@ -1,1 +1,1 @@
-{{#include denv.1.html}}
+{{ #man ../man/man1/denv.1 }}
