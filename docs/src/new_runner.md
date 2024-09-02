@@ -88,6 +88,10 @@ variables should work properly.
 I haven't found a quick and easy way to test this, but look at the
 [test/gui](https://github.com/tomeichlersmith/denv/tree/main/test/gui)
 directory for my notes on how I've tested this in the past.
+As a first pass, you can attempt to run the `xeyes` program from `denv`.
+```
+DENV_RUNNER=<your-runner> ./test/gui/run-gui-test
+```
 
 ### Make sure Network and Ports are Connected
 My main reason for supporting this is to allow me to interact with a
