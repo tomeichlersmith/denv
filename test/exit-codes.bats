@@ -31,6 +31,7 @@ teardown() {
 # have a RC file that is only read in interactive
 #
 # keeping the code around in case I am informed
+# of another way to test this
 #@test "by-pass broken .bashrc if non-interactive" {
 #  echo "exit 6" >> .bashrc
 #  run -6 denv
