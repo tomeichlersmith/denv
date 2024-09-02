@@ -19,14 +19,14 @@ teardown() {
   {
     echo "#!/usr/bin/env -S denv shebang";
     echo "#!denv_workspace=${PWD}/workspace";
-    echo "#!/bin/bash";
+    echo "#!/bin/sh";
     echo "cat /etc/os-release"
   } > runspace/minimal
 
   chmod +x runspace/minimal
   run ./runspace/minimal
   assert_success
-  assert_output --partial '22.04'
+  assert_output --partial 'Alpine Linux'
 }
 
 @test "pass arguments to the script" {
@@ -35,7 +35,7 @@ teardown() {
   {
     echo "#!/usr/bin/env -S denv shebang";
     echo "#!denv_workspace=${PWD}/workspace";
-    echo "#!/bin/bash";
+    echo "#!/bin/sh";
     echo "echo \$\@"
   } > runspace/minimal
 
@@ -48,7 +48,7 @@ teardown() {
 @test "shebang with neither requirements met errors out" {
   {
     echo "#!/usr/bin/env -S denv shebang";
-    echo "#!/bin/bash";
+    echo "#!/bin/sh";
     echo "exit 0"
   } > should_error
   chmod +x should_error
