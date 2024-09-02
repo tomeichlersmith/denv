@@ -26,8 +26,13 @@ teardown() {
   assert_container_output "world"
 }
 
-@test "by-pass broken .bashrc if non-interactive" {
-  echo "exit 6" >> .bashrc
-  run -6 denv
-  run -0 denv true
-}
+# not running this test because alpine has ash by
+# default and ash does not (as far as I can tell)
+# have a RC file that is only read in interactive
+#
+# keeping the code around in case I am informed
+#@test "by-pass broken .bashrc if non-interactive" {
+#  echo "exit 6" >> .bashrc
+#  run -6 denv
+#  run -0 denv true
+#}
