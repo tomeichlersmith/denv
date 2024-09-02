@@ -95,7 +95,7 @@ choose to set specific values of environment variables within the denv that will
 stay that value regardless on what the value of that variable is on the host.
 
 Some examples of using this behavior are provided
-[in the manual](manual/denv-config.md#sharing-environment-variables).
+[in the manual](manual/denv-config.md#EXAMPLES).
 
 [^1]: This isn't exactly true. denv also mounts a few helper files as well
 (e.g. the entrypoint program `_denv_entrypoint`); however, those are single-file
