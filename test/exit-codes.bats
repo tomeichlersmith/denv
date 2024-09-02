@@ -20,6 +20,7 @@ teardown() {
   mkdir -p .local/bin
   echo "echo world" > .local/bin/hello
   chmod +x .local/bin/hello
+  echo "export PATH=\"\${PATH}:\${HOME}/.local/bin\"" > .profile
   run denv hello
   assert_success
   assert_container_output "world"
