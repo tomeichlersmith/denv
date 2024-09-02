@@ -1,3 +1,1 @@
-```
-<!-- cmdrun groff -c -mandoc -Tascii ../../../man/man1/denv.1 -->
-```
+<!-- cmdrun groff -mandoc -Thtml ../../../man/man1/denv.1 -->
