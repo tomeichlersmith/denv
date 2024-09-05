@@ -1,7 +1,6 @@
 # denv
 containerized development environments across many runners
 
-[![Generate Manual](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/manpages.yml)
 [![Tests](https://github.com/tomeichlersmith/denv/actions/workflows/test.yml/badge.svg)](https://github.com/tomeichlersmith/denv/actions/workflows/test.yml)
 [![Documentation](https://github.com/tomeichlersmith/denv/actions/workflows/mdbook.yml/badge.svg)](https://tomeichlersmith.github.io/denv/)
 [![License](https://img.shields.io/github/license/tomeichlersmith/denv)](https://github.com/tomeichlersmith/denv/blob/main/LICENSE)
