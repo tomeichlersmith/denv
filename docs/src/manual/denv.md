@@ -1,3 +1,3 @@
 <pre>
-<!-- cmdrun groff -Tascii -mandoc ../../../man/man1/denv.1 | ul | aha --no-header -->
+<!-- cmdrun MAN_KEEP_FORMATTING=1 COLUMNS=80 man ../../../man/man1/denv.1 | ul | aha --no-header -->
 </pre>
