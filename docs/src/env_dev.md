@@ -10,19 +10,20 @@ It is important to emphasize once again that `denv`
 are used to create development environments. The reasons
 for this are (in rough order):
 
-1. Most HPCs do not have `apptainer`/`singularity` installations
-   that support building from a recipe file. I wanted a tool whose
-   interface and user experince can be uniform including these runners
-   and their common limitations.
-2. Avoid build repetition. Many projects I work on have dependencies
-   that take hours to build even on fast multi-core machines. This means
-   it can save many people time if the container image is built once for
-   everyone and then distributed via a registry (like DockerHub).
-3. The separation of developing the environment from developing the code
+1. The separation of developing the environment from developing the code
    that requires the environment is helpful for isolating complicated
    dependency issues from the normal developer. The image build context
    could even be kept in a separate repository in order to enforce this
    isolation.
+2. Avoid build repetition. Many projects I work on have dependencies
+   that take hours to build even on fast multi-core machines. This means
+   it can save many people time if the container image is built once for
+   everyone and then distributed via a registry (like DockerHub).
+3. Somes HPCs do not have `apptainer`/`singularity` installations
+   that support building from a recipe file. While newer versions
+   support building from a recipe file in a secure environment,
+   I wanted a tool whose interface and user experince can be uniform
+   including these runners and their common limitations.
 
 Now that is out of the way, I have a few suggestions to make about
 how to develop these environments. Since my ability to build images
