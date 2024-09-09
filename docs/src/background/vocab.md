@@ -6,7 +6,7 @@ I want to make sure you and I are on the same page about the meaning of some wor
 Each of the items below is a word which I define for the purposes of this manual.
 They may have different definitions outside of this manual.
 
-- **denv**: a shortening of "*d*evenlopment *env*ironment" and is used to refer to
+- **denv**: a shortening of "*d*evelopment *env*ironment" and is used to refer to
   both the command that is being documented here `denv` *and* the environment that
   the command spawns when run successfully. Generally, you should read it
   as the environment when it is an improper noun (i.e. preceded by an article like "the" 
@@ -14,6 +14,8 @@ They may have different definitions outside of this manual.
   created by running denv.". The first use refers to the spawned environment and 
   the second refers to the command. In this manual, I try to represent "denv" as
   code when it refers to the command.
+  - Pronunciation: Personally, I have always pronounced "denv" as "d/ea/nv"
+    but many folks I collaborate with read it as "dee-/ea/nv".
 - **container**: while not technically correct, I usually think of containers as
   light-weight virtual machines (VMs). This gets the point across that they have
   a different environment and can contain software that couldn't run on the host.
