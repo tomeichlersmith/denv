@@ -404,9 +404,9 @@ _denv_deduce_environment() {
   set +o xtrace
   # copy-able environment variables, original code copied from distrobox
   # only get lines defining variables (with '=') and then remove lines
-  # with special characters (space, double-quote, back-tick, dollar-sign, back-slash)
+  # with special characters (space, double-quote, back-tick, dollar-sign)
   # or with special names
-  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$|\\' | grep -Ev "${_denv_bad_env_var_name_regex}=")"
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}=")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
