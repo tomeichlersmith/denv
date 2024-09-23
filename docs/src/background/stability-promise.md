@@ -18,4 +18,4 @@ so users may migrate at their leisure.
 
 ---
 Stability promise text copied heavily from
-[just](https://just.systems/man/en/chapter_9.html).
+[just](https://just.systems/man/en/backwards-compatibility.html).
