@@ -54,17 +54,31 @@ teardown() {
 }
 
 @test "env var with special characters in name" {
+  # noticed when looking at the screen env var TERMCAP
+  # POSIX-sh does not allow colons in variable names
   run -1 denv config env copy bad:name=value
 }
 
-@test "env var from host with special characteres in value" {
-  export colonsep=one=1:two=2
-  run denv printenv colonsep 
+@test "env var with multiline value with mimic bad name" {
+  # this is like the screen environment variable
+  # https://github.com/tomeichlersmith/denv/issues/132
+  export multiline="one=two\nred:blue=green"
+  run -1 denv printenv multiline
+  run denv exit 0
   assert_success
+}
+
+@test "env var from host with special characteres in value" {
+  # we want to support this type of env var as long as its not broken by whitespace
+  # https://github.com/tomeichlersmith/denv/issues/136
+  export colonsep=one=1:two=2
+  run -0 denv printenv colonsep 
   assert_output --partial "one=1:two=2"
 }
 
 @test "env var on command line with special characters in value" {
+  # we want to support this type of env var as long as its not broken by whitespace
+  # https://github.com/tomeichlersmith/denv/issues/136
   run denv config env copy colon_sep=three=3:four=4
   run denv printenv colon_sep 
   assert_success
