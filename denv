@@ -841,7 +841,7 @@ _denv_init_help() {
  OPTIONS
   -h, --help      : print this help and exit
   --no-gitignore  : don't generate a gitignore for the .denv directory
-  --force         : overwrite an existing denv if it exists and create
+  --force         : overwrite/override an existing denv if it exists and create
                     the WORKSPACE without prompting if it doesn't exist
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
