@@ -62,7 +62,8 @@ teardown() {
 @test "env var with multiline value with mimic bad name" {
   # this is like the screen environment variable
   # https://github.com/tomeichlersmith/denv/issues/132
-  export multiline="one=two\nred:blue=green"
+  export multiline="one=two with whitespace
+  red:blue=green"
   run -1 denv printenv multiline
   run denv exit 0
   assert_success
