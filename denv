@@ -406,7 +406,7 @@ _denv_deduce_environment() {
   # only get lines defining variables (with '=') and then remove lines
   # with special characters (space, double-quote, back-tick, dollar-sign)
   # or with special names
-  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}=")"
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
@@ -688,7 +688,7 @@ _denv_config_env() {
     copy)
       shift
       while [ "$#" -gt "0" ]; do
-        if echo "${1}" | grep -E "${_denv_bad_env_var_name_regex}"; then
+        if echo "${1}" | cut -f 1 -d = | grep -E "${_denv_bad_env_var_name_regex}"; then
           _denv_error "The passed variables named above are special and should not be used in the denv."
           return 1
         fi
