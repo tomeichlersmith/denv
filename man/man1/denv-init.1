@@ -43,6 +43,10 @@ within the developer environment so that the environment can also have
 its own shell configuration files and \f[C]\[ti]/.local\f[R] paths.
 If not provided, we just use the current working directory.
 If provided, we make sure it exists, enter it and then continue.
+If \f[B]\f[CB]WORKSPACE\f[B]\f[R] already has a denv (or one of its
+parent directories has a denv), then the user is prompted on if they
+wish to overwrite (in the case that \f[B]\f[CB]WORKSPACE\f[B]\f[R] itself
+is a denv) or override (otherwise) the already-existing denv.
 .SH EXAMPLES
 .PP
 Print the command line help for \f[B]\f[CB]denv init\f[B]\f[R] without

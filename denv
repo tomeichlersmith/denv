@@ -841,7 +841,7 @@ _denv_init_help() {
  OPTIONS
   -h, --help      : print this help and exit
   --no-gitignore  : don't generate a gitignore for the .denv directory
-  --force         : overwrite an existing denv if it exists and create
+  --force         : overwrite/override an existing denv if it exists and create
                     the WORKSPACE without prompting if it doesn't exist
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
@@ -918,23 +918,30 @@ _denv_init() {
     _denv_info "Entering '${denv_workspace}'..."
     cd "${denv_workspace}"
   fi
-  # if the workspace was given, we have created and entered it, so the workspace is PWD
-  denv_workspace="${PWD}"
-
-  # check if we already been init'ed
-  if [ -d "${denv_workspace}/.denv" ];then
+  # check if there is a workspace here or "above" (in a parent directory)
+  if _denv_deduce_workspace; then
+    verb="overrid"
+    if [ "${denv_workspace}" = "${PWD}" ]; then
+      verb="overwrit"
+    fi
     if [ "${force}" = "0" ]; then
-      _denv_info "overwriting previous denv workspace"
+      _denv_info "${verb}ing previous denv workspace"
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
-      _denv_error "denv prompt disabled but unwilling to overwrite a denv without user input."
+      _denv_error "denv prompt disabled but unwilling to ${verb}e a denv without user input."
       return 1
-    elif ! _denv_user_confirm "This workspace already has a denv. Would you like to overwrite it?"; then
-      _denv_info "Exiting without overwriting denv within '${denv_workspace}'..."
+    elif ! _denv_user_confirm "This workspace already has a denv (in ${denv_workspace}). Would you like to ${verb}e it?"; then
+      _denv_info "Exiting without ${verb}ing denv within '${denv_workspace}'..."
       return 0
     fi
-  else
-    mkdir "${denv_workspace}/.denv"
   fi
+
+  # if the workspace was given, we have created and entered it,
+  # if it wasn't, we are already in it, so the workspace is PWD
+  denv_workspace="${PWD}"
+
+  # create directory if it doesn't exist,
+  # we need to check in case we are re-initing on top of a denv
+  [ -d "${denv_workspace}/.denv" ] || mkdir "${denv_workspace}/.denv"
 
   # set the default denv name to the workspace directory name
   if [ -z "${denv_name+x}" ]; then
