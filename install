@@ -57,7 +57,7 @@ _denv_user_confirm() {
   question="$*"
   while true; do
     printf "\033[1m%s\033[0m [Y/n] " "${question}"
-    read -r ans
+    read -r ans </dev/tty
     case "${ans}" in
       Y|y|yes)
         return 0
