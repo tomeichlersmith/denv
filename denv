@@ -389,7 +389,7 @@ _denv_deduce_runner() {
 # | means OR so (one|two) means match one or two
 # combining this means we are matching against env var prefixes listed
 # in the parentheses separated by |
-_denv_bad_env_var_name_regex="^(DENV|HOST|HOME|LANG|LC_CTYPE|.*PATH|SHELL|_|DISPLAY|X|.*:.*)"
+_denv_bad_env_var_name_regex="^(DENV|HOST|HOME|LANG|LC_CTYPE|.*PATH|SHELL|_|DISPLAY|X)"
 
 # deduce the environment we should put into the denv
 # Arguments
@@ -405,8 +405,10 @@ _denv_deduce_environment() {
   # copy-able environment variables, original code copied from distrobox
   # only get lines defining variables (with '=') and then remove lines
   # with special characters (space, double-quote, back-tick, dollar-sign)
-  # or with special names
-  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}=")"
+  # or with special names (matching the regex above)
+  # The last grep checks for colons, if a line has a colon anywhere, an equals sign
+  # must be present before it (i.e. no colons in variable names).
+  copyable_environment="$(printenv | grep '=' | grep -Ev ' |"|`|\$' | grep -Ev "${_denv_bad_env_var_name_regex}=" | grep -E "^([^:]*|.*=.*:.*)=")"
   if [ "${denv_env_var_copy_all}" = "true" ]; then
     # deduce env variables, copied from distrobox
     denv_environment="${copyable_environment}"
@@ -688,7 +690,12 @@ _denv_config_env() {
     copy)
       shift
       while [ "$#" -gt "0" ]; do
-        if echo "${1}" | grep -E "${_denv_bad_env_var_name_regex}"; then
+        # we are only handling one variable and not lines of variables here
+        # so we can take more care, we first check that the name doesn't match the bad name regex
+        # or has any colons in it
+        # the cut separates out the name by the first equals sign and so we know to fail anything
+        # that has any colon in it
+        if echo "${1}" | cut -f 1 -d = | grep -E "${_denv_bad_env_var_name_regex}|(.*:.*)"; then 
           _denv_error "The passed variables named above are special and should not be used in the denv."
           return 1
         fi
