@@ -53,16 +53,18 @@ teardown() {
   assert_output --partial "baz"
 }
 
-@test "env var with special characters" {
+@test "env var with special characters in name" {
   run -1 denv config env copy bad:name=value
+}
 
+@test "env var from host with special characteres in value" {
   export colonsep=one=1:two=2
-  denv config env all no
-  denv config env copy colonsep
   run denv printenv colonsep 
   assert_success
   assert_output --partial "one=1:two=2"
-  
+}
+
+@test "env var on command line with special characters in value" {
   run denv config env copy colon_sep=three=3:four=4
   run denv printenv colon_sep 
   assert_success
