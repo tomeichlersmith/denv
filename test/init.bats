@@ -64,3 +64,11 @@ teardown() {
   assert_success
   assert_file_contains .denv/config '^denv_image="alpine:3.19"$'
 }
+
+@test "denv should not init inside another denv" {
+  run denv init alpine:latest
+  assert_success
+  mkdir subdir
+  cd subdir
+  run ! denv init alpine:latest
+}
