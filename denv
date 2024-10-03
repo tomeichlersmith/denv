@@ -1031,8 +1031,7 @@ _denv_check_help() {
 
  OPTIONS
   -h, --help  : print this help and exit
-  -q, --quiet : suppress non-error output, i.e. will silently return 0 if
-                denv can function properly
+  -q, --quiet : suppress all output, i.e. will silently return the resulting exit code above
   --workspace : check if denv can deduce a workspace from the current directory
 
 HELP
@@ -1063,7 +1062,7 @@ _denv_check() {
   if [ -x "${denv_entrypoint}" ] && [ -f "${denv_entrypoint}" ]; then
     ${quiet} || printf "\033[32mEntrypoint found alongside denv\033[0m\n"
   else
-    _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
+    ${quiet} || _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
     return 1
   fi
 
@@ -1131,13 +1130,13 @@ _denv_check() {
     ${quiet} || printf "\n"
   done
   if [ "${first}" = "true" ]; then
-    _denv_error "No container runner found!"
+    ${quiet} || _denv_error "No container runner found!"
     return 2
   else
     ${quiet} || printf "denv would run with '%s'\n" "${would_run_with}"
   fi
   if ${denv_runner_defined} && ! ${denv_runner_matched}; then
-    _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
+    ${quiet} || _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
       "(or is not available on this machine)"
     return 3
   fi
@@ -1150,14 +1149,14 @@ _denv_check() {
       gui_incompatible_err="xhost is controlling access, disable it with 'xhost +'."
     fi
     if [ "${gui_incompatible_err}" != "" ]; then
-      _denv_error "GUI Interaction on MacOS is not expected to work." \
+      ${quiet} || _denv_error "GUI Interaction on MacOS is not expected to work." \
         "${gui_incompatible_err}" \
         "Enabling the GUI Interaction is not necessary but may be desired."
     fi
   fi
   if ${workspace}; then
     if [ -z "${denv_workspace+x}" ] && ! _denv_deduce_workspace; then
-      _denv_error "Unable to deduce a denv workspace" \
+      ${quiet} || _denv_error "Unable to deduce a denv workspace" \
         "You may need to just 'denv init' in the directory of your choice."
       return 4
     else
