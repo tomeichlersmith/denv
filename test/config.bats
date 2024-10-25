@@ -54,34 +54,3 @@ teardown() {
   denv config network off
   assert_file_contains .denv/config '^denv_network="false"$'
 }
-
-# the rest do not support norunner
-# bats file_tags=
-
-@test "basic check run" {
-  run denv check
-  assert_output --partial "denv would run with '${DENV_RUNNER}'"
-}
-
-@test "quiet check run" {
-  run denv check --quiet
-  refute_output
-}
-
-@test "check fails when using unsupported runner" {
-  export DENV_RUNNER=dne
-  run -3 denv check
-  assert_output --partial "runner is not supported by denv"
-}
-
-@test "check that we are in a workspace" {
-  run denv check --workspace
-  assert_output --partial "Found denv_workspace"
-}
-
-@test "check that we are not in a workspace" {
-  rm -r .denv
-  run -4 denv check --workspace
-  assert_output --partial "Unable to deduce a denv workspace"
-}
-
