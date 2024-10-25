@@ -57,7 +57,7 @@ teardown() {
 @test "denv should not init twice" {
   run denv init alpine:latest
   assert_success
-  run ! denv init alpine:latest
+  run -1 denv init alpine:latest
   assert_failure
 }
 
@@ -85,7 +85,7 @@ teardown() {
   assert_success
   mkdir subdir
   cd subdir
-  run ! denv init alpine:latest
+  run -1 denv init alpine:latest
 }
 
 @test "denv can force init inside another denv" {
@@ -98,7 +98,7 @@ teardown() {
 }
 
 @test "denv will not create new directory by default" {
-  run ! denv init alpine:latest subdir
+  run -1 denv init alpine:latest subdir
 }
 
 @test "denv can be told to create new directory by default" {
