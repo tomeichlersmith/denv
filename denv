@@ -917,22 +917,24 @@ _denv_init() {
     denv_workspace="$1"
     # check if this directory exists, if not create it
     if [ ! -d "${denv_workspace}" ]; then
-      if [ "${mkwork}" = "1" ]; then
-        _denv_info "creating ${denv_workspace} for the denv workspace"
-      elif [ "${mkwork}" = "0" ]; then
-        _denv_info "refusing to create a directory per user instruction"
-        return 0
+      if [ -n "${mkwork+x}" ]; then
+        if [ "${mkwork}" = "1" ]; then
+          _denv_info "user allows denv to create ${denv_workspace}"
+        elif [ "${mkwork}" = "0" ]; then
+          _denv_info "refusing to create a directory per user instruction"
+          return 0
+        fi
       elif [ -n "${DENV_NOPROMPT+x}" ]; then
         _denv_error "denv prompt disabled but unwilling to create a directory without user input."
         return 1
       elif ! _denv_user_confirm "This directory does not exist. Would you like to create it for the denv?"; then
-        _denv_info "Exiting without creating '${denv_workspace}'..."
+        _denv_info "exiting without creating '${denv_workspace}'..."
         return 0
       fi
-      _denv_info "Creating '${denv_workspace}' for the denv..."
+      _denv_info "creating '${denv_workspace}' for the denv..."
       mkdir "${denv_workspace}"
     fi
-    _denv_info "Entering '${denv_workspace}'..."
+    _denv_info "entering '${denv_workspace}'..."
     cd "${denv_workspace}"
   fi
   # check if there is a workspace here or "above" (in a parent directory)
@@ -941,11 +943,13 @@ _denv_init() {
     if [ "${denv_workspace}" = "${PWD}" ]; then
       verb="overwrit"
     fi
-    if [ "${over}" = "1" ]; then
-      _denv_info "${verb}ing previous denv workspace at ${denv_workspace}"
-    elif [ "${over}" = "0" ]; then
-      _denv_info "refusing to ${verb}e previous denv workspace per user instruction"
-      return 0
+    if [ -n "${over+x}" ]; then
+      if [ "${over}" = "1" ]; then
+        _denv_info "${verb}ing previous denv workspace at ${denv_workspace}"
+      elif [ "${over}" = "0" ]; then
+        _denv_info "refusing to ${verb}e previous denv workspace per user instruction"
+        return 0
+      fi
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
       _denv_error "denv prompt disabled but unwilling to ${verb}e a denv without user input."
       return 1
