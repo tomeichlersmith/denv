@@ -7,9 +7,9 @@
 denv init
 .SH SYNOPSIS
 .PP
-\f[B]denv init\f[R] [help|-h|\[en]help] IMAGE [WORKSPACE]
-[\[en]no-gitignore] [\[en]clean-env|\[en]no-copy-all] [\[en]force]
-[\[en]name NAME]
+\f[B]denv init\f[R] [help|-h|--help] IMAGE [WORKSPACE]
+[--no-gitignore] [--clean-env|--no-copy-all] [--force]
+[--name NAME] [--no-mkdir|--mkdir] [--no-over|--over]
 .SH OPTIONS
 .PP
 \f[B]\f[CB]--help\f[B]\f[R], \f[B]\f[CB]-h\f[B]\f[R], or
@@ -32,6 +32,13 @@ the current workspace has one
 .PP
 \f[B]\f[CB]--name\f[B]\f[R] sets the name for the denv workspace that is
 being initialized to NAME
+.PP
+\f[B]\f[CB]--[no-]mkdir\f[B]\f[R] don't prompt about if denv can create the
+workspace directory. Just do it (--mkdir) or not (--no-mkdir).
+.PP
+\f[B]\f[CB]--[no-]over\f[B]\f[R] don't prompt about if denv should overwrite
+a configuration within the workspace or override a configuration in a parent directory.
+Just do it (--over) or not (--no-over).
 .SH ARGUMENTS
 .PP
 \f[B]\f[CB]IMAGE\f[B]\f[R] the name of a container image to use when
@@ -97,6 +104,22 @@ different names.
 denv init python:3.11 py311
 \f[R]
 .fi
+.PP
+As a standalone program, \f[B]denv\f[R] can be used within other scripts
+and support programs.
+With this in mind, a common process is to have a denv configuration that
+can be ensured to exist for the rest of additional tasks.
+The following example uses the --no-mkdir and --no-over flags to silently
+ensure that the present working directory has the python:3.11 image configured.
+.IP
+.nf
+\f[C]denv init --no-mkdir --no-over python:3.11\f[R]
+.fi
+.PP
+WARNING: \f[B]denv init\f[R] does not ensure that the image is the same as
+the one passed, it just quielty refused to overwrite an existing configuration
+allowing it to be quickly bypassed if the configuration has already been made
+or initialize the configuration if no configuration is present.
 .SH DEFAULT CONFIGURATION
 .PP
 \f[B]denv init\f[R] makes the following choices on configuration that
