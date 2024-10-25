@@ -59,10 +59,25 @@ teardown() {
   assert_success
   run ! denv init alpine:latest
   assert_failure
-  # but can be forced
-  run -0 denv init --force alpine:3.19
+}
+
+@test "denv can init twice with force" {
+  run denv init alpine:latest
+  assert_success
+  run denv init --force alpine:3.19
   assert_success
   assert_file_contains .denv/config '^denv_image="alpine:3.19"$'
+  run denv init --over alpine:latest
+  assert_success
+  assert_file_contains .denv/config '^denv_image="alpine:latest"$'
+}
+
+@test "denv can skip double init without force" {
+  run denv init alpine:latest
+  assert_success
+  run denv init --no-over alpine:3.19
+  assert_success
+  assert_file_contains .denv/config '^denv_image="alpine:latest"$'
 }
 
 @test "denv should not init inside another denv" {
@@ -71,4 +86,22 @@ teardown() {
   mkdir subdir
   cd subdir
   run ! denv init alpine:latest
+}
+
+@test "denv can force init inside another denv" {
+  run denv init alpine:latest
+  assert_success
+  mkdir subdir
+  cd subdir
+  run denv init --over alpine:latest
+  assert_success
+}
+
+@test "denv will not create new directory by default" {
+  run ! denv init alpine:latest subdir
+}
+
+@test "denv can be told to create new directory by default" {
+  run denv init --mkdir alpine:latest subdir
+  assert_success
 }
