@@ -860,8 +860,8 @@ _denv_init() {
     _denv_error "Provide at least an image to use for running"
     return 1
   fi
-  copyall=1
-  gitignore=1
+  copyall=true
+  gitignore=true
   positionals=""
   while [ "$#" -gt "0" ]; do
     case "$1" in
@@ -870,26 +870,26 @@ _denv_init() {
         return 0
         ;;
       --no-gitignore)
-        gitignore=0
+        gitignore=false
         ;;
       --clean-env|--no-copy-all)
-        copyall=0
+        copyall=false
         ;;
       --force)
-        over=1
-        mkwork=1
+        over=true
+        mkwork=true
         ;;
       --no-over)
-        over=0
+        over=false
         ;;
       --over)
-        over=1
+        over=true
         ;;
       --no-mkdir)
-        mkwork=0
+        mkwork=false
         ;;
       --mkdir)
-        mkwork=1
+        mkwork=true
         ;;
       --name)
         if [ -z "${2+x}" ]; then
@@ -918,9 +918,9 @@ _denv_init() {
     # check if this directory exists, if not create it
     if [ ! -d "${denv_workspace}" ]; then
       if [ -n "${mkwork+x}" ]; then
-        if [ "${mkwork}" = "1" ]; then
+        if ${mkwork}; then
           _denv_info "user allows denv to create ${denv_workspace}"
-        elif [ "${mkwork}" = "0" ]; then
+        else
           _denv_info "refusing to create a directory per user instruction"
           return 0
         fi
@@ -944,9 +944,9 @@ _denv_init() {
       verb="overwrit"
     fi
     if [ -n "${over+x}" ]; then
-      if [ "${over}" = "1" ]; then
+      if ${over}; then
         _denv_info "${verb}ing previous denv workspace at ${denv_workspace}"
-      elif [ "${over}" = "0" ]; then
+      else
         _denv_info "refusing to ${verb}e previous denv workspace per user instruction"
         return 0
       fi
@@ -954,7 +954,7 @@ _denv_init() {
       _denv_error "denv prompt disabled but unwilling to ${verb}e a denv without user input."
       return 1
     elif ! _denv_user_confirm "This workspace already has a denv (in ${denv_workspace}). Would you like to ${verb}e it?"; then
-      _denv_info "Exiting without ${verb}ing denv within '${denv_workspace}'..."
+      _denv_info "exiting without ${verb}ing denv within '${denv_workspace}'..."
       return 0
     fi
   fi
@@ -976,16 +976,12 @@ _denv_init() {
   denv_shell="/bin/bash -i"
   denv_mounts=""
   denv_network="true"
-  if [ "${copyall}" = "1" ]; then
-    denv_env_var_copy_all="true"
-  else
-    denv_env_var_copy_all="false"
-  fi
+  denv_env_var_copy_all="${copyall}"
   denv_env_var_copy=""
   denv_env_var_set=""
   _denv_write_config
-  if [ "${gitignore}" = "1" ]; then
-    _denv_info "Writing a gitignore for the .denv directory."
+  if ${gitignore}; then
+    _denv_info "writing a gitignore for the .denv directory."
     cat > "${denv_workspace}/.denv/.gitignore" <<\GITIGNORE
 # ignore everything in this directory
 *
