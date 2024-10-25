@@ -829,8 +829,7 @@ _denv_config() {
 _denv_init_help() {
   cat <<\HELP
 
-  denv init [help|-h|--help] IMAGE [WORKSPACE] [--no-gitignore]
-            [--force] [--name NAME] [--clean-env|--no-copy-all]
+  denv init [OPTIONS] IMAGE [WORKSPACE]
 
  ARGUMENT
   help       : print this help and exit
@@ -841,8 +840,11 @@ _denv_init_help() {
  OPTIONS
   -h, --help      : print this help and exit
   --no-gitignore  : don't generate a gitignore for the .denv directory
-  --force         : overwrite/override an existing denv if it exists and create
-                    the WORKSPACE without prompting if it doesn't exist
+  --[no-]over     : Don't ask about overwrite/override.
+                    Instead just do it (--over) or don't do it (--no-over).
+  --[no-]mkdir    : Don't ask about creating WORKSPACE if it doesn't exist.
+                    Instead just do it (--mkdir) or don't (--no-mkdir).
+  --force         : alias for --over --mkdir
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
                     --no-copy-all is another alias which more closely
@@ -860,7 +862,6 @@ _denv_init() {
   fi
   copyall=1
   gitignore=1
-  force=1
   positionals=""
   while [ "$#" -gt "0" ]; do
     case "$1" in
@@ -875,7 +876,20 @@ _denv_init() {
         copyall=0
         ;;
       --force)
-        force=0
+        over=1
+        mkwork=1
+        ;;
+      --no-over)
+        over=0
+        ;;
+      --over)
+        over=1
+        ;;
+      --no-mkdir)
+        mkwork=0
+        ;;
+      --mkdir)
+        mkwork=1
         ;;
       --name)
         if [ -z "${2+x}" ]; then
@@ -903,8 +917,11 @@ _denv_init() {
     denv_workspace="$1"
     # check if this directory exists, if not create it
     if [ ! -d "${denv_workspace}" ]; then
-      if [ "${force}" = "0" ]; then
+      if [ "${mkwork}" = "1" ]; then
         _denv_info "creating ${denv_workspace} for the denv workspace"
+      elif [ "${mkwork}" = "0" ]; then
+        _denv_info "refusing to create a directory per user instruction"
+        return 0
       elif [ -n "${DENV_NOPROMPT+x}" ]; then
         _denv_error "denv prompt disabled but unwilling to create a directory without user input."
         return 1
@@ -924,8 +941,11 @@ _denv_init() {
     if [ "${denv_workspace}" = "${PWD}" ]; then
       verb="overwrit"
     fi
-    if [ "${force}" = "0" ]; then
-      _denv_info "${verb}ing previous denv workspace"
+    if [ "${over}" = "1" ]; then
+      _denv_info "${verb}ing previous denv workspace at ${denv_workspace}"
+    elif [ "${over}" = "0" ]; then
+      _denv_info "refusing to ${verb}e previous denv workspace per user instruction"
+      return 0
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
       _denv_error "denv prompt disabled but unwilling to ${verb}e a denv without user input."
       return 1
