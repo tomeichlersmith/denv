@@ -7,7 +7,7 @@
 denv check
 .SH SYNOPSIS
 .PP
-\f[B]denv check\f[R] [-h|\[en]help] [-q|\[en]quiet] [\[en]workspace]
+\f[B]denv check\f[R] [-h|--help] [-q|--quiet] [-s|--silent] [--workspace]
 .SH OPTIONS
 .PP
 \f[B]\f[CB]--help\f[B]\f[R] or \f[B]\f[CB]-h\f[B]\f[R] print a short
@@ -15,6 +15,9 @@ help message
 .PP
 \f[B]\f[CB]--quiet\f[B]\f[R] or \f[B]\f[CB]-q\f[B]\f[R] suppress
 non-error output
+.PP
+\f[B]\f[CB]--silent\f[B]\f[R] or \f[B]\f[CB]-s\f[B]\f[R] suppress all
+output include error messages (i.e. just return the exit code below)
 .PP
 \f[B]\f[CB]--workspace\f[B]\f[R] check to see if denv can deduce a
 workspace from the current directory
