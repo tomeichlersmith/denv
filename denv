@@ -1030,14 +1030,16 @@ _denv_check_help() {
     127 : denv check was supplied an argument it didn't recognize
 
  OPTIONS
-  -h, --help  : print this help and exit
-  -q, --quiet : suppress all output, i.e. will silently return the resulting exit code above
-  --workspace : check if denv can deduce a workspace from the current directory
+  -h, --help   : print this help and exit
+  -q, --quiet  : suppress all non-error output
+  -s, --silent : suppress all output (including errors), just return exist code above
+  --workspace  : check if denv can deduce a workspace from the current directory
 
 HELP
 }
 _denv_check() {
-  quiet=false
+  quiet_inf=false
+  quiet_err=false
   workspace=false
   while [ "$#" -gt "0" ]; do
     case "$1" in
@@ -1046,7 +1048,11 @@ _denv_check() {
         return 0
         ;;
       -q|--quiet)
-        quiet=true
+        quiet_inf=true
+        ;;
+      -s|--silent)
+        quiet_inf=true
+        quiet_err=true
         ;;
       --workspace)
         workspace=true
@@ -1060,9 +1066,9 @@ _denv_check() {
   done
   # check for entrypoint
   if [ -x "${denv_entrypoint}" ] && [ -f "${denv_entrypoint}" ]; then
-    ${quiet} || printf "\033[32mEntrypoint found alongside denv\033[0m\n"
+    ${quiet_inf} || printf "\033[32mEntrypoint found alongside denv\033[0m\n"
   else
-    ${quiet} || _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
+    ${quiet_err} || _denv_error "_denv_entrypoint does not exist as an executable file alongside denv"
     return 1
   fi
 
@@ -1079,7 +1085,7 @@ _denv_check() {
   # the user which runner would be deduced when running
   for possible in apptainer singularity podman docker;
   do
-    ${quiet} || printf "Looking for %s... " "${possible}"
+    ${quiet_inf} || printf "Looking for %s... " "${possible}"
     if command -v "${possible}" >/dev/null 2>&1; then
       # extra version compatibility checking
       case "${possible}" in
@@ -1089,13 +1095,13 @@ _denv_check() {
           minor="$(echo "${version}" | cut -f 2 -d '.')"
           #patch="$(echo "${version}" | cut -f 3 -d '.')" # not used
           if singularity --version 2>&1 | grep -q apptainer; then
-            ${quiet} || printf "found apptainer emulating singularity"
+            ${quiet_inf} || printf "found apptainer emulating singularity"
           elif [ "${major}" -lt "3" ] || [ "${major}" -eq "3" ] && [ "${minor}" -lt "6" ]; then
-            ${quiet} || printf "found '%s', but " "$(singularity --version)"
-            ${quiet} || printf "\033[31m%s\033[0m" \
+            ${quiet_inf} || printf "found '%s', but " "$(singularity --version)"
+            ${quiet_inf} || printf "\033[31m%s\033[0m" \
               "denv requires the --env flag for singularity which was introduced in v3.6"
           else
-            ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+            ${quiet_inf} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           fi
           ;;
         docker)
@@ -1103,40 +1109,40 @@ _denv_check() {
           # if podman is emulating docker, docker --version will return podman --version
           # which includes 'podman'
           if docker version 2>&1 | grep -iq podman; then
-            ${quiet} || printf "found podman emulating docker"
+            ${quiet_inf} || printf "found podman emulating docker"
           else
-            ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+            ${quiet_inf} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           fi
           ;;
         *)
           # no extra checking, just print the version found
-          ${quiet} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
+          ${quiet_inf} || printf "\033[32mfound '%s'\033[0m" "$(${possible} --version)"
           ;;
       esac
       if ${denv_runner_defined}; then
         if [ "${possible}" = "${DENV_RUNNER}" ]; then
           denv_runner_matched=true
-          ${quiet} || printf "\033[32;1m <- DENV_RUNNER\033[0m"
+          ${quiet_inf} || printf "\033[32;1m <- DENV_RUNNER\033[0m"
         fi
       fi
       if [ "${first}" = "true" ]; then
-        ${quiet} || printf "\033[32;1m <- use without DENV_RUNNER defined\033[0m"
+        ${quiet_inf} || printf "\033[32;1m <- use without DENV_RUNNER defined\033[0m"
         first="false"
         ${denv_runner_defined} || would_run_with="${possible}"
       fi
     else
-      ${quiet} || printf "not found"
+      ${quiet_inf} || printf "not found"
     fi
-    ${quiet} || printf "\n"
+    ${quiet_inf} || printf "\n"
   done
   if [ "${first}" = "true" ]; then
-    ${quiet} || _denv_error "No container runner found!"
+    ${quiet_err} || _denv_error "No container runner found!"
     return 2
   else
-    ${quiet} || printf "denv would run with '%s'\n" "${would_run_with}"
+    ${quiet_inf} || printf "denv would run with '%s'\n" "${would_run_with}"
   fi
   if ${denv_runner_defined} && ! ${denv_runner_matched}; then
-    ${quiet} || _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
+    ${quiet_err} || _denv_error "DENV_RUNNER=${DENV_RUNNER} but this runner is not supported by denv" \
       "(or is not available on this machine)"
     return 3
   fi
@@ -1149,18 +1155,18 @@ _denv_check() {
       gui_incompatible_err="xhost is controlling access, disable it with 'xhost +'."
     fi
     if [ "${gui_incompatible_err}" != "" ]; then
-      ${quiet} || _denv_error "GUI Interaction on MacOS is not expected to work." \
+      ${quiet_err} || _denv_error "GUI Interaction on MacOS is not expected to work." \
         "${gui_incompatible_err}" \
         "Enabling the GUI Interaction is not necessary but may be desired."
     fi
   fi
   if ${workspace}; then
     if [ -z "${denv_workspace+x}" ] && ! _denv_deduce_workspace; then
-      ${quiet} || _denv_error "Unable to deduce a denv workspace" \
+      ${quiet_err} || _denv_error "Unable to deduce a denv workspace" \
         "You may need to just 'denv init' in the directory of your choice."
       return 4
     else
-      ${quiet} || printf "Found denv_workspace=\"%s\"\n" "${denv_workspace}"
+      ${quiet_inf} || printf "Found denv_workspace=\"%s\"\n" "${denv_workspace}"
     fi
   fi
   return 0
