@@ -194,7 +194,7 @@ _denv_pull() {
         if [ "${denv_runner}" = "apptainer" ]; then
           container_env_var="APPTAINER_CONTAINER"
         else
-          container_env_var="SINGULARITY_IMAGE"
+          container_env_var="SINGULARITY_CONTAINER"
         fi
         # we pass the full image name including registry to be run by apptainer/singularity
         # this then allows us to retrieve the full path to the cached SIF image file
