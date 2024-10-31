@@ -16,11 +16,22 @@ teardown() {
 
 @test "normal running works" {
   run -0 denv true
-  assert_success
 }
 
 @test "can invalidate cache and then run" {
-  rm -r ${APPTAINER_CACHEDIR}
+  case "${DENV_RUNNER}" in
+    apptainer)
+      cache=${APPTAINER_CACHEDIR:-${HOME}/.apptainer/cache}
+      ;;
+    singularity)
+      cache=${SINGULARITY_CACHEDIR:-${HOME}/.singularity/cache}
+      ;;
+    *)
+      echo "This test is only designed for apptainer/singularity, not ${DENV_RUNNER}."
+      echo "Re-run with '--filter-tags !apptainer' to test ${DENV_RUNNER}"
+      false
+      ;;
+  esac
+  rm -r ${cache}
   run -0 denv true
-  assert_success
 }
