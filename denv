@@ -181,9 +181,9 @@ _denv_pull() {
       if [ -e "${denv_image}" ]; then
         _denv_info "This path exists on the filesystem, assuming unpacked image."
         # if the passed image is a file system path,
-        # we assume it is an already unpacked image
+        # we assume it is an image (unpacked or SIF)
         # and so we just symlink to it in our cache
-        ln -s "${denv_image}" "${sif_file}" 
+        ln -sf "${denv_image}" "${sif_file}" 
       else
         _denv_info "Image does not exist on filesystem, assuming registry tag."
         # passed image is not a file so we assume it
@@ -191,10 +191,17 @@ _denv_pull() {
         # using the docker:// registry as default
         image_full="${denv_image}"
         echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
-        ${denv_runner} build \
-          --force \
-          "${sif_file}" \
-          "${image_full}"
+        if [ "${denv_runner}" = "apptainer" ]; then
+          container_env_var="APPTAINER_CONTAINER"
+        else
+          container_env_var="SINGULARITY_CONTAINER"
+        fi
+        # we pass the full image name including registry to be run by apptainer/singularity
+        # this then allows us to retrieve the full path to the cached SIF image file
+        # that is constructed from the OCI image
+        # then we link this cached image file to our local image cache
+        cached_image=$(${denv_runner} run "${image_full}" printenv "${container_env_var}")
+        ln -sf "${cached_image}" "${sif_file}"
       fi
       ;;
     norunner)

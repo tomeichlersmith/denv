@@ -109,10 +109,19 @@ if [ -z "${runners}" ]; then
 fi
 
 for runner in ${runners}; do
-  _denv_info "Testing denv with '${runner}'"
-  if [ "${runner}" = "norunner" ]; then
-    DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter-tags "norunner" test/
-  else
-    DENV_RUNNER="${runner}" ./test/bats/bin/bats test/
-  fi
+  filter_tags=""
+  case "${runner}" in
+    norunner)
+      filter_tags="--filter-tags norunner"
+      ;;
+    docker|podman)
+      filter_tags="--filter-tags !apptainer"
+      ;;
+    *)
+      filter_tags=""
+      ;;
+  esac
+  _denv_info "Testing denv with '${runner}' ${filter_tags}"
+  # shellcheck disable=SC2068
+  DENV_RUNNER="${runner}" ./test/bats/bin/bats ${filter_tags} test/
 done

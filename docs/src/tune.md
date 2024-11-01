@@ -69,7 +69,7 @@ Updating this file with changes to `*PATH` variables (like `PATH`, `LD_LIBRARY_P
 and `PYTHONPATH`) can be helpful so that executables can be run interactively
 (i.e. `denv` then `my-executable`) and non-interactively (i.e. `denv my-executable`).
 
-## extra mounts
+## Extra Mounts
 By default, `denv` only allows the container to view the files within
 the workspace[^1]. This works for many projects; however,
 sometimes software being developed requires input data from outside
@@ -82,7 +82,7 @@ when it is being run.
 denv config mounts /path/to/extra/data/outside/workspace
 ```
 `denv` requires any additional mounts to be specified by their full path
-and to already exist. This prevents user typos as well as insures the user
+and to already exist. This prevents user typos as well as ensures the user
 knows what path will be available within the denv (i.e. symlinks _outside_
 the denv may not map properly _inside_ the denv).
 
@@ -96,6 +96,45 @@ stay that value regardless on what the value of that variable is on the host.
 
 Some examples of using this behavior are provided
 in the EXAMPLES section of the [denv config manual](manual/denv-config.md).
+
+## Cluster Computing
+
+_Note:_ In this section, to avoid typing, I'm going to refer to the
+Apptainer/SyLabs SingularityCE/Singularity group of runners as `appatainer`
+and the Docker/Podman group of runners as `docker`.
+
+On many computing clusters, `apptainer` is the default container runner
+installed and used by `denv` and, in order to make the usage of `apptainer`
+(via `denv`) the same as `docker`, we reference images using the OCI
+image name (`[registry/]owner/repo:tag`).
+For example
+```
+denv init python:3.12
+```
+is the same on personal computers with `docker` and remote clusters
+with `apptainer`.
+We achieve this mimicry by piggy-backing on the `apptainer` cache directory
+where `apptainer` stores an intermediate SIF image it builds from the OCI image
+we provide it.
+This has two large effects for users of `denv` on computing clusters.
+1. If the default cache location within users' home directories is too small to
+   hold the images you want them to be using, they should update their shell configuration
+   to define `APPTAINER_CACHEDIR` (or `SINGULARITY_CACHEDIR` for the `singularity` runners)
+   to a different location with more space, preferably a place that supports atomic rename.
+2. If you plan to run many parallel jobs using the same image, you should pre-build
+   a SIF image using `apptainer pull` and provide this image to `denv` (in `denv init`
+   or `denv config image`) so that `denv` uses a frozen image during parallel processing
+   rather than referencing the cache which the user could change while the parallel
+   jobs are running leading to potential differences.
+
+These comments may apply to the `docker` family of runners especially if more
+clusters adopt a configuration where both Podman and Apptainer are installed.
+(For example, [Containers on HPC](https://github.com/dirkpetersen/hpc-containers)
+proposes a configuration.)
+Personally, I have yet to gain access to a cluster where Podman is installed and
+configured in a way usable by `denv`. I have accessed a cluster where both Podman
+and Apptainer are installed but Podman is not given access to user namespaces and
+thus we are unable to pretend to be the correct user in a Podman-launched container.
 
 [^1]: This isn't exactly true. denv also mounts a few helper files as well
 (e.g. the entrypoint program `_denv_entrypoint`); however, those are single-file
