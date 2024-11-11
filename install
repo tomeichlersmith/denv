@@ -91,7 +91,7 @@ Options:
 EOF
 }
 
-version=v1.1.0
+version=v1.1.1
 next=0
 verbose=0
 devel=0
