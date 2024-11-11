@@ -200,7 +200,7 @@ _denv_pull() {
         # this then allows us to retrieve the full path to the cached SIF image file
         # that is constructed from the OCI image
         # then we link this cached image file to our local image cache
-        cached_image=$(${denv_runner} run "${image_full}" printenv "${container_env_var}")
+        cached_image=$(${denv_runner} exec "${image_full}" printenv "${container_env_var}")
         ln -sf "${cached_image}" "${sif_file}"
       fi
       ;;
