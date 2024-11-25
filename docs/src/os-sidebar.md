@@ -51,11 +51,12 @@ which basically amount to installing XQuartz[^8] and then disabling access contr
 with `xhost +` (check links for specific, permanent configuration of XQuartz after installation).
 
 [^2]: [The container is a lie](https://platform.sh/blog/the-container-is-a-lie/) is a nice article going into detail
-about the underpinnings of containers with a bit a click-baity title.Charliecloud's
+about the underpinnings of containers with a bit a click-baity title. Charliecloud's
 [containers are not special](https://hpc.github.io/charliecloud/tutorial.html#containers-are-not-special) 
 is only a moderate improvement in the title department and another approach to the material. Finally, I've liked
-[containers from scratch](https://ericchiang.github.io/post/containers-from-scratch/) which takes a more educational
-approach to help readers see why wrapping container creation and running in managers has been done (while also
+[containers from scratch](https://ericchiang.github.io/post/containers-from-scratch/) and
+[Containers are chroot with a marketing budget](https://earthly.dev/blog/chroot/)
+which take a more educational approach to help readers see why wrapping container creation and running in managers has been done (while also
 showing that it is an easy enough procedure for there to be many managers floating around).
 
 [^3]: _Technically_, I might be wrong here since a specific kernel might offer the same features that Linux
