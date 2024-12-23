@@ -27,7 +27,7 @@
     },
     {
       "runner": "sylabs",
-      "version": "4.2.1",
+      "version": "4.2.2",
       "track": "sylabs/singularity"
     }
   ]
