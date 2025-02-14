@@ -490,6 +490,7 @@ _denv_load_config() {
       return 1
     fi
   fi
+  _denv_info "using denv at ${denv_workspace}"
   # I am choosing to allow sourcing unknown code
   # shellcheck disable=SC1091
   . "${denv_workspace}/.denv/config"
