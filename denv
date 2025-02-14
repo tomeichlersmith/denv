@@ -953,9 +953,14 @@ _denv_init() {
     if [ -n "${over+x}" ]; then
       if ${over}; then
         _denv_info "${verb}ing previous denv workspace at ${denv_workspace}"
-      else
+      elif [ "${denv_workspace}" = "${PWD}" ]; then
+        # soft exit, will quietly not overwrite
         _denv_info "refusing to ${verb}e previous denv workspace per user instruction"
         return 0
+      else
+        # hard exit, cannot override but need to to provide requested init
+        _denv_error "denv cannot init into '${PWD}' without overriding '${denv_workspace}'."
+        return 1
       fi
     elif [ -n "${DENV_NOPROMPT+x}" ]; then
       _denv_error "denv prompt disabled but unwilling to ${verb}e a denv without user input."

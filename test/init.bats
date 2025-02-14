@@ -105,3 +105,11 @@ teardown() {
   run denv init --mkdir alpine:latest subdir
   assert_success
 }
+
+@test "denv fails to init if it cant meet override necessity" {
+  run denv init alpine:3.19
+  assert_success
+  mkdir subdir
+  cd subdir
+  run -1 denv init --no-over alpine:latest
+}
