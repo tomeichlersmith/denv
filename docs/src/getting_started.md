@@ -33,18 +33,19 @@ If you wish to use graphical applications from within a denv on Windows or MacOS
 you will likely need to install an X server (VcXSrv on Windows and XQuartz on MacOS are common options).
 
 ## Installation
-The most recent installation can be obtained by running the install script in the GitHub repository.
+The most recent version can be obtained by running the install script in the GitHub repository.
 ```shell
 curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
 ```
 One can pass parameters to the install script by providing extra options to `sh`
 ```shell
 curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \
-  sh -s -- --prefix dir --next
+  sh -s -- vX.Y.Z --prefix dir --next
 ```
 Here, I highlight the main options that are available.
 - `--prefix dir` allows you to decide on the location where denv should be installed
 - `--next` says to use the HEAD of the main branch instead of the most recent release (may or may not differ)
+- `vX.Y.Z` allows you to choose which version of `denv` you want to install
 
 The installation script is merely a helpful and simple script for getting the program, its helper
 program `_denv_entrypoint`, the manual, and tab completion files all in their correct locations.
