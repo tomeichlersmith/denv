@@ -79,15 +79,22 @@ _denv_user_confirm() {
 #   print usage with examples.
 show_help() {
   cat << EOF
-install --prefix /usr/local
 
-Options:
-  --prefix/-p:    base bath where all files will be deployed (default /usr/local if root, ~/.local if not)
-  --devel/-d:   symlink to install location rather than copy, helpful for testing during development
+USAGE:
+  ./install [options] [version]
+
+ARGUMENTS:
+  version : denv version to install, defaults to latest release
+            ignored if inside of the repository
+
+OPTIONS:
+  -p|--prefix : base path where all files will be deployed (default /usr/local if root, ~/.local if not)
+  -d|--devel  : symlink to install location rather than copy, helpful for testing during development
                 ignored if not in the repository
-  --next/-n:    install HEAD of main branch rather than last release
-  --help/-h:    show this message
-  -v:     show more verbosity
+  -n|--next   : install HEAD of main branch rather than last release
+  -h|--help   : show this message
+  -v|--verbose: show more verbosity
+
 EOF
 }
 
@@ -106,15 +113,12 @@ while [ "$#" -gt 0 ]; do
       exit
       ;;
     -v | --verbose)
-      shift
       verbose=1
       ;;
     -d | --devel)
-      shift
       devel=1
       ;;
     -n | --next)
-      shift
       next=1
       ;;
     -p | --prefix)
@@ -122,12 +126,13 @@ while [ "$#" -gt 0 ]; do
         [ -d "$2" ] || mkdir -p "$2"
         prefix="$(cd "$2" && pwd -P)"
         shift
-        shift
       fi
       ;;
-    *) # Default case: If no more options then break out of the loop.
-      break ;;
+    *)
+      version="${1}"
+      ;;
   esac
+  shift
 done
 
 # set verbosity
@@ -217,7 +222,7 @@ else
     download="wget -qO"
   fi
 
-  _denv_info "Downloading..."
+  _denv_info "Downloading ${version}..."
   if [ "${next}" -eq 0 ]; then
     release_ver="tomeichlersmith/denv/archive/refs/tags/${version}.tar.gz"
     release_name=$(echo "${release_ver}" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$')
