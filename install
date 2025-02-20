@@ -81,7 +81,7 @@ show_help() {
   cat << EOF
 
 USAGE:
-  ./install [options] [version]
+  install [options] [version]
 
 ARGUMENTS:
   version : denv version to install, defaults to latest release

@@ -35,11 +35,11 @@ you will likely need to install an X server (VcXSrv on Windows and XQuartz on Ma
 ## Installation
 The most recent version can be obtained by running the install script in the GitHub repository.
 ```shell
-curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
+curl -s https://tomeichlersmith.github.io/denv/install | sh
 ```
 One can pass parameters to the install script by providing extra options to `sh`
 ```shell
-curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | \
+curl -s https://tomeichlersmith.github.io/denv/install | \
   sh -s -- vX.Y.Z --prefix dir --next
 ```
 Here, I highlight the main options that are available.

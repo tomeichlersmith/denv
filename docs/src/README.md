@@ -37,7 +37,7 @@ they work for your use case.
 ## Quick Start
 Install the latest release on GitHub.
 ```
-curl -s https://raw.githubusercontent.com/tomeichlersmith/denv/main/install | sh 
+curl -s https://tomeichlersmith.github.io/denv/install | sh
 ```
 Make sure the installation was successful (and you have a supported runner installed)
 ```

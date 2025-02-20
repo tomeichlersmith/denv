@@ -51,7 +51,7 @@ jobs:
         run: mdbook build
         working-directory: docs
       - name: Copy install script to website
-        run: cp install ./docs/book/
+        run: cp install uninstall ./docs/book/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
