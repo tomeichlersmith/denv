@@ -113,3 +113,19 @@ teardown() {
   cd subdir
   run -1 denv init --no-over alpine:latest
 }
+
+@test "can init and run with under score in workspace name #154" {
+  run denv init --mkdir alpine:latest under_score
+  cd under_score
+  run -0 denv true
+}
+
+@test "refuse to init with name that has special characters #154" {
+  run -2 denv init alpine:latest --name "one+two"
+}
+
+@test "refuse to init with directory that has special characters #154" {
+  mkdir "one?two"
+  cd "one?two"
+  run -2 denv init alpine:latest
+}

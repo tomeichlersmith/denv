@@ -110,6 +110,16 @@ _denv_environment_to_args() {
   echo "${env_args}"
 }
 
+# check if the passed string has any invalid special characters
+# Arguments
+#  1 - string to check
+# Outputs
+#  0 if it does have invalid special characters, 1 otherwise
+_denv_has_invalid_char() {
+  bad_char="$(echo "${1}" | tr -d "[:alnum:]._-")"
+  test -n "${bad_char}"
+}
+
 ###################################################################################################
 # container runner interface
 #
@@ -225,7 +235,14 @@ _denv_pull() {
 #     as well as the DENV_* variables
 #   - set SHELL to be ${denv_shell} in container
 _denv_run() {
-  _hostname="${denv_name}.$(uname -n || true)"
+  # valid hostnames only consist of lower and upper case letters, numbers, and the hyphen
+  # we want to use the name of the workspace as a hostname in the container
+  # so that programs in the container can show that they are in the container (e.g. the bash prompt)
+  # with this in mind, we translate underscores into hyphens so
+  # that the workspace name (by default taken from the directory name) can have underscores
+  # we do not check for other special characters
+  valid_hostname="$(printf '%s' "${denv_name}" | tr '_' '-')"
+  _hostname="${valid_hostname}.$(uname -n || true)"
   # we will be running now and not writing the config
   # so we can update the denv_mounts list
   [ -d /tmp/.X11-unix ] && denv_mounts="${denv_mounts} /tmp/.X11-unix"
@@ -905,6 +922,11 @@ _denv_init() {
           return 1
         fi
         denv_name="${2}"
+        if _denv_has_invalid_char "${denv_name}"; then
+          _denv_error "The name you passed '${denv_name}' contains invalid special characters." \
+            "The name for the denv can only contain letters, numbers, underscores, and hyphens."
+          return 2
+        fi
         shift
         ;;
       *)
@@ -983,6 +1005,11 @@ _denv_init() {
   # set the default denv name to the workspace directory name
   if [ -z "${denv_name+x}" ]; then
     denv_name="$(basename "${denv_workspace}")"
+    if _denv_has_invalid_char "${denv_name}"; then
+      _denv_error "The default name for this denv '${denv_name}' taken from the name of the directory has invalid special characters." \
+        "Either rename this directory or use --name to provide a name without special characters."
+      return 2
+    fi
   fi
   # we have a clean workspace directory, lets make a new denv
   denv_image="${image}"
