@@ -113,3 +113,9 @@ teardown() {
   cd subdir
   run -1 denv init --no-over alpine:latest
 }
+
+@test "can init and run with under score in workspace name #154" {
+  run denv init --mkdir alpine:latest under_score
+  cd under_score
+  run -0 denv true
+}
