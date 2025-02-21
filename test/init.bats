@@ -42,7 +42,7 @@ teardown() {
   assert_output
 }
 
-@test "denv can init" {
+@test "can init" {
   run denv init alpine:latest
   assert_success
   assert_file_contains .denv/config "^denv_name=\"$(basename ${PWD})\"$"
@@ -54,14 +54,14 @@ teardown() {
   assert_file_contains .denv/config '^denv_env_var_set=""$'
 }
 
-@test "denv should not init twice" {
+@test "should not init twice" {
   run denv init alpine:latest
   assert_success
   run -1 denv init alpine:latest
   assert_failure
 }
 
-@test "denv can init twice with force" {
+@test "can init twice with force" {
   run denv init alpine:latest
   assert_success
   run denv init --force alpine:3.19
@@ -72,7 +72,7 @@ teardown() {
   assert_file_contains .denv/config '^denv_image="alpine:latest"$'
 }
 
-@test "denv can skip double init without force" {
+@test "can skip double init without force" {
   run denv init alpine:latest
   assert_success
   run denv init --no-over alpine:3.19
@@ -80,7 +80,7 @@ teardown() {
   assert_file_contains .denv/config '^denv_image="alpine:latest"$'
 }
 
-@test "denv should not init inside another denv" {
+@test "should not init inside another denv" {
   run denv init alpine:latest
   assert_success
   mkdir subdir
@@ -88,7 +88,7 @@ teardown() {
   run -1 denv init alpine:latest
 }
 
-@test "denv can force init inside another denv" {
+@test "can force init inside another denv" {
   run denv init alpine:latest
   assert_success
   mkdir subdir
@@ -97,16 +97,16 @@ teardown() {
   assert_success
 }
 
-@test "denv will not create new directory by default" {
+@test "will not create new directory by default" {
   run -1 denv init alpine:latest subdir
 }
 
-@test "denv can be told to create new directory by default" {
+@test "can be told to create new directory by default" {
   run denv init --mkdir alpine:latest subdir
   assert_success
 }
 
-@test "denv fails to init if it cant meet override necessity" {
+@test "fails to init if it cant meet override necessity #151" {
   run denv init alpine:3.19
   assert_success
   mkdir subdir

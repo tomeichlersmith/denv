@@ -12,7 +12,7 @@ teardown() {
   clean_tmp_work
 }
 
-@test "denv name available in denv" {
+@test "name available in denv" {
   run denv printenv DENV_NAME
   assert_success
   assert_container_output "$(basename ${PWD})"
