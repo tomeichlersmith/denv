@@ -8,10 +8,10 @@
   - [Sidebar on Operating Systems](./os-sidebar.md)
 - [Tuning the denv](./tune.md)
 - [Command Reference Manual](./manual.md)
-  - [denv](./manual/denv.md)
-  - [denv-init](./manual/denv-init.md)
-  - [denv-config](./manual/denv-config.md)
-  - [denv-check](./manual/denv-check.md)
+  - [denv](./manual/denv.1.md)
+  - [denv-init](./manual/denv-init.1.md)
+  - [denv-config](./manual/denv-config.1.md)
+  - [denv-check](./manual/denv-check.1.md)
 - [Developing the Environment](./env_dev.md)
 
 # Contributing

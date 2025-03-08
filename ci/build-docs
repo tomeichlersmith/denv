@@ -1,0 +1,26 @@
+#!/bin/sh
+# build the docs website
+# DEPENDENCIES
+#   mdbook
+#   man
+#   ul
+#   aha
+
+set -o nounset
+set -o errexit
+
+# convert a man page into a corresponding html page
+#
+# We use the '.md' suffix rather than '.html' so that mdbook still
+# processes the html into its own style with the side bar and header.
+mkdir -p docs/src/manual
+for man_page in man/man1/*; do
+  page_name="$(basename "${man_page}")"
+  output_file="docs/src/manual/${page_name}.md"
+  echo "<pre>" > "${output_file}"
+  MAN_KEEP_FORMATTING=1 COLUMNS=80 man "${man_page}" | ul | aha --no-header >> "${output_file}"
+  echo "</pre>" >> "${output_file}"
+done
+
+cd docs
+mdbook build
