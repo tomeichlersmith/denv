@@ -10,5 +10,3 @@ mathjax-support = true
 site-url = "/denv/"
 git-repository-url = "https://github.com/tomeichlersmith/denv/tree/main/"
 edit-url-template = "https://github.com/tomeichlersmith/denv/edit/main/docs/{path}"
-
-[preprocessor.cmdrun]
