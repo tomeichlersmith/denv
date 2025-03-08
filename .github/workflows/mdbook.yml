@@ -41,6 +41,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install mdBook
         run: ./ci/install-mdbook
+      - name: Install aha
+        run: sudo apt-get install aha
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
