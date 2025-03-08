@@ -43,6 +43,12 @@ jobs:
           cargo install --git https://github.com/tomeichlersmith/mdbook-cmdrun --branch 18-check-exit-status mdbook-cmdrun --locked
       - name: Install aha
         run: sudo apt install aha
+      - name: Check Necessities
+        run: |
+          aha --version
+          ul --version
+          man --version
+          mdbook --version
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
