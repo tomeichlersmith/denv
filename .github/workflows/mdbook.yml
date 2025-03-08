@@ -9,6 +9,9 @@ on:
   push:
     branches: ["main"]
     paths:
+    - '.github/workflows/mdbook.yml'
+    - 'ci/install-mdbook'
+    - 'ci/build-docs'
     - 'docs/**'
     - 'man/**'
 
@@ -41,9 +44,8 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
-      - name: Build with mdBook
-        run: mdbook build
-        working-directory: docs
+      - name: Build Docs
+        run: ./ci/build-docs
       - name: Copy install script to website
         run: cp install uninstall ./docs/book/
       - name: Check Links
