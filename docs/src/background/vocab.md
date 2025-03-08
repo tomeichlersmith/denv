@@ -22,7 +22,7 @@ They may have different definitions outside of this manual.
 - **image**: the data that can be used to launch a container with specific
   software in it. Usually, images consist of _layers_ which are created by
   running different commands within the image during the build process.
-  - Look into [Developing the Environment](./env_dev.md) to learn more
+  - Look into [Developing the Environment](../env_dev.md) to learn more
     about building images for use with `denv` in mind.
 - **workspace**: the special directory containing all of the files that are being
   worked on. This is simply a shorthand for this special directory and can, for
@@ -32,4 +32,4 @@ They may have different definitions outside of this manual.
   the user can interact. In this project, I use "container runner" and "container
   manager" interchangeably even though they aren't technically the same. The
   requirements on a "runner" to be a backend for denv are defined in
-  [Adding a new Runner](./new_runner.md).
+  [Adding a new Runner](../new_runner.md).

@@ -6,7 +6,7 @@ commitment to backwards compatibility and stability.
 Future releases will not introduce backwards incompatible changes
 that make existing denv configurations (mostly represented by the `.denv/config`
 file whose specification is in the FILES section of the 
-[denv config manual](../manual/denv-config.md)) stop working,
+[denv config manual](../manual/denv-config.1.md)) stop working,
 or break working invocations of the command-line interface.
 
 This does not, however, preclude fixing outright bugs, even if doing so might
