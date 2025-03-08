@@ -17,7 +17,7 @@ mkdir -p docs/src/manual
 for man_page in man/man1/*; do
   page_name="$(basename "${man_page}")"
   output_file="docs/src/manual/${page_name}.md"
-  MAN_KEEP_FORMATTING=1 COLUMNS=80 man -Thtml "${man_page}" > "${output_file}"
+  man -Thtml "${man_page}" > "${output_file}"
 done
 
 cd docs
