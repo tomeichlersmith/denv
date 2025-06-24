@@ -44,6 +44,9 @@ Just do it (--over) or not (--no-over).
 \f[B]\f[CB]--[no-]host-home\f[B]\f[R] don't prompt about if denv should allow a workspace
 to be the host's home directory.
 Just do it (--host-home) or not (--no-host-home).
+Since the denv and the host environment can be very different, having them share a home
+directory and the resulting configuration files (e.g. \f[C].bashrc\f[R]) is generally a bad
+idea and can lead to a lot of confusing behavior.
 .SH ARGUMENTS
 .PP
 \f[B]\f[CB]IMAGE\f[B]\f[R] the name of a container image to use when
