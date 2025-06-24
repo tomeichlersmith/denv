@@ -869,7 +869,10 @@ _denv_init_help() {
                     Instead just do it (--over) or don't do it (--no-over).
   --[no-]mkdir    : Don't ask about creating WORKSPACE if it doesn't exist.
                     Instead just do it (--mkdir) or don't (--no-mkdir).
-  --force         : alias for --over --mkdir
+  --[no-]host-home: Don't ask about allowing a denv where WORKSPACE is the host
+                    home directory. Instead just do it (--host-home) or don't
+                    (--no-host-home).
+  --force         : alias for --over --mkdir --host-home
   --name          : set a name for this denv
   --clean-env     : don't enable copying of host environment variables
                     --no-copy-all is another alias which more closely
@@ -915,6 +918,12 @@ _denv_init() {
         ;;
       --mkdir)
         mkwork=true
+        ;;
+      --host-home)
+        host_home=true
+        ;;
+      --no-host-home)
+        host_home=false
         ;;
       --name)
         if [ -z "${2+x}" ]; then
@@ -997,6 +1006,24 @@ _denv_init() {
   # if the workspace was given, we have created and entered it,
   # if it wasn't, we are already in it, so the workspace is PWD
   denv_workspace="${PWD}"
+
+  # check if workspace is the host's home directory
+  if [ "${denv_workspace}" = "${HOME}" ]; then
+    if [ -n "${host_home+x}" ]; then
+      if ${host_home}; then
+        _denv_info "Allowing a denv to exist in the host home directory as instructed by command line --host-home."
+      else
+        _denv_error "Refusing to create a denv within the host home directory."
+        return 1
+      fi
+    elif [ -n "${DENV_NOPROMPT+x}" ]; then
+      _denv_error "Refusing to create a denv within the host home directory without user input."
+      return 1;
+    elif ! _denv_user_confirm "Creating a denv within your home directory can lead to issues. Do you wish to continue?"; then
+      _denv_info "exiting without creating denv within the home directory"
+      return 0
+    fi
+  fi
 
   # create directory if it doesn't exist,
   # we need to check in case we are re-initing on top of a denv
