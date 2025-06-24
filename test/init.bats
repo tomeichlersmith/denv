@@ -129,3 +129,11 @@ teardown() {
   cd "one?two"
   run -2 denv init alpine:latest
 }
+
+@test "refuse to init in host home directory #163" {
+  # avoid permission issues and re-copying images
+  # by symlinking the local directories here
+  ln -st . ${HOME}/.cache ${HOME}/.config ${HOME}/.local
+  export HOME=${PWD}
+  run -2 denv init alpine:latest
+}
