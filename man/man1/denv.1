@@ -110,11 +110,12 @@ installed and you wish to override the default denv behavior of using
 the first runner that it finds available.
 .PP
 \f[B]DENV_NOPROMPT\f[R] disable all user prompting.
-This makes the following decisions in the places where there would be
-prompts.
+This affects the \f[B]denv init\f[R] and \f[B]denv config image\f[R] commands.
 .IP \[bu] 2
-\f[B]denv init\f[R] errors out if there is already a denv in the deduced
-workspace or if a passed workspace does not exist
+\f[B]denv init\f[R], without any special command line flags, errors out if
+there is already a denv in the deduced workspace or parent directory of the
+workspace, the passed workspace does not exist, or if the workspace is the
+home directory.
 .IP \[bu] 2
 \f[B]denv init\f[R] and \f[B]denv config image\f[R] will not pull an
 image if it already exists
