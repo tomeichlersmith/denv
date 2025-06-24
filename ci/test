@@ -122,6 +122,6 @@ for runner in ${runners}; do
       ;;
   esac
   _denv_info "Testing denv with '${runner}' ${filter_tags}"
-  # shellcheck disable=SC2068
+  # shellcheck disable=SC2086
   DENV_RUNNER="${runner}" ./test/bats/bin/bats ${filter_tags} test/
 done
