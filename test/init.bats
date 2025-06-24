@@ -135,5 +135,5 @@ teardown() {
   # by symlinking the local directories here
   ln -st . ${HOME}/.cache ${HOME}/.config ${HOME}/.local
   export HOME=${PWD}
-  run -2 denv init alpine:latest
+  run -1 denv init alpine:latest
 }
