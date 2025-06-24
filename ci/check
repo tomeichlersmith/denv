@@ -2,6 +2,13 @@
 
 fl="$(mktemp)"
 git ls-tree -r HEAD | awk '{ if ($1 == 100755 || $4 ~ /\.sh$/) print $4 }' > "${fl}"
-# shellcheck disable=SC2046
-shellcheck --color=always $(cat "${fl}")
-rm "${fl}"
+if [ -z "${GITHUB_STEP_SUMMARY+x}" ]; then
+  # no GITHUB_STEP_SUMMARY, just write to terminal
+  xargs -a "${fl}" shellcheck
+else
+  # write out a markdown step summary
+  printf "## Shellcheck\n<pre>" >> "${GITHUB_STEP_SUMMARY}"
+  xargs -a "${fl}" shellcheck | tee -a "${GITHUB_STEP_SUMMARY}"
+  printf "</pre>" >> "${GITHUB_STEP_SUMMARY}"
+fi
+rm ${fl}
