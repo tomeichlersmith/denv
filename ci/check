@@ -7,8 +7,8 @@ if [ -z "${GITHUB_STEP_SUMMARY+x}" ]; then
   xargs -a "${fl}" shellcheck
 else
   # write out a markdown step summary
-  printf "## Shellcheck\n<pre>" >> "${GITHUB_STEP_SUMMARY}"
+  printf "<pre>" >> "${GITHUB_STEP_SUMMARY}"
   xargs -a "${fl}" shellcheck | tee -a "${GITHUB_STEP_SUMMARY}"
   printf "</pre>" >> "${GITHUB_STEP_SUMMARY}"
 fi
-rm ${fl}
+rm "${fl}"
