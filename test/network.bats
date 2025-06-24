@@ -7,6 +7,8 @@ setup_file() {
   go_to_tmp_work
   denv init python
   cp -t . ${OLDPWD}/test/internet-access.py
+  # dummy command to force pull the image if it hasn't been pulled yet
+  denv true
 }
 
 setup() {

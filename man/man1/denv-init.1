@@ -10,6 +10,7 @@ denv init
 \f[B]denv init\f[R] [help|-h|--help] IMAGE [WORKSPACE]
 [--no-gitignore] [--clean-env|--no-copy-all] [--force]
 [--name NAME] [--no-mkdir|--mkdir] [--no-over|--over]
+[--no-host-home|--host-home]
 .SH OPTIONS
 .PP
 \f[B]\f[CB]--help\f[B]\f[R], \f[B]\f[CB]-h\f[B]\f[R], or
@@ -39,6 +40,13 @@ workspace directory. Just do it (--mkdir) or not (--no-mkdir).
 \f[B]\f[CB]--[no-]over\f[B]\f[R] don't prompt about if denv should overwrite
 a configuration within the workspace or override a configuration in a parent directory.
 Just do it (--over) or not (--no-over).
+.PP
+\f[B]\f[CB]--[no-]host-home\f[B]\f[R] don't prompt about if denv should allow a workspace
+to be the host's home directory.
+Just do it (--host-home) or not (--no-host-home).
+Since the denv and the host environment can be very different, having them share a home
+directory and the resulting configuration files (e.g. \f[C].bashrc\f[R]) is generally a bad
+idea and can lead to a lot of confusing behavior.
 .SH ARGUMENTS
 .PP
 \f[B]\f[CB]IMAGE\f[B]\f[R] the name of a container image to use when
