@@ -6,7 +6,7 @@ cache = true
 
 exclude = [
   # skip adobe's homepage which fails in CI
-  'https://www.adobe.com/'
+  'http://www.adobe.com/'
 ]
 
 # don't check these files
