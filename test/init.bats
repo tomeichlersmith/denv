@@ -137,3 +137,9 @@ teardown() {
   export HOME=${PWD}
   run -1 denv init alpine:latest
 }
+
+@test "prevent long idle if no TTY connected #165" {
+  # unset DENV_NOPROMPT for this test
+  unset DENV_NOPROMPT
+  run -124 timeout 2s denv init alpine:latest
+}
