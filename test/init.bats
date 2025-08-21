@@ -138,6 +138,7 @@ teardown() {
   run -1 denv init alpine:latest
 }
 
+# bats test_tags=notty
 @test "prevent long idle if no TTY connected #165" {
   # unset DENV_NOPROMPT for this test
   unset DENV_NOPROMPT
