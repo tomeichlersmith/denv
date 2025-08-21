@@ -32,7 +32,7 @@ denv_fullpath="${denv_install_dir}/denv"
 # deduce full path to entrypoint executable
 denv_entrypoint="$(dirname "${denv_fullpath}" || true)/_denv_entrypoint"
 
-if ! tty 2>&1 > /dev/null; then
+if ! tty > /dev/null 2>&1; then
   # not connected to a TTY so we should not have prompts
   DENV_NOPROMPT=1
 fi

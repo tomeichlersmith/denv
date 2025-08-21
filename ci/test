@@ -109,16 +109,16 @@ if [ -z "${runners}" ]; then
 fi
 
 for runner in ${runners}; do
-  if tty 2>&1 > /dev/null; then
+  if tty > /dev/null 2>&1; then
     _denv_info "connected to a TTY, not running tests for no-TTY"
     filter_tags="!notty"
   fi
   case "${runner}" in
     norunner)
-      filter_tags="${filter_tags}${filter_tags+,}norunner"
+      filter_tags="${filter_tags:-}${filter_tags:+,}norunner"
       ;;
     docker|podman)
-      filter_tags="${filter_tags}${filter_tags+,}!apptainer"
+      filter_tags="${filter_tags:-}${filter_tags:+,}!apptainer"
       ;;
     *)
       filter_tags=""
@@ -126,5 +126,5 @@ for runner in ${runners}; do
   esac
 
   _denv_info "Testing denv with '${runner}' ${filter_tags}"
-  DENV_RUNNER="${runner}" ./test/bats/bin/bats --filter-tags "${filter_tags}" test/
+  DENV_RUNNER="${runner}" ./test/bats/bin/bats ${filter_tags:+"--filter-tags"} "${filter_tags}" test/
 done
