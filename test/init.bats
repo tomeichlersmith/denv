@@ -144,5 +144,5 @@ teardown() {
   unset DENV_NOPROMPT
   # timeout returns 124 if needs to end the program
   # this only actually tests for no TTY when the bats test is run without a TTY
-  run -0 timeout 2s denv init alpine:lates
+  run -0 timeout 2s denv init alpine:latest
 }
