@@ -6,7 +6,7 @@ common_setup() {
   load "test_helper/bats-file/load"
 
   # disable prompt for these non-interactive tests
-  #export DENV_NOPROMPT=1
+  export DENV_NOPROMPT=1
 }
 
 go_to_tmp_work() {
