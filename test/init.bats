@@ -137,3 +137,13 @@ teardown() {
   export HOME=${PWD}
   run -1 denv init alpine:latest
 }
+
+# bats test_tags=notty
+@test "prevent long idle if no TTY connected #165" {
+  # unset DENV_NOPROMPT for this test
+  unset DENV_NOPROMPT
+  # timeout returns 124 if needs to end the program
+  # while we want denv to return 1 since it fails to create new directory without prompt or command line
+  # this only actually tests for no TTY when the bats test is run without a TTY
+  run -1 timeout 2s denv init alpine:latest non-existent-dir
+}
