@@ -57,7 +57,7 @@ jobs:
           fail: true
           args: ./docs/book --config ./docs/lychee.toml
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./docs/book
 
