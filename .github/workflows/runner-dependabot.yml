@@ -25,12 +25,12 @@ jobs:
           git config --global user.email denv-runner-bot@users.noreply.github.com
           git switch -c auto-runner-update
           git add ci/runners-to-test.json
-          git commit -m "Auto Runner Version Update" || exit 0
+          git commit --file title || exit 0
           git push -fu origin auto-runner-update
           gh pr create \
             --base main \
             --head auto-runner-update \
-            --title "Auto Runner Version Update" \
+            --title "$(cat title)" \
             --body "Written by custom dependabot script that checks for new updates. PR now free to be modified/closed."
         env:
           GH_TOKEN: ${{ github.token }}
