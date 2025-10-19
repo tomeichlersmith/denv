@@ -56,7 +56,7 @@ update() {
     > ci/runners-to-test.json.upd
   if ! diff ci/runners-to-test.json ci/runners-to-test.json.upd > /dev/null 2>&1; then
     old=$(
-      jq --arg repo "${1}" \
+      jq -r --arg repo "${1}" \
         '.include | map(select(has("track") and .track == $repo) | .version) | .[0]' \
         ci/runners-to-test.json
     )
