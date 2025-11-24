@@ -38,7 +38,7 @@ jobs:
       MDBOOK_VERSION: 0.4.45
       MDBOOK_ADMONISH_VERSION: 1.19.0 # need to re-run mdbook-admonish install if updating version
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install mdBook
         run: ./ci/install-mdbook
       - name: Install groff

@@ -22,7 +22,7 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Run ShellCheck
         run: ./ci/check
 
@@ -32,7 +32,7 @@ jobs:
     outputs:
       runners: ${{steps.read_json.outputs.runners}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - id: read_json
         run: echo "runners=$(jq -c . ci/runners-to-test.json)" >> $GITHUB_OUTPUT
 
@@ -44,7 +44,7 @@ jobs:
       matrix: ${{fromJSON(needs.list-runners-to-test.outputs.runners)}}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: 'recursive'
       - name: install singularity
@@ -64,7 +64,7 @@ jobs:
 #    runs-on: macos-latest
 #    steps:
 #      - uses: douglascamata/setup-docker-macos-action@v1-alpha
-#      - uses: actions/checkout@v5
+#      - uses: actions/checkout@v6
 #        with:
 #          submodules: 'recursive'
 #      - name: Test
