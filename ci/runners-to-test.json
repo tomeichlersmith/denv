@@ -14,7 +14,7 @@
     },
     {
       "runner": "apptainer",
-      "version": "1.4.4",
+      "version": "1.4.5",
       "track": "apptainer/apptainer"
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "runner": "sylabs",
-      "version": "4.3.4",
+      "version": "4.3.5",
       "track": "sylabs/singularity"
     }
   ]
