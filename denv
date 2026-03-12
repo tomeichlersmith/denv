@@ -274,7 +274,7 @@ _denv_run() {
       environment="$(set +o xtrace; _denv_environment_to_args --env)"
       userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
       if [ "${denv_runner}" = "podman" ]; then
-        userspec="--userns=keep-id"
+        userspec="--userns=keep-id ${userspec}"
       fi
       network="host"
       [ "${denv_network}" = "false" ] && network="none"
