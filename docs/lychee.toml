@@ -4,6 +4,9 @@
 # enable link checking to avoid rate limiting when doing many runs locally in sequence
 cache = true
 
+# consider 403 Forbidden as successful, probably just the site preventing spam bots
+accept = ["200", "403"]
+
 exclude = [
   # skip adobe's homepage which fails in CI
   'http://www.adobe.com/'
