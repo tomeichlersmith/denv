@@ -45,7 +45,7 @@ jobs:
         run: sudo apt-get install groff
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Build Docs
         run: ./ci/build-docs
       - name: Copy install script to website
