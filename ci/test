@@ -125,6 +125,6 @@ for runner in ${runners}; do
       ;;
   esac
 
-  _denv_info "Testing denv with '${runner}' ${filter_tags}"
+  _denv_info "Testing denv with '$(${runner} --version)' ${filter_tags}"
   DENV_RUNNER="${runner}" ./test/bats/bin/bats ${filter_tags:+"--filter-tags"} "${filter_tags}" test/
 done
