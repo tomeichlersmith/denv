@@ -57,7 +57,7 @@ teardown() {
 
 prep_image() {
   case "${DENV_RUNNER}" in
-    singularity|apptainer)
+    *singularity|*apptainer)
       ${DENV_RUNNER} build image.sif docker://${1}
       echo "$(pwd -P)/image.sif"
       ;;

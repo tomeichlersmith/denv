@@ -117,7 +117,7 @@ for runner in ${runners}; do
     norunner)
       filter_tags="${filter_tags:-}${filter_tags:+,}norunner"
       ;;
-    docker|podman)
+    *docker|*podman)
       filter_tags="${filter_tags:-}${filter_tags:+,}!apptainer"
       ;;
     *)
