@@ -20,10 +20,10 @@ teardown() {
 
 @test "can invalidate cache and then run" {
   case "${DENV_RUNNER}" in
-    apptainer)
+    *apptainer)
       cache=${APPTAINER_CACHEDIR:-${HOME}/.apptainer/cache}
       ;;
-    singularity)
+    *singularity)
       cache=${SINGULARITY_CACHEDIR:-${HOME}/.singularity/cache}
       ;;
     *)
