@@ -54,9 +54,9 @@ jobs:
         run: |
           installed_runner=${{ matrix.runner }}
           if [ "${installed_runner}" = "sylabs" ]; then
-            ./ci/test singularity
+            ./ci/test singularity $(which singularity)
           else
-            ./ci/test "${installed_runner}"
+            ./ci/test "${installed_runner}" $(which "${installed_runner}")
           fi
 
 #  test-macos:
