@@ -53,6 +53,7 @@ jobs:
       - name: run tests
         run: |
           installed_runner=${{ matrix.runner }}
+          # test both the short command name and the full path #180
           if [ "${installed_runner}" = "sylabs" ]; then
             ./ci/test singularity $(which singularity)
           else
