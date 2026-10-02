@@ -8,7 +8,10 @@ setup_file() {
   wget -q -O - \
     https://github.com/tomeichlersmith/denv/archive/refs/tags/v1.0.0.tar.gz |\
     tar xzf -
-  ./denv-1.0.0/denv init alpine:latest
+  # use whatever default choice is determined from v1.0.0
+  # can't use parent definition of DENV_RUNNER because v1.0.0
+  # doesn't support the same runners under test
+  env -u DENV_RUNNER ./denv-1.0.0/denv init alpine:latest
 }
 
 @test "able to run denv created with v1.0.0" {

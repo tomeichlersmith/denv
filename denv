@@ -134,7 +134,7 @@ _denv_has_invalid_char() {
 # 1. _denv_runner : print name and version of runner to stdout
 _denv_runner() {
   case "${denv_runner}" in
-    docker|podman|apptainer|singularity)
+    *docker|*podman|*apptainer|*singularity)
       ${denv_runner} --version
       ;;
     norunner)
@@ -152,12 +152,12 @@ _denv_runner() {
 _denv_image_exists() {
   _denv_info "checking if ${denv_image} exists"
   case "${denv_runner}" in
-    docker|podman)
+    *docker|*podman)
       images_matching_tag="$(${denv_runner} images -q "${denv_image}" 2> /dev/null)"
       test -n "${images_matching_tag}"
       return $?
       ;;
-    apptainer|singularity)
+    *apptainer|*singularity)
       if [ -z "${denv_image_cache+x}" ]; then
         test -e "${denv_image}"
         return $?
@@ -187,10 +187,10 @@ _denv_image_exists() {
 _denv_pull() {
   _denv_info "pulling ${denv_image}"
   case "${denv_runner}" in
-    docker|podman)
+    *docker|*podman)
       ${denv_runner} pull "${denv_image}"
       ;;
-    apptainer|singularity)
+    *apptainer|*singularity)
       [ -d "${denv_image_cache}" ] || mkdir -p "${denv_image_cache}"
       sif_file="${denv_image_cache}/$(_denv_image_to_filename).sif"
       if [ -e "${denv_image}" ]; then
@@ -206,7 +206,7 @@ _denv_pull() {
         # using the docker:// registry as default
         image_full="${denv_image}"
         echo "${denv_image}" | grep -v '://' && image_full="docker://${denv_image}"
-        if [ "${denv_runner}" = "apptainer" ]; then
+        if [ "${denv_runner##*/}" = "apptainer" ]; then
           container_env_var="APPTAINER_CONTAINER"
         else
           container_env_var="SINGULARITY_CONTAINER"
@@ -256,7 +256,7 @@ _denv_run() {
   fi
   denv_mounts="${denv_mounts} ${denv_entrypoint}"
   case "${denv_runner}" in
-    docker|podman)
+    *docker|*podman)
       interactive=""
       if tty -s; then
         interactive="--interactive --tty"
@@ -273,7 +273,7 @@ _denv_run() {
       fi
       environment="$(set +o xtrace; _denv_environment_to_args --env)"
       userspec="--user $(id -u "${USER}"):$(id -g "${USER}")"
-      if [ "${denv_runner}" = "podman" ]; then
+      if [ "${denv_runner##*/}" = "podman" ]; then
         userspec="--userns=keep-id ${userspec}"
       fi
       network="host"
@@ -292,7 +292,7 @@ _denv_run() {
         "${denv_image}" \
         "$@"
       ;;
-    apptainer|singularity)
+    *apptainer|*singularity)
       # apptainer/singularity do not pull automatically when attempting to run
       _denv_config_checked_pull DO_NOT_PROMPT_USER
       mounts="$(set +o xtrace; _denv_mounts_to_args "--bind")"
@@ -457,7 +457,7 @@ _denv_deduce_environment() {
   #   as the X11 applications launched outside a container on the host
   # - HOME for mapping home directory in denv to workspace
   _display="${DISPLAY:-:0}"
-  if [ "$(uname)" = "Darwin" ] && [ "${denv_runner}" = "docker" ]; then
+  if [ "$(uname)" = "Darwin" ] && [ "${denv_runner##/*}" = "docker" ]; then
     # use the special value for docker to signal that we are attempting
     # to connect to a host service from within the container
     # https://docs.docker.com/desktop/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host
@@ -471,7 +471,7 @@ _denv_deduce_environment() {
   denv_environment="${denv_environment} DENV_RUNNER=${denv_runner}"
   denv_environment="${denv_environment} DENV_IMAGE=${denv_image}"
   case "${denv_runner}" in
-    singularity|apptainer)
+    *singularity|*apptainer)
       # should /not/ pass the HOME environment variable
       # the program handles that when using the --home flag at run time
       ;;
@@ -1192,7 +1192,7 @@ _denv_check() {
           ;;
       esac
       if ${denv_runner_defined}; then
-        if [ "${possible}" = "${DENV_RUNNER}" ]; then
+        if [ "${possible}" = "${DENV_RUNNER##*/}" ]; then
           denv_runner_matched=true
           ${quiet_inf} || printf "\033[32;1m <- DENV_RUNNER\033[0m"
         fi
